@@ -141,6 +141,17 @@
         color: #0f172a !important;
         border-color: #cbd5e1 !important;
       }
+      :root:not(.dark) span[id$="Count"] {
+        background-color: #e2e8f0 !important;
+        color: #0f172a !important;
+      }
+      :root:not(.dark) #togglePayoutCalcLabel {
+        background-color: #ffffff !important;
+        border-color: #cbd5e1 !important;
+      }
+      :root:not(.dark) #togglePayoutCalcLabel span {
+        color: #0f172a !important;
+      }
       :root:not(.dark) .border-t-slate-800\/80 {
         border-color: #e2e8f0 !important;
       }
@@ -207,11 +218,17 @@
         <p class="text-slate-400 text-sm mt-1">Đối tác quản trị, tổng hợp và thanh toán số liệu đại lý chuyên nghiệp</p>
       </div>
       <div class="flex items-center gap-3">
-        <button id="btnShorthandHelp" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all text-sm font-semibold flex items-center gap-1.5 border border-indigo-500/40" title="Hướng dẫn nhập tắt">
+        <!-- Tính thưởng Toggle -->
+        <label id="togglePayoutCalcLabel" class="relative inline-flex items-center cursor-pointer select-none bg-slate-800/80 hover:bg-slate-700/60 px-4 py-2.5 rounded-xl border border-slate-700/40 transition-all text-xs font-bold gap-2">
+          <input type="checkbox" id="togglePayoutCalc" class="sr-only peer">
+          <span class="text-slate-300 peer-checked:text-indigo-400 transition-colors">🏆 Tính thưởng</span>
+          <div class="w-8 h-4 bg-slate-600 rounded-full relative peer peer-checked:bg-indigo-500 transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+        </label>
+        <button id="btnShorthandHelp" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 border border-indigo-500/40" title="Hướng dẫn nhập tắt">
           📖 Nhập tắt
         </button>
-        <button id="btnThemeToggle" class="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-all text-sm font-semibold flex items-center justify-center border border-slate-700/40" title="Chuyển chế độ Sáng/Tối">
-          <span id="themeToggleIcon" class="text-base">☀️</span>
+        <button id="btnThemeToggle" class="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-all text-xs font-bold flex items-center justify-center border border-slate-700/40" title="Chuyển chế độ Sáng/Tối">
+          <span id="themeToggleIcon" class="text-xs">☀️</span>
         </button>
       </div>
     </header>
@@ -252,7 +269,7 @@
         <div id="layoffPlaceholderMobile" class="space-y-6"></div>
 
         <!-- Lottery Results Input & Fetch Card -->
-        <div class="glass-panel p-6">
+        <div id="resultsContainer" class="glass-panel p-6 hidden">
           <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
             <h2 class="text-lg font-semibold text-indigo-300 flex items-center gap-2">
               🏆 Kết Quả Xổ Số Miền Bắc
@@ -326,7 +343,7 @@
 
 
         <!-- Rates Configuration Card -->
-        <div class="glass-panel p-6">
+        <div id="ratesConfigContainer" class="glass-panel p-6 hidden">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold text-indigo-300 flex items-center gap-2">
               ⚙️ Thiết Lập Hoa Hồng & Tiền Thưởng
@@ -342,8 +359,8 @@
               <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🔴 Số Đề</h3>
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-[11px] text-slate-400 mb-1">Hoa hồng (%)</label>
-                  <input type="number" id="rateDeComm" value="18" min="0" max="100" class="input-premium text-center text-xs">
+                  <label class="block text-[11px] text-slate-400 mb-1">Giá gốc (%)</label>
+                  <input type="number" id="rateDeComm" value="82" min="0" max="100" class="input-premium text-center text-xs">
                 </div>
                 <div>
                   <label class="block text-[11px] text-slate-400 mb-1">Thưởng (1 ăn...)</label>
@@ -372,8 +389,8 @@
               <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🟢 Lô Xiên (Xiên 2, 3, 4)</h3>
               <div class="grid grid-cols-4 gap-2 mb-2">
                 <div class="col-span-4">
-                  <label class="block text-[11px] text-slate-400 mb-1">Hoa hồng (%)</label>
-                  <input type="number" id="rateXienComm" value="35" min="0" max="100" class="input-premium text-center text-xs">
+                  <label class="block text-[11px] text-slate-400 mb-1">Giá gốc (%)</label>
+                  <input type="number" id="rateXienComm" value="65" min="0" max="100" class="input-premium text-center text-xs">
                 </div>
               </div>
               <div class="grid grid-cols-3 gap-2">
@@ -397,8 +414,8 @@
               <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🟣 Ba Càng Đề & Lô</h3>
               <div class="grid grid-cols-2 gap-3 mb-2">
                 <div>
-                  <label class="block text-[11px] text-slate-400 mb-1">3C Đề HH (%)</label>
-                  <input type="number" id="rate3CComm" value="25" min="0" max="100" class="input-premium text-center text-xs">
+                  <label class="block text-[11px] text-slate-400 mb-1">3C Đề Giá gốc (%)</label>
+                  <input type="number" id="rate3CComm" value="75" min="0" max="100" class="input-premium text-center text-xs">
                 </div>
                 <div>
                   <label class="block text-[11px] text-slate-400 mb-1">3C Đề (1 ăn...)</label>
@@ -526,12 +543,12 @@
           
           <!-- Financial Figures -->
           <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div class="bg-[#0e1424]/60 p-3 rounded-xl border border-slate-800">
+            <div id="grandSummaryGrid" class="grid grid-cols-2 gap-4">
+              <div id="summaryTotalCostCard" class="bg-[#0e1424]/60 p-3 rounded-xl border border-slate-800 col-span-2">
                 <span class="text-xs text-slate-400 block mb-0.5">Tổng vốn cược (Thực thu)</span>
                 <span id="summaryTotalCost" class="text-xl font-bold text-slate-200">0</span>
               </div>
-              <div class="bg-[#0e1424]/60 p-3 rounded-xl border border-slate-800">
+              <div id="summaryWinningsContainer" class="bg-[#0e1424]/60 p-3 rounded-xl border border-slate-800 hidden">
                 <span class="text-xs text-slate-400 block mb-0.5">Tổng tiền trúng giải</span>
                 <span id="summaryTotalWinnings" class="text-xl font-bold text-emerald-400">0</span>
               </div>
@@ -554,14 +571,14 @@
             </div>
 
             <!-- Net Result Banner -->
-            <div id="netResultContainer" class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-center">
+            <div id="netResultContainer" class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-center hidden">
               <span class="text-xs text-slate-400 block mb-1">Kết quả lời / lỗ của thầu</span>
               <span id="summaryNetValue" class="text-3xl font-extrabold text-slate-200">0</span>
               <span id="summaryNetLabel" class="block text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">HÒA VỐN</span>
             </div>
 
             <!-- In Words -->
-            <div class="text-xs bg-[#0e1424]/40 p-3 rounded-xl border border-slate-800/60 italic text-slate-400">
+            <div class="hidden text-xs bg-[#0e1424]/40 p-3 rounded-xl border border-slate-800/60 italic text-slate-400">
               <span class="font-semibold block not-italic text-[10px] text-slate-500 uppercase tracking-wider mb-1">Bằng chữ</span>
               <span id="summaryInWords">...</span>
             </div>
@@ -658,7 +675,7 @@
   <!-- Hidden Printable Report for html2canvas -->
   <div id="hiddenReportPrintArea" class="fixed -left-[9999px] top-0 bg-[#0b0f19] text-slate-200 p-8 rounded-2xl w-[600px] border border-slate-800 shadow-2xl space-y-6">
     <div class="text-center border-b border-slate-800 pb-4">
-      <h1 class="text-2xl font-bold text-indigo-400 uppercase tracking-wide">Báo Cáo Thu Chi Thầu</h1>
+      <h1 id="printReportTitle" class="text-2xl font-bold text-indigo-400 uppercase tracking-wide">Báo Cáo Thu Chi Thầu</h1>
       <p id="printReportDate" class="text-xs text-slate-400 mt-1">...</p>
     </div>
     
@@ -666,8 +683,8 @@
       <thead>
         <tr class="border-b border-slate-800 text-slate-400 text-left">
           <th class="py-2">Loại hình</th>
-          <th class="py-2 text-right">Tổng Vốn (đ)</th>
-          <th class="py-2 text-right">Tiền Trúng (đ)</th>
+          <th class="py-2 text-right">Vốn</th>
+          <th id="printReportHeaderWinnings" class="py-2 text-right">Trúng</th>
         </tr>
       </thead>
       <tbody id="printReportTableBody">
@@ -678,21 +695,22 @@
     <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800 text-center space-y-1">
       <span class="text-xs text-slate-400 block">KẾT QUẢ CUỐI CÙNG</span>
       <span id="printReportNetValue" class="text-2xl font-black text-slate-100">0</span>
-      <span id="printReportNetLabel" class="block text-xs font-bold text-slate-500">...</span>
+      <span id="printReportNetLabel" class="block text-xs font-bold text-slate-500 uppercase tracking-wider">...</span>
     </div>
 
-    <div class="text-xs bg-[#0e1424]/40 p-3 rounded-xl border border-slate-800/60 italic text-slate-400">
+    <div id="printReportInWordsContainer" class="hidden text-xs bg-[#0e1424]/40 p-3 rounded-xl border border-slate-800/60 italic text-slate-400">
       <span class="font-semibold block not-italic text-[10px] text-slate-500 uppercase tracking-wider mb-1">Bằng chữ</span>
       <span id="printReportInWords">...</span>
-    </div>
-
-    <div class="text-center text-[10px] text-slate-600 border-t border-slate-900 pt-4">
-      © 2026 Premium Zeng86
     </div>
   </div>
 
   <!-- Client-side Javascript Logic -->
   <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      alert("Lỗi JavaScript: " + message + "\nTại dòng: " + lineno);
+      return false;
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       // Dark/Light Theme Toggle
       const htmlElement = document.documentElement;
@@ -826,11 +844,34 @@
           layoffOutputContainer.classList.remove('hidden');
           breakdownContainer.classList.remove('hidden');
         }
+
+        // Auto recalculate if there is input
+        if (document.getElementById('combinedBetInput').value.trim()) {
+          calculateLottoReport();
+        }
       };
 
       btnLayoffModeNone.addEventListener('click', () => setLayoffMode('none'));
       btnLayoffModePercent.addEventListener('click', () => setLayoffMode('percent'));
       btnLayoffModeLimit.addEventListener('click', () => setLayoffMode('limit'));
+
+      // Auto recalculate on limit input changes
+      document.querySelectorAll('#layoffPercentInput, #layoffLimitDe, #layoffLimitLo, #layoffLimitXien, #layoffLimit3C').forEach(input => {
+        input.addEventListener('input', () => {
+          if (document.getElementById('combinedBetInput').value.trim()) {
+            calculateLottoReport();
+          }
+        });
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            input.blur();
+            if (document.getElementById('combinedBetInput').value.trim()) {
+              calculateLottoReport();
+            }
+          }
+        });
+      });
 
       btnCopyLayoff.addEventListener('click', () => {
         layoffOutputText.select();
@@ -839,6 +880,39 @@
         }).catch(err => {
           console.error("Lỗi copy phần chuyển đi:", err);
         });
+      });
+
+      // Toggle Payout Calculations and related sections
+      const togglePayoutCalc = document.getElementById('togglePayoutCalc');
+      const resultsContainer = document.getElementById('resultsContainer');
+      const ratesConfigContainer = document.getElementById('ratesConfigContainer');
+      const summaryWinningsContainer = document.getElementById('summaryWinningsContainer');
+      const summaryTotalCostCard = document.getElementById('summaryTotalCostCard');
+      const netResultContainer = document.getElementById('netResultContainer');
+
+      togglePayoutCalc.addEventListener('change', () => {
+        const isChecked = togglePayoutCalc.checked;
+        
+        if (isChecked) {
+          resultsContainer.classList.remove('hidden');
+          ratesConfigContainer.classList.remove('hidden');
+          summaryWinningsContainer.classList.remove('hidden');
+          summaryTotalCostCard.classList.remove('col-span-2');
+          if (window.lastCalculatedBets) {
+            netResultContainer.classList.remove('hidden');
+          }
+        } else {
+          resultsContainer.classList.add('hidden');
+          ratesConfigContainer.classList.add('hidden');
+          summaryWinningsContainer.classList.add('hidden');
+          summaryTotalCostCard.classList.add('col-span-2');
+          netResultContainer.classList.add('hidden');
+        }
+
+        // Recalculate if there is input
+        if (document.getElementById('combinedBetInput').value.trim()) {
+          calculateLottoReport();
+        }
       });
 
       // Report view toggles state and elements
@@ -962,15 +1036,15 @@
 
       // Reset rates to default
       btnResetRates.addEventListener('click', () => {
-        rateDeComm.value = 18;
+        rateDeComm.value = 82;
         rateDePayout.value = 80;
         rateLoCost.value = 23000;
         rateLoPayout.value = 80000;
-        rateXienComm.value = 35;
+        rateXienComm.value = 65;
         rateXien2Payout.value = 15;
         rateXien3Payout.value = 50;
         rateXien4Payout.value = 120;
-        rate3CComm.value = 25;
+        rate3CComm.value = 75;
         rate3CPayout.value = 400;
         rate3CApMa.value = 5;
         rate3CLoCost.value = 23000;
@@ -1218,7 +1292,9 @@
         segments.forEach(seg => {
           if (!/^\d+$/.test(seg)) return;
           if (betType === 'de' || betType === 'lo') {
-            if (seg.length === 2) {
+            if (seg.length === 1) {
+              numbers.push('0' + seg);
+            } else if (seg.length === 2) {
               numbers.push(seg);
             } else if (seg.length === 3) {
               numbers.push(seg.substring(0, 2));
@@ -1405,12 +1481,60 @@
         "ditto": "05.06.07.08.09.15.16.17.18.19.25.26.27.28.29.35.36.37.38.39.45.46.47.48.49.55.56.57.58.59.65.66.67.68.69.75.76.77.78.79.85.86.87.88.89.95.96.97.98.99"
       };
 
+      function normalizeShorthandToken(token) {
+        let t = token.trim().toLowerCase();
+        
+        // 1. dau5 -> d5
+        const dauMatch = t.match(/^dau(\d)$/);
+        if (dauMatch) {
+          return 'd' + dauMatch[1];
+        }
+
+        // 2. dit5 -> d'5
+        const ditMatch = t.match(/^dit(\d)$/);
+        if (ditMatch) {
+          return "d'" + ditMatch[1];
+        }
+
+        // 3. he05 or bo05 -> h05 (with padding)
+        const heBoMatch = t.match(/^(he|bo)(\d{1,2})$/);
+        if (heBoMatch) {
+          let num = heBoMatch[2];
+          if (num.length === 1) num = '0' + num;
+          return 'h' + num;
+        }
+
+        // 4. Custom alias mapping
+        const aliases = {
+          'chanle': 'cl',
+          'lechan': 'lc',
+          'chanchan': 'cc',
+          'lele': 'll',
+          'dc': 'dauchan',
+          'dl': 'daule',
+          'dt': 'dauto',
+          'db': 'daube',
+          'tb': 'tobe',
+          'tt': 'toto',
+          'bt': 'beto',
+          'bb': 'bebe',
+          'tc': 'tongchan',
+          'tl': 'tongle'
+        };
+
+        if (aliases[t]) {
+          return aliases[t];
+        }
+
+        return t;
+      }
+
       function resolveShorthands(numbersString) {
         const parts = numbersString.split(/([.,\-\s]+)/);
         const resolvedParts = parts.map(part => {
-          const trimmedLower = part.trim().toLowerCase();
-          if (shorthands[trimmedLower]) {
-            return shorthands[trimmedLower];
+          const normalized = normalizeShorthandToken(part);
+          if (shorthands[normalized]) {
+            return shorthands[normalized];
           }
           return part;
         });
@@ -1419,9 +1543,11 @@
 
       // Mixed Bet Input Parser
       function parseCombinedInput(inputString) {
+        // Preprocess curly/smart single quotes from mobile keyboards
+        let processedInput = inputString.replace(/[’‘ʼ＇`]/g, "'");
+
         // Preprocess same-line category keywords
-        let processedInput = inputString;
-        const sameLinePattern = /[\s,;]+\b(đề|de|lô|lo|xiên|xien|x2|x3|x4|3càng|3cang|3c|3clô|3clo|3cl)\b|[\s,;]+\b(d|l)\b(?=\s+\d)/gi;
+        const sameLinePattern = /[\s,;]+\b(đề|de|lô|lo|xiên|xien|x|x2|x3|x4)\b|[\s,;]+\b(3càng|3cang|3c|3clô|3clo|3cl)\b|[\s,;]+\b(d|l)\b(?=\s+\d)/gi;
         processedInput = processedInput.replace(sameLinePattern, (match) => {
           const cleanedKeyword = match.replace(/^[\s,;]+/g, '').trim();
           return "\n" + cleanedKeyword;
@@ -1446,36 +1572,69 @@
           bacang_lo: /^(3clô|3clo|3cl)$/i
         };
 
+        let activeCategory = 'de'; // Default category
+
         lines.forEach(line => {
-          const trimmed = line.trim();
+          let trimmed = line.trim();
           if (!trimmed) return;
 
-          const match = trimmed.match(/^([a-zA-Z0-9đĐêÊôÔâÂăĂưƯơƠíÍáÁảẢạẠãÃóÓỏỎọỌõÕúÚủỦụỤũŨýÝ]+)\s+(.*)$/);
-          if (!match) return;
+          let lineType = '';
 
-          const rawType = match[1].toLowerCase();
-          const content = match[2];
+          // 1. Check space-separated category keyword
+          const spaceMatch = trimmed.match(/^(đề|de|lô|lo|xiên|xien|x|x2|x3|x4|3càng|3cang|3c|3clô|3clo|3cl|d|l)\s+(.*)$/i);
+          if (spaceMatch) {
+            const rawType = spaceMatch[1].toLowerCase();
+            if (typeRegex.de.test(rawType)) lineType = 'de';
+            else if (typeRegex.lo.test(rawType)) lineType = 'lo';
+            else if (typeRegex.xien.test(rawType)) lineType = 'xien';
+            else if (typeRegex.bacang.test(rawType)) lineType = 'bacang';
+            else if (typeRegex.bacang_lo.test(rawType)) lineType = 'bacang_lo';
 
-          let normalizedType = '';
-          if (typeRegex.de.test(rawType)) normalizedType = 'de';
-          else if (typeRegex.lo.test(rawType)) normalizedType = 'lo';
-          else if (typeRegex.xien.test(rawType)) normalizedType = 'xien';
-          else if (typeRegex.bacang.test(rawType)) normalizedType = 'bacang';
-          else if (typeRegex.bacang_lo.test(rawType)) normalizedType = 'bacang_lo';
-          else return;
+            if (lineType) {
+              activeCategory = lineType;
+              trimmed = spaceMatch[2].trim();
+            }
+          } else {
+            // 2. Check directly concatenated category keyword (e.g. l565+10 or 3c564+10)
+            const isConcatLo = trimmed.match(/^l(\d+)/i);
+            if (isConcatLo) {
+              activeCategory = 'lo';
+              lineType = 'lo';
+              trimmed = trimmed.substring(1).trim();
+            } else {
+              const isConcat3c = trimmed.match(/^3c(\d+)/i);
+              if (isConcat3c) {
+                activeCategory = 'bacang';
+                lineType = 'bacang';
+                trimmed = trimmed.substring(2).trim();
+              } else {
+                const isConcat3cl = trimmed.match(/^3cl(\d+)/i);
+                if (isConcat3cl) {
+                  activeCategory = 'bacang_lo';
+                  lineType = 'bacang_lo';
+                  trimmed = trimmed.substring(3).trim();
+                }
+              }
+            }
+          }
 
-          const groupRegex = /([a-z0-9'.,\-\s]+)([x+*])(\d+)(?:\s*|$)/gi;
+          if (!lineType) {
+            lineType = activeCategory;
+          }
+
+          // Parse number groups on this line
+          const groupRegex = /([a-wy-z0-9'.,\-\s]+)([x+*])(\d+)/gi;
           let groupMatch;
-          while ((groupMatch = groupRegex.exec(content)) !== null) {
+          while ((groupMatch = groupRegex.exec(trimmed)) !== null) {
             const rawNumString = groupMatch[1].trim();
             const amount = parseFloat(groupMatch[3]);
             if (amount <= 0 || isNaN(amount)) continue;
 
             const numString = resolveShorthands(rawNumString);
-            const numbers = parseNumbersFromBetString(numString, normalizedType);
+            const numbers = parseNumbersFromBetString(numString, lineType);
             if (numbers.length === 0) continue;
 
-            if (normalizedType === 'xien') {
+            if (lineType === 'xien') {
               if (numbers.length >= 2 && numbers.length <= 4) {
                 parsedBets[`xien${numbers.length}`].push({
                   numbers: numbers,
@@ -1484,7 +1643,7 @@
               }
             } else {
               numbers.forEach(num => {
-                parsedBets[normalizedType].push({
+                parsedBets[lineType].push({
                   numbers: [num],
                   amount: amount
                 });
@@ -1613,11 +1772,6 @@
         const specialPrizeRaw = specialPrizeInput.value.trim();
         const allPrizesRaw = allPrizesInput.value.trim();
 
-        if (!specialPrizeRaw || !allPrizesRaw) {
-          alert("Vui lòng tải kết quả xổ số hoặc nhập thủ công trước khi tính toán!");
-          return;
-        }
-
         const parsedBetsOriginal = parseCombinedInput(inputString);
         console.log("Parsed Bets Original:", parsedBetsOriginal);
 
@@ -1658,25 +1812,172 @@
           const baCangLoCost = parseFloat(rate3CLoCost.value) || 0;
 
           const calculateTotalCost = (bets) => {
-            let deCostSum = bets.de.reduce((sum, b) => sum + b.amount * (1 - deComm / 100), 0);
+            let deCostSum = bets.de.reduce((sum, b) => sum + b.amount * (deComm / 100), 0);
             let loCostSum = bets.lo.reduce((sum, b) => sum + b.amount * (loCost / 1000), 0);
-            let xienCostSum = [...bets.xien2, ...bets.xien3, ...bets.xien4].reduce((sum, b) => sum + b.amount * (1 - xienComm / 100), 0);
-            let baCangCostSum = bets.bacang.reduce((sum, b) => sum + b.amount * (1 - baCangComm / 100), 0);
+            let xienCostSum = [...bets.xien2, ...bets.xien3, ...bets.xien4].reduce((sum, b) => sum + b.amount * (xienComm / 100), 0);
+            let baCangCostSum = bets.bacang.reduce((sum, b) => sum + b.amount * (baCangComm / 100), 0);
             let baCangLoCostSum = bets.bacang_lo.reduce((sum, b) => sum + b.amount * (baCangLoCost / 1000), 0);
             return deCostSum + loCostSum + xienCostSum + baCangCostSum + baCangLoCostSum;
+          };
+
+          const calculateTotalWinnings = (bets) => {
+            const dePayout = parseFloat(rateDePayout.value) || 0;
+            const loPayout = parseFloat(rateLoPayout.value) || 0;
+            const xien2Payout = parseFloat(rateXien2Payout.value) || 0;
+            const xien3Payout = parseFloat(rateXien3Payout.value) || 0;
+            const xien4Payout = parseFloat(rateXien4Payout.value) || 0;
+            const baCangPayout = parseFloat(rate3CPayout.value) || 0;
+            const baCangApMa = parseFloat(rate3CApMa.value) || 0;
+            const baCangLoPayout = parseFloat(rate3CLoPayout.value) || 0;
+
+            const specialPrizeRaw = specialPrizeInput.value.trim();
+            const allPrizesRaw = allPrizesInput.value.trim();
+            const specialPrizeLast2 = specialPrizeRaw ? specialPrizeRaw.slice(-2) : "";
+            const specialPrizeLast3 = specialPrizeRaw ? specialPrizeRaw.slice(-3) : "";
+            const allPrizes = allPrizesRaw ? allPrizesRaw.split(/[\s,]+/).filter(Boolean) : [];
+            const allPrizesLast2 = allPrizes.map(p => p.slice(-2));
+            const allPrizesLast3 = allPrizes.filter(p => p.length >= 3).map(p => p.slice(-3));
+
+            let deWin = bets.de.reduce((sum, bet) => {
+              const isMatch = bet.numbers[0] === specialPrizeLast2;
+              return sum + (isMatch ? bet.amount * dePayout : 0);
+            }, 0);
+
+            let loWin = bets.lo.reduce((sum, bet) => {
+              const occurrences = allPrizesLast2.filter(p => p === bet.numbers[0]).length;
+              return sum + (occurrences * bet.amount * (loPayout / 1000));
+            }, 0);
+
+            let xienBets = [...bets.xien2, ...bets.xien3, ...bets.xien4];
+            let xienWin = xienBets.reduce((sum, bet) => {
+              const size = bet.numbers.length;
+              const winRate = size === 2 ? xien2Payout : (size === 3 ? xien3Payout : xien4Payout);
+              const allHit = bet.numbers.every(num => allPrizesLast2.includes(num));
+              return sum + (allHit ? bet.amount * winRate : 0);
+            }, 0);
+
+            let baCangWin = bets.bacang.reduce((sum, bet) => {
+              const match3 = bet.numbers[0] === specialPrizeLast3;
+              const match2 = bet.numbers[0].slice(-2) === specialPrizeLast2;
+              let win = 0;
+              if (match3) win = bet.amount * baCangPayout;
+              else if (match2) win = bet.amount * baCangApMa;
+              return sum + win;
+            }, 0);
+
+            let baCangLoWin = bets.bacang_lo.reduce((sum, bet) => {
+              const occurrences = allPrizesLast3.filter(p => p === bet.numbers[0]).length;
+              return sum + (occurrences * bet.amount * (baCangLoPayout / 1000));
+            }, 0);
+
+            return deWin + loWin + xienWin + baCangWin + baCangLoWin;
           };
 
           const costReceived = calculateTotalCost(parsedBetsOriginal);
           const costTransferred = calculateTotalCost(transferred);
           const costRetained = calculateTotalCost(retained);
 
-          document.getElementById('breakdownReceived').innerText = Math.round(costReceived * 1000).toLocaleString('vi-VN') + "đ";
-          document.getElementById('breakdownTransferred').innerText = Math.round(costTransferred * 1000).toLocaleString('vi-VN') + "đ";
-          document.getElementById('breakdownRetained').innerText = Math.round(costRetained * 1000).toLocaleString('vi-VN') + "đ";
+          if (togglePayoutCalc.checked) {
+            const winReceived = calculateTotalWinnings(parsedBetsOriginal);
+            const winTransferred = calculateTotalWinnings(transferred);
+            const winRetained = calculateTotalWinnings(retained);
+
+            document.getElementById('breakdownReceived').innerText = Math.round(costReceived).toLocaleString('vi-VN') + "đ / " + Math.round(winReceived).toLocaleString('vi-VN') + "đ";
+            document.getElementById('breakdownTransferred').innerText = Math.round(costTransferred).toLocaleString('vi-VN') + "đ / " + Math.round(winTransferred).toLocaleString('vi-VN') + "đ";
+            document.getElementById('breakdownRetained').innerText = Math.round(costRetained).toLocaleString('vi-VN') + "đ / " + Math.round(winRetained).toLocaleString('vi-VN') + "đ";
+          } else {
+            document.getElementById('breakdownReceived').innerText = Math.round(costReceived).toLocaleString('vi-VN') + "đ";
+            document.getElementById('breakdownTransferred').innerText = Math.round(costTransferred).toLocaleString('vi-VN') + "đ";
+            document.getElementById('breakdownRetained').innerText = Math.round(costRetained).toLocaleString('vi-VN') + "đ";
+          }
         }
 
         // Render report for active view mode
         renderLottoReport(window.lastCalculatedBets[currentViewMode]);
+      }
+
+      function getReportSummaryDetails(parsedBets) {
+        const dePayout = parseFloat(rateDePayout.value) || 0;
+        const loPayout = parseFloat(rateLoPayout.value) || 0;
+        const xien2Payout = parseFloat(rateXien2Payout.value) || 0;
+        const xien3Payout = parseFloat(rateXien3Payout.value) || 0;
+        const xien4Payout = parseFloat(rateXien4Payout.value) || 0;
+        const baCangPayout = parseFloat(rate3CPayout.value) || 0;
+        const baCangApMa = parseFloat(rate3CApMa.value) || 0;
+        const baCangLoPayout = parseFloat(rate3CLoPayout.value) || 0;
+
+        const specialPrizeRaw = specialPrizeInput.value.trim();
+        const allPrizesRaw = allPrizesInput.value.trim();
+        const specialPrizeLast2 = specialPrizeRaw ? specialPrizeRaw.slice(-2) : "";
+        const specialPrizeLast3 = specialPrizeRaw ? specialPrizeRaw.slice(-3) : "";
+        const allPrizes = allPrizesRaw ? allPrizesRaw.split(/[\s,]+/).filter(Boolean) : [];
+        const allPrizesLast2 = allPrizes.map(p => p.slice(-2));
+        const allPrizesLast3 = allPrizes.filter(p => p.length >= 3).map(p => p.slice(-3));
+
+        // --- Đề ---
+        let deXac = 0;
+        let deTrung = 0;
+        parsedBets.de.forEach(bet => {
+          deXac += bet.amount * 1000;
+          const isMatch = bet.numbers[0] === specialPrizeLast2;
+          if (isMatch) {
+            deTrung += bet.amount * dePayout * 1000;
+          }
+        });
+
+        // --- Lô ---
+        let loXacPoints = 0;
+        let loTrungPoints = 0;
+        parsedBets.lo.forEach(bet => {
+          loXacPoints += bet.amount;
+          const occurrences = allPrizesLast2.filter(p => p === bet.numbers[0]).length;
+          loTrungPoints += occurrences * bet.amount;
+        });
+
+        // --- Xiên ---
+        let xienXac = 0;
+        let xienTrung = 0;
+        const xienBets = [...parsedBets.xien2, ...parsedBets.xien3, ...parsedBets.xien4];
+        xienBets.forEach(bet => {
+          xienXac += bet.amount * 1000;
+          const size = bet.numbers.length;
+          const winRate = size === 2 ? xien2Payout : (size === 3 ? xien3Payout : xien4Payout);
+          const allHit = bet.numbers.every(num => allPrizesLast2.includes(num));
+          if (allHit) {
+            xienTrung += bet.amount * winRate * 1000;
+          }
+        });
+
+        // --- 3c (3 Càng Đề) ---
+        let bacangXac = 0;
+        let bacangTrung = 0;
+        parsedBets.bacang.forEach(bet => {
+          bacangXac += bet.amount * 1000;
+          const match3 = bet.numbers[0] === specialPrizeLast3;
+          const match2 = bet.numbers[0].slice(-2) === specialPrizeLast2;
+          if (match3) {
+            bacangTrung += bet.amount * baCangPayout * 1000;
+          } else if (match2) {
+            bacangTrung += bet.amount * baCangApMa * 1000;
+          }
+        });
+
+        // --- 3c Lô (3 Càng Lô) ---
+        let bacangLoXacPoints = 0;
+        let bacangLoTrungPoints = 0;
+        parsedBets.bacang_lo.forEach(bet => {
+          bacangLoXacPoints += bet.amount;
+          const occurrences = allPrizesLast3.filter(p => p === bet.numbers[0]).length;
+          bacangLoTrungPoints += occurrences * bet.amount;
+        });
+
+        return {
+          de: { xac: deXac, trung: deTrung },
+          lo: { xac: loXacPoints, trung: loTrungPoints },
+          xien: { xac: xienXac, trung: xienTrung },
+          bacang: { xac: bacangXac, trung: bacangTrung },
+          bacang_lo: { xac: bacangLoXacPoints, trung: bacangLoTrungPoints }
+        };
       }
 
       function renderLottoReport(parsedBets) {
@@ -1684,10 +1985,10 @@
         const allPrizesRaw = allPrizesInput.value.trim();
 
         // Normalized result references
-        const specialPrizeLast2 = specialPrizeRaw.slice(-2);
-        const specialPrizeLast3 = specialPrizeRaw.slice(-3);
+        const specialPrizeLast2 = specialPrizeRaw ? specialPrizeRaw.slice(-2) : "";
+        const specialPrizeLast3 = specialPrizeRaw ? specialPrizeRaw.slice(-3) : "";
 
-        const allPrizes = allPrizesRaw.split(/[\s,]+/).filter(Boolean);
+        const allPrizes = allPrizesRaw ? allPrizesRaw.split(/[\s,]+/).filter(Boolean) : [];
         const allPrizesLast2 = allPrizes.map(p => p.slice(-2));
         const allPrizesLast3 = allPrizes.filter(p => p.length >= 3).map(p => p.slice(-3));
 
@@ -1734,7 +2035,7 @@
                 </div>
                 <div class="text-right">
                   <span class="text-slate-400">Vốn: ${Math.round(cost * 1000).toLocaleString()}đ</span>
-                  <span class="block ${statusClass}">Trúng: ${Math.round(win * 1000).toLocaleString()}đ${hitDetails}</span>
+                  ${togglePayoutCalc.checked ? `<span class="block ${statusClass}">Trúng: ${Math.round(win * 1000).toLocaleString()}đ${hitDetails}</span>` : ''}
                 </div>
               </div>`;
           });
@@ -1750,7 +2051,7 @@
         const deCalc = buildList(
           parsedBets.de,
           'de',
-          bet => bet.amount * (1 - deComm / 100),
+          bet => bet.amount * (deComm / 100),
           bet => {
             const isMatch = bet.numbers[0] === specialPrizeLast2;
             return {
@@ -1761,7 +2062,9 @@
         );
         document.getElementById('listDeBets').innerHTML = deCalc.html;
         document.getElementById('badgeDeCount').innerText = `${parsedBets.de.length} con`;
-        document.getElementById('accordionDeFinancial').innerText = `${Math.round(deCalc.costSum).toLocaleString()} / ${Math.round(deCalc.winSum).toLocaleString()}`;
+        document.getElementById('accordionDeFinancial').innerText = togglePayoutCalc.checked
+          ? `${Math.round(deCalc.costSum).toLocaleString()} / ${Math.round(deCalc.winSum).toLocaleString()}`
+          : `${Math.round(deCalc.costSum).toLocaleString()}`;
         totalCostAll += deCalc.costSum;
         totalWinningsAll += deCalc.winSum;
 
@@ -1780,7 +2083,9 @@
         );
         document.getElementById('listLoBets').innerHTML = loCalc.html;
         document.getElementById('badgeLoCount').innerText = `${parsedBets.lo.length} con`;
-        document.getElementById('accordionLoFinancial').innerText = `${Math.round(loCalc.costSum).toLocaleString()} / ${Math.round(loCalc.winSum).toLocaleString()}`;
+        document.getElementById('accordionLoFinancial').innerText = togglePayoutCalc.checked
+          ? `${Math.round(loCalc.costSum).toLocaleString()} / ${Math.round(loCalc.winSum).toLocaleString()}`
+          : `${Math.round(loCalc.costSum).toLocaleString()}`;
         totalCostAll += loCalc.costSum;
         totalWinningsAll += loCalc.winSum;
 
@@ -1789,7 +2094,7 @@
         const xienCalc = buildList(
           xienBets,
           'xien',
-          bet => bet.amount * (1 - xienComm / 100),
+          bet => bet.amount * (xienComm / 100),
           bet => {
             const size = bet.numbers.length;
             const winRate = size === 2 ? xien2Payout : (size === 3 ? xien3Payout : xien4Payout);
@@ -1802,7 +2107,9 @@
         );
         document.getElementById('listXienBets').innerHTML = xienCalc.html;
         document.getElementById('badgeXienCount').innerText = `${xienBets.length} bộ`;
-        document.getElementById('accordionXienFinancial').innerText = `${Math.round(xienCalc.costSum).toLocaleString()} / ${Math.round(xienCalc.winSum).toLocaleString()}`;
+        document.getElementById('accordionXienFinancial').innerText = togglePayoutCalc.checked
+          ? `${Math.round(xienCalc.costSum).toLocaleString()} / ${Math.round(xienCalc.winSum).toLocaleString()}`
+          : `${Math.round(xienCalc.costSum).toLocaleString()}`;
         totalCostAll += xienCalc.costSum;
         totalWinningsAll += xienCalc.winSum;
 
@@ -1810,7 +2117,7 @@
         const baCangCalc = buildList(
           parsedBets.bacang,
           'bacang',
-          bet => bet.amount * (1 - baCangComm / 100),
+          bet => bet.amount * (baCangComm / 100),
           bet => {
             const match3 = bet.numbers[0] === specialPrizeLast3;
             const match2 = bet.numbers[0].slice(-2) === specialPrizeLast2;
@@ -1828,7 +2135,9 @@
         );
         document.getElementById('list3CBets').innerHTML = baCangCalc.html;
         document.getElementById('badge3CCount').innerText = `${parsedBets.bacang.length} con`;
-        document.getElementById('accordion3CFinancial').innerText = `${Math.round(baCangCalc.costSum).toLocaleString()} / ${Math.round(baCangCalc.winSum).toLocaleString()}`;
+        document.getElementById('accordion3CFinancial').innerText = togglePayoutCalc.checked
+          ? `${Math.round(baCangCalc.costSum).toLocaleString()} / ${Math.round(baCangCalc.winSum).toLocaleString()}`
+          : `${Math.round(baCangCalc.costSum).toLocaleString()}`;
         totalCostAll += baCangCalc.costSum;
         totalWinningsAll += baCangCalc.winSum;
 
@@ -1847,63 +2156,142 @@
         );
         document.getElementById('list3CLBets').innerHTML = baCangLoCalc.html;
         document.getElementById('badge3CLCount').innerText = `${parsedBets.bacang_lo.length} con`;
-        document.getElementById('accordion3CLFinancial').innerText = `${Math.round(baCangLoCalc.costSum).toLocaleString()} / ${Math.round(baCangLoCalc.winSum).toLocaleString()}`;
+        document.getElementById('accordion3CLFinancial').innerText = togglePayoutCalc.checked
+          ? `${Math.round(baCangLoCalc.costSum).toLocaleString()} / ${Math.round(baCangLoCalc.winSum).toLocaleString()}`
+          : `${Math.round(baCangLoCalc.costSum).toLocaleString()}`;
         totalCostAll += baCangLoCalc.costSum;
         totalWinningsAll += baCangLoCalc.winSum;
 
         // --- RENDER FINANCIAL GRAND SUMMARY ---
-        document.getElementById('summaryTotalCost').innerText = Math.round(totalCostAll * 1000).toLocaleString('vi-VN') + "đ";
-        document.getElementById('summaryTotalWinnings').innerText = Math.round(totalWinningsAll * 1000).toLocaleString('vi-VN') + "đ";
+        document.getElementById('summaryTotalCost').innerText = Math.round(totalCostAll).toLocaleString('vi-VN') + "đ";
+        document.getElementById('summaryTotalWinnings').innerText = Math.round(totalWinningsAll).toLocaleString('vi-VN') + "đ";
         
         const netResult = (totalWinningsAll - totalCostAll) * 1000;
+        window.lastCalculatedNetResult = netResult;
+        window.lastCalculatedTotalCostAll = totalCostAll;
         const summaryNetValue = document.getElementById('summaryNetValue');
         const summaryNetLabel = document.getElementById('summaryNetLabel');
         const netResultContainer = document.getElementById('netResultContainer');
 
-        summaryNetValue.innerText = Math.round(Math.abs(netResult)).toLocaleString('vi-VN') + "đ";
+        summaryNetValue.innerText = Math.round(Math.abs(netResult) / 1000).toLocaleString('vi-VN') + "đ";
         
-        if (netResult > 0) {
-          summaryNetLabel.innerText = "Lấy Về (Đại lý lãi / Chủ thầu bù)";
-          summaryNetLabel.className = "block text-xs font-bold text-accent-emerald mt-1 uppercase tracking-wider";
-          netResultContainer.className = "p-4 rounded-xl bg-emerald-950/20 border border-emerald-900/30 text-center";
-          summaryNetValue.className = "text-3xl font-extrabold text-accent-emerald";
-        } else if (netResult < 0) {
-          summaryNetLabel.innerText = "Phải Nộp (Đại lý lỗ / Chủ thầu thu)";
-          summaryNetLabel.className = "block text-xs font-bold text-accent-rose mt-1 uppercase tracking-wider";
-          netResultContainer.className = "p-4 rounded-xl bg-rose-950/20 border border-rose-900/30 text-center";
-          summaryNetValue.className = "text-3xl font-extrabold text-accent-rose";
+        if (togglePayoutCalc.checked) {
+          netResultContainer.classList.remove('hidden');
+          if (netResult > 0) {
+            summaryNetLabel.innerText = "Lấy Về (Đại lý lãi / Chủ thầu bù)";
+            summaryNetLabel.className = "block text-xs font-bold text-accent-emerald mt-1 uppercase tracking-wider";
+            netResultContainer.className = "p-4 rounded-xl bg-emerald-950/20 border border-emerald-900/30 text-center";
+            summaryNetValue.className = "text-3xl font-extrabold text-accent-emerald";
+          } else if (netResult < 0) {
+            summaryNetLabel.innerText = "Phải Nộp (Đại lý lỗ / Chủ thầu thu)";
+            summaryNetLabel.className = "block text-xs font-bold text-accent-rose mt-1 uppercase tracking-wider";
+            netResultContainer.className = "p-4 rounded-xl bg-rose-950/20 border border-rose-900/30 text-center";
+            summaryNetValue.className = "text-3xl font-extrabold text-accent-rose";
+          } else {
+            summaryNetLabel.innerText = "HÒA VỐN";
+            summaryNetLabel.className = "block text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider";
+            netResultContainer.className = "p-4 rounded-xl bg-slate-900/40 border border-slate-800 text-center";
+            summaryNetValue.className = "text-3xl font-extrabold text-slate-200";
+          }
         } else {
-          summaryNetLabel.innerText = "HÒA VỐN";
-          summaryNetLabel.className = "block text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider";
-          netResultContainer.className = "p-4 rounded-xl bg-slate-900/40 border border-slate-800 text-center";
-          summaryNetValue.className = "text-3xl font-extrabold text-slate-200";
+          netResultContainer.classList.add('hidden');
         }
 
-        // Vietnamese Readout
-        document.getElementById('summaryInWords').innerText = docso(Math.round(Math.abs(netResult)));
+        // Vietnamese Readout and Print Area Updates
+        const rawDate = fetchedPrizesData ? fetchedPrizesData.dateText : (new Date()).toLocaleDateString('vi-VN');
+        const dayMonthText = rawDate.split('/').slice(0, 2).join('/'); // "29/06"
 
-        // Keep calculations inside print area updated
-        document.getElementById('printReportNetValue').innerText = Math.round(Math.abs(netResult)).toLocaleString('vi-VN') + "đ";
-        document.getElementById('printReportNetLabel').innerText = summaryNetLabel.innerText;
-        document.getElementById('printReportInWords').innerText = docso(Math.round(Math.abs(netResult)));
+        const headerTitle = `BÁO CÁO - ${dayMonthText}`;
 
-        let printTableBody = "";
-        const appendPrintRow = (name, cost, win) => {
-          if (cost > 0 || win > 0) {
-            printTableBody += `
-              <tr class="border-b border-slate-900 text-slate-300">
-                <td class="py-2.5">${name}</td>
-                <td class="py-2.5 text-right">${Math.round(cost * 1000).toLocaleString()}đ</td>
-                <td class="py-2.5 text-right">${Math.round(win * 1000).toLocaleString()}đ</td>
-              </tr>`;
-          }
+        const formatMoneyK = (val) => {
+          return Math.round(val / 1000).toLocaleString('vi-VN');
         };
 
-        appendPrintRow("Số Đề", deCalc.costSum, deCalc.winSum);
-        appendPrintRow("Đánh Lô", loCalc.costSum, loCalc.winSum);
-        appendPrintRow("Lô Xiên", xienCalc.costSum, xienCalc.winSum);
-        appendPrintRow("Ba Càng Đề", baCangCalc.costSum, baCangCalc.winSum);
-        appendPrintRow("Ba Càng Lô", baCangLoCalc.costSum, baCangLoCalc.winSum);
+        document.getElementById('printReportTitle').innerText = headerTitle;
+        document.getElementById('printReportDate').classList.add('hidden');
+
+        if (togglePayoutCalc.checked) {
+          document.getElementById('summaryInWords').innerText = docso(Math.round(Math.abs(netResult)));
+
+          const netLabelText = summaryNetLabel.innerText.includes("LÃI") ? "LẤY VỀ" : "NỘP";
+          document.getElementById('printReportNetValue').innerText = formatMoneyK(Math.abs(netResult));
+          document.getElementById('printReportNetLabel').innerText = netLabelText;
+          document.getElementById('printReportHeaderWinnings').classList.remove('hidden');
+        } else {
+          document.getElementById('summaryInWords').innerText = docso(Math.round(totalCostAll * 1000));
+
+          document.getElementById('printReportNetValue').innerText = formatMoneyK(totalCostAll * 1000);
+          document.getElementById('printReportNetLabel').innerText = "TỔNG NỘP";
+          document.getElementById('printReportHeaderWinnings').classList.add('hidden');
+        }
+
+        const details = getReportSummaryDetails(parsedBets);
+        let printTableBody = "";
+
+        // Đề
+        if (details.de.xac > 0 || details.de.trung > 0) {
+          const winTd = togglePayoutCalc.checked
+            ? `<td class="py-2.5 text-right font-semibold text-emerald-400">${formatMoneyK(details.de.trung)}</td>`
+            : '';
+          printTableBody += `
+            <tr class="border-b border-slate-900 text-slate-300 text-xs">
+              <td class="py-2.5 font-medium">Đề</td>
+              <td class="py-2.5 text-right">${formatMoneyK(details.de.xac)}</td>
+              ${winTd}
+            </tr>`;
+        }
+
+        // Lô
+        if (details.lo.xac > 0 || details.lo.trung > 0) {
+          const winTd = togglePayoutCalc.checked
+            ? `<td class="py-2.5 text-right font-semibold text-emerald-400">${details.lo.trung}</td>`
+            : '';
+          printTableBody += `
+            <tr class="border-b border-slate-900 text-slate-300 text-xs">
+              <td class="py-2.5 font-medium">Lô</td>
+              <td class="py-2.5 text-right">${details.lo.xac}</td>
+              ${winTd}
+            </tr>`;
+        }
+
+        // Xiên
+        if (details.xien.xac > 0 || details.xien.trung > 0) {
+          const winTd = togglePayoutCalc.checked
+            ? `<td class="py-2.5 text-right font-semibold text-emerald-400">${formatMoneyK(details.xien.trung)}</td>`
+            : '';
+          printTableBody += `
+            <tr class="border-b border-slate-900 text-slate-300 text-xs">
+              <td class="py-2.5 font-medium">Xiên</td>
+              <td class="py-2.5 text-right">${formatMoneyK(details.xien.xac)}</td>
+              ${winTd}
+            </tr>`;
+        }
+
+        // Ba Càng Đề (3c)
+        if (details.bacang.xac > 0 || details.bacang.trung > 0) {
+          const winTd = togglePayoutCalc.checked
+            ? `<td class="py-2.5 text-right font-semibold text-emerald-400">${formatMoneyK(details.bacang.trung)}</td>`
+            : '';
+          printTableBody += `
+            <tr class="border-b border-slate-900 text-slate-300 text-xs">
+              <td class="py-2.5 font-medium">3c</td>
+              <td class="py-2.5 text-right">${formatMoneyK(details.bacang.xac)}</td>
+              ${winTd}
+            </tr>`;
+        }
+
+        // Ba Càng Lô (3c Lô)
+        if (details.bacang_lo.xac > 0 || details.bacang_lo.trung > 0) {
+          const winTd = togglePayoutCalc.checked
+            ? `<td class="py-2.5 text-right font-semibold text-emerald-400">${details.bacang_lo.trung}</td>`
+            : '';
+          printTableBody += `
+            <tr class="border-b border-slate-900 text-slate-300 text-xs">
+              <td class="py-2.5 font-medium">3c Lô</td>
+              <td class="py-2.5 text-right">${details.bacang_lo.xac}</td>
+              ${winTd}
+            </tr>`;
+        }
 
         document.getElementById('printReportTableBody').innerHTML = printTableBody;
       }
@@ -1970,15 +2358,58 @@
         
         const dateTextStr = fetchedPrizesData ? fetchedPrizesData.dateText : (new Date()).toLocaleDateString('vi-VN');
 
-        const reportText = `👑 BÁO CÁO THU CHI THẦU - NGÀY ${dateTextStr}\n` +
-          `----------------------------------\n` +
-          `• Tổng Vốn Thực Thu: ${costVal}\n` +
-          `• Tổng Tiền Trúng: ${winVal}\n` +
-          `----------------------------------\n` +
-          `👉 KẾT QUẢ: ${netVal} (${netLabel})\n` +
-          `👉 Bằng chữ: ${inWords}\n` +
-          `----------------------------------\n` +
-          `© Premium Dealer Software`;
+        const activeBets = window.lastCalculatedBets ? window.lastCalculatedBets[currentViewMode] : null;
+        if (!activeBets) {
+          alert("Vui lòng thực hiện tính toán báo cáo trước!");
+          return;
+        }
+
+        const details = getReportSummaryDetails(activeBets);
+
+        const formatMoneyK = (val) => {
+          return Math.round(val / 1000).toLocaleString('vi-VN');
+        };
+
+        const rawDate = fetchedPrizesData ? fetchedPrizesData.dateText : (new Date()).toLocaleDateString('vi-VN');
+        const dayMonthText = rawDate.split('/').slice(0, 2).join('/'); // "29/06"
+
+        const headerText = `BÁO CÁO - ${dayMonthText}`;
+
+        let reportText = "";
+        if (togglePayoutCalc.checked) {
+          const deStr = `Đề: ${formatMoneyK(details.de.xac)}/ ${formatMoneyK(details.de.trung)}`;
+          const loStr = `Lô: ${details.lo.xac} / ${details.lo.trung}`;
+          const xienStr = `Xiên: ${formatMoneyK(details.xien.xac)} / ${formatMoneyK(details.xien.trung)}`;
+          const baCangStr = `3c: ${formatMoneyK(details.bacang.xac)} / ${formatMoneyK(details.bacang.trung)}`;
+          const baCangLoStr = `3c Lô: ${details.bacang_lo.xac}/ ${details.bacang_lo.trung}`;
+          
+          const netLabelText = netLabel.includes("LẤY VỀ") || netLabel.includes("LÃI") ? "LẤY VỀ" : "NỘP";
+          const netValK = formatMoneyK(Math.abs(window.lastCalculatedNetResult || 0));
+
+          reportText = `${headerText}\n` +
+            `${deStr}\n` +
+            `${loStr}\n` +
+            `${xienStr}\n` +
+            `${baCangStr}\n` +
+            `${baCangLoStr}\n` +
+            `${netLabelText}: ${netValK}`;
+        } else {
+          const deStr = `Đề: ${formatMoneyK(details.de.xac)}`;
+          const loStr = `Lô: ${details.lo.xac}`;
+          const xienStr = `Xiên: ${formatMoneyK(details.xien.xac)}`;
+          const baCangStr = `3c: ${formatMoneyK(details.bacang.xac)}`;
+          const baCangLoStr = `3c Lô: ${details.bacang_lo.xac}`;
+
+          const costValK = formatMoneyK((window.lastCalculatedTotalCostAll || 0) * 1000);
+
+          reportText = `${headerText}\n` +
+            `${deStr}\n` +
+            `${loStr}\n` +
+            `${xienStr}\n` +
+            `${baCangStr}\n` +
+            `${baCangLoStr}\n` +
+            `TỔNG NỘP: ${costValK}`;
+        }
 
         navigator.clipboard.writeText(reportText).then(() => {
           alert("Đã sao chép báo cáo văn bản thành công!");
@@ -2105,7 +2536,7 @@
       <div class="p-6 overflow-y-auto text-xs leading-relaxed text-slate-300">
         <!-- List View -->
         <div id="modalListView" class="space-y-4">
-          <p class="text-slate-400">Bạn có thể sử dụng các ký tự viết tắt dưới đây. Hệ thống sẽ tự động bóc tách thành các dãy số tương ứng trước khi xử lý cược:</p>
+          <p class="text-slate-400">Bạn có thể sử dụng các ký tự viết tắt dưới đây. Hệ thống tự động nhận diện cả các tên thay thế (ví dụ: <span class="font-mono text-emerald-400 font-bold">dau5</span> tương đương <span class="font-mono text-emerald-400 font-bold">d5</span>, <span class="font-mono text-emerald-400 font-bold">dit5</span> tương đương <span class="font-mono text-emerald-400 font-bold">d'5</span>, <span class="font-mono text-emerald-400 font-bold">he05/bo05</span> tương đương <span class="font-mono text-emerald-400 font-bold">h05</span>, <span class="font-mono text-emerald-400 font-bold">tb</span> tương đương <span class="font-mono text-emerald-400 font-bold">tobe</span>, <span class="font-mono text-emerald-400 font-bold">dc/dl</span> tương đương <span class="font-mono text-emerald-400 font-bold">dauchan/daule</span>, v.v.):</p>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-3">
@@ -2163,7 +2594,7 @@
         
         <!-- Raw Text View -->
         <div id="modalRawView" class="hidden">
-          <p class="text-slate-400 mb-2">Nội dung cấu hình chi tiết từ file <span class="font-mono text-emerald-400">https://raw.githubusercontent.com/doducdungvn/lucky/refs/heads/main/nhaptat.txt</span>:</p>
+          <p class="text-slate-400 mb-2">Nội dung cấu hình chi tiết từ file <span class="font-mono text-emerald-400">nhaptat.txt</span>:</p>
           <pre id="modalRawContent" class="font-mono text-[10px] p-4 bg-slate-950/80 text-emerald-400 rounded-xl overflow-auto h-[45vh] leading-relaxed border border-slate-900">
 k=00.11.22.33.44.55.66.77.88.99
 kl=050.161.272.383.494
