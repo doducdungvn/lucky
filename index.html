@@ -227,6 +227,9 @@
         <button id="btnShorthandHelp" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 border border-indigo-500/40" title="Hướng dẫn nhập tắt">
           📖 Nhập tắt
         </button>
+        <button id="btnPriceConfig" class="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-all text-xs font-bold flex items-center gap-1.5 border border-slate-700/40" title="Cấu hình giá">
+          ⚙️ Cấu hình giá
+        </button>
         <button id="btnThemeToggle" class="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-all text-xs font-bold flex items-center justify-center border border-slate-700/40" title="Chuyển chế độ Sáng/Tối">
           <span id="themeToggleIcon" class="text-xs">☀️</span>
         </button>
@@ -272,7 +275,7 @@
         <div id="resultsContainer" class="glass-panel p-6 hidden">
           <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
             <h2 class="text-lg font-semibold text-indigo-300 flex items-center gap-2">
-              🏆 Kết Quả Xổ Số Miền Bắc
+              🏆 Kết Quả
             </h2>
             <div class="flex gap-2 text-xs">
               <button id="btnSourceMinhNgoc" class="px-3 py-1.5 rounded-lg bg-brand-600/40 text-brand-300 font-semibold border border-brand-500/30">
@@ -289,29 +292,30 @@
 
           <div class="space-y-4">
             <!-- Source Selector Mode & Fetch Actions -->
-            <div class="flex items-center justify-between bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex-wrap gap-3">
-              <div class="flex items-center gap-3 flex-wrap">
-                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-                  <input type="radio" name="resultMode" value="auto" checked class="form-radio text-indigo-500 focus:ring-0 bg-slate-800 border-slate-700">
+            <div class="flex items-center justify-between bg-slate-900/40 p-2 rounded-xl border border-slate-800 flex-wrap gap-2 text-xs">
+              <div class="flex items-center gap-2 flex-wrap">
+                <label class="flex items-center gap-1 cursor-pointer text-xs">
+                  <input type="radio" name="resultMode" value="auto" checked class="form-radio text-indigo-500 focus:ring-0 bg-slate-800 border-slate-700 h-3 w-3">
                   <span>Tự động tải</span>
                 </label>
                 <!-- Date selector -->
-                <input type="date" id="resultDateInput" class="bg-[#0e1424] border border-slate-700/60 text-slate-100 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-brand-500 max-w-[130px]">
+                <input type="date" id="resultDateInput" class="bg-[#0e1424] border border-slate-700/60 text-slate-100 rounded-lg px-2 py-0.5 text-[11px] focus:outline-none focus:border-brand-500 max-w-[115px]">
                 
-                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-                  <input type="radio" name="resultMode" value="manual" class="form-radio text-indigo-500 focus:ring-0 bg-slate-800 border-slate-700">
+                <label class="flex items-center gap-1 cursor-pointer text-xs">
+                  <input type="radio" name="resultMode" value="manual" class="form-radio text-indigo-500 focus:ring-0 bg-slate-800 border-slate-700 h-3 w-3">
                   <span>Nhập thủ công</span>
                 </label>
               </div>
-              <button id="btnFetchResults" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-1.5">
-                <span id="fetchBtnSpinner" class="hidden animate-spin rounded-full h-3 w-3 border-b-2 border-white"></span>
-                <span id="fetchBtnText">🔄 Tải Kết Quả</span>
-              </button>
-            </div>
 
-            <!-- Auto Mode Info / Status -->
-            <div id="autoResultStatus" class="text-xs p-3 bg-emerald-950/20 text-emerald-400 rounded-lg border border-emerald-900/30">
-              ✨ Dữ liệu đang được thiết lập ở chế độ tự động lấy từ nguồn chính thống.
+              <!-- Compact status message in between -->
+              <span id="autoResultStatus" class="text-[10px] font-bold text-emerald-400 bg-emerald-950/20 px-2 py-0.5 rounded border border-emerald-900/30 hidden">
+                Chưa tải
+              </span>
+
+              <button id="btnFetchResults" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold rounded transition-all active:scale-95 flex items-center gap-1">
+                <span id="fetchBtnSpinner" class="hidden animate-spin rounded-full h-2.5 w-2.5 border-b border-white"></span>
+                <span id="fetchBtnText">Tải KQ</span>
+              </button>
             </div>
 
             <!-- Manual Fields (Visible when manual is selected or fallback occurs) -->
@@ -330,10 +334,10 @@
 
             <!-- Bảng kết quả 2 số cuối -->
             <div id="twoDigitBoardContainer" class="hidden border-t border-slate-800/80 pt-4">
-              <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">
+              <label id="lbl27Giai" class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">
                 27 Giải
               </label>
-              <div id="twoDigitBoard" class="grid grid-cols-6 sm:grid-cols-9 gap-2 text-center font-bold text-sm bg-slate-950/40 p-3 rounded-xl border border-slate-900">
+              <div id="twoDigitBoard" class="flex flex-wrap gap-1.5 bg-slate-950/40 p-3 rounded-xl border border-slate-900 text-xs font-semibold">
                 <!-- populated by JS -->
               </div>
             </div>
@@ -342,103 +346,7 @@
 
 
 
-        <!-- Rates Configuration Card -->
-        <div id="ratesConfigContainer" class="glass-panel p-6 hidden">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-indigo-300 flex items-center gap-2">
-              ⚙️ Thiết Lập Hoa Hồng & Tiền Thưởng
-            </h2>
-            <button id="btnResetRates" class="text-xs text-brand-300 hover:underline">
-              Khôi phục mặc định
-            </button>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Số Đề settings -->
-            <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">
-              <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🔴 Số Đề</h3>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[11px] text-slate-400 mb-1">Giá gốc (%)</label>
-                  <input type="number" id="rateDeComm" value="82" min="0" max="100" class="input-premium text-center text-xs">
-                </div>
-                <div>
-                  <label class="block text-[11px] text-slate-400 mb-1">Thưởng (1 ăn...)</label>
-                  <input type="number" id="rateDePayout" value="80" min="0" class="input-premium text-center text-xs">
-                </div>
-              </div>
-            </div>
 
-            <!-- Đánh Lô settings -->
-            <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">
-              <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🔵 Đánh Lô</h3>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[11px] text-slate-400 mb-1">Vốn 1 điểm (đ)</label>
-                  <input type="number" id="rateLoCost" value="23000" min="0" class="input-premium text-center text-xs">
-                </div>
-                <div>
-                  <label class="block text-[11px] text-slate-400 mb-1">Thưởng 1 điểm (đ)</label>
-                  <input type="number" id="rateLoPayout" value="80000" min="0" class="input-premium text-center text-xs">
-                </div>
-              </div>
-            </div>
-
-            <!-- Lô Xiên settings -->
-            <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">
-              <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🟢 Lô Xiên (Xiên 2, 3, 4)</h3>
-              <div class="grid grid-cols-4 gap-2 mb-2">
-                <div class="col-span-4">
-                  <label class="block text-[11px] text-slate-400 mb-1">Giá gốc (%)</label>
-                  <input type="number" id="rateXienComm" value="65" min="0" max="100" class="input-premium text-center text-xs">
-                </div>
-              </div>
-              <div class="grid grid-cols-3 gap-2">
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-1 text-center">Xiên 2 (1 ăn...)</label>
-                  <input type="number" id="rateXien2Payout" value="15" min="0" class="input-premium text-center text-xs">
-                </div>
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-1 text-center">Xiên 3 (1 ăn...)</label>
-                  <input type="number" id="rateXien3Payout" value="50" min="0" class="input-premium text-center text-xs">
-                </div>
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-1 text-center">Xiên 4 (1 ăn...)</label>
-                  <input type="number" id="rateXien4Payout" value="120" min="0" class="input-premium text-center text-xs">
-                </div>
-              </div>
-            </div>
-
-            <!-- 3 Càng settings -->
-            <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">
-              <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🟣 Ba Càng Đề & Lô</h3>
-              <div class="grid grid-cols-2 gap-3 mb-2">
-                <div>
-                  <label class="block text-[11px] text-slate-400 mb-1">3C Đề Giá gốc (%)</label>
-                  <input type="number" id="rate3CComm" value="75" min="0" max="100" class="input-premium text-center text-xs">
-                </div>
-                <div>
-                  <label class="block text-[11px] text-slate-400 mb-1">3C Đề (1 ăn...)</label>
-                  <input type="number" id="rate3CPayout" value="400" min="0" class="input-premium text-center text-xs">
-                </div>
-              </div>
-              <div class="grid grid-cols-3 gap-2">
-                <div class="col-span-1">
-                  <label class="block text-[10px] text-slate-400 mb-1 text-center">Áp Má (1 ăn...)</label>
-                  <input type="number" id="rate3CApMa" value="5" min="0" class="input-premium text-center text-xs">
-                </div>
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-1 text-center">3C Lô Vốn (đ/đ)</label>
-                  <input type="number" id="rate3CLoCost" value="23000" min="0" class="input-premium text-center text-xs">
-                </div>
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-1 text-center">3C Lô Thưởng (đ/đ)</label>
-                  <input type="number" id="rate3CLoPayout" value="960000" min="0" class="input-premium text-center text-xs">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
 
 
@@ -469,6 +377,22 @@
                 <button type="button" id="btnLayoffModeLimit" class="px-2.5 py-2 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700/40 hover:bg-slate-700/40">
                   Giữ tối đa
                 </button>
+              </div>
+            </div>
+
+            <!-- Received / Hedged / Retained breakdown -->
+            <div id="breakdownContainer" class="hidden grid grid-cols-3 gap-2 bg-[#0e1424]/30 p-2.5 rounded-xl border border-slate-800 text-[10px] text-slate-400 text-center">
+              <div>
+                <span class="block text-slate-500 mb-0.5">Khách cược</span>
+                <span id="breakdownReceived" class="font-bold text-slate-300">0</span>
+              </div>
+              <div>
+                <span class="block text-slate-500 mb-0.5">Chuyển đi</span>
+                <span id="breakdownTransferred" class="font-bold text-indigo-400">0</span>
+              </div>
+              <div>
+                <span class="block text-slate-500 mb-0.5">Giữ lại</span>
+                <span id="breakdownRetained" class="font-bold text-emerald-400">0</span>
               </div>
             </div>
 
@@ -538,41 +462,26 @@
           <div class="absolute -right-12 -bottom-12 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
           
           <h2 class="text-sm font-semibold text-indigo-300 uppercase tracking-widest mb-4">
-            📊 Tổng Hợp Thu Chi Thầu
+            📊 Tổng Hợp Thầu
           </h2>
           
           <!-- Financial Figures -->
           <div class="space-y-4">
             <div id="grandSummaryGrid" class="grid grid-cols-2 gap-4">
               <div id="summaryTotalCostCard" class="bg-[#0e1424]/60 p-3 rounded-xl border border-slate-800 col-span-2">
-                <span class="text-xs text-slate-400 block mb-0.5">Tổng vốn cược (Thực thu)</span>
+                <span class="text-xs text-slate-400 block mb-0.5">Tiền Gốc</span>
                 <span id="summaryTotalCost" class="text-xl font-bold text-slate-200">0</span>
               </div>
               <div id="summaryWinningsContainer" class="bg-[#0e1424]/60 p-3 rounded-xl border border-slate-800 hidden">
-                <span class="text-xs text-slate-400 block mb-0.5">Tổng tiền trúng giải</span>
+                <span class="text-xs text-slate-400 block mb-0.5">Tiền Trúng</span>
                 <span id="summaryTotalWinnings" class="text-xl font-bold text-emerald-400">0</span>
               </div>
             </div>
 
-            <!-- Received / Hedged / Retained breakdown -->
-            <div id="breakdownContainer" class="hidden grid grid-cols-3 gap-2 bg-[#0e1424]/30 p-2.5 rounded-xl border border-slate-800 text-[10px] text-slate-400 text-center">
-              <div>
-                <span class="block text-slate-500 mb-0.5">Khách cược</span>
-                <span id="breakdownReceived" class="font-bold text-slate-300">0đ</span>
-              </div>
-              <div>
-                <span class="block text-slate-500 mb-0.5">Chuyển đi</span>
-                <span id="breakdownTransferred" class="font-bold text-indigo-400">0đ</span>
-              </div>
-              <div>
-                <span class="block text-slate-500 mb-0.5">Giữ lại</span>
-                <span id="breakdownRetained" class="font-bold text-emerald-400">0đ</span>
-              </div>
-            </div>
 
             <!-- Net Result Banner -->
             <div id="netResultContainer" class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-center hidden">
-              <span class="text-xs text-slate-400 block mb-1">Kết quả lời / lỗ của thầu</span>
+              <span class="text-xs text-slate-400 block mb-1">Kết quả thầu</span>
               <span id="summaryNetValue" class="text-3xl font-extrabold text-slate-200">0</span>
               <span id="summaryNetLabel" class="block text-xs font-semibold text-slate-400 mt-1 uppercase tracking-wider">HÒA VỐN</span>
             </div>
@@ -607,7 +516,7 @@
             <!-- De Tab -->
             <div class="accordion-item bg-slate-900/30 rounded-xl border border-slate-800/80 overflow-hidden">
               <button class="w-full px-4 py-3 flex justify-between items-center hover:bg-slate-800/40 transition-all font-semibold text-sm border-b border-slate-800/60">
-                <span class="flex items-center gap-2">🔴 Số Đề <span id="badgeDeCount" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0 con</span></span>
+                <span class="flex items-center gap-2">🔴 Đề <span id="badgeDeCount" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0 con</span></span>
                 <span id="accordionDeFinancial" class="text-xs font-bold text-slate-400">0 / 0</span>
               </button>
               <div class="p-3 max-h-48 overflow-y-auto hidden" id="listDeBets">
@@ -618,7 +527,7 @@
             <!-- Lo Tab -->
             <div class="accordion-item bg-slate-900/30 rounded-xl border border-slate-800/80 overflow-hidden">
               <button class="w-full px-4 py-3 flex justify-between items-center hover:bg-slate-800/40 transition-all font-semibold text-sm border-b border-slate-800/60">
-                <span class="flex items-center gap-2">🔵 Đánh Lô <span id="badgeLoCount" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0 con</span></span>
+                <span class="flex items-center gap-2">🔵 Lô <span id="badgeLoCount" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0 con</span></span>
                 <span id="accordionLoFinancial" class="text-xs font-bold text-slate-400">0 / 0</span>
               </button>
               <div class="p-3 max-h-48 overflow-y-auto hidden" id="listLoBets">
@@ -895,7 +804,6 @@
         
         if (isChecked) {
           resultsContainer.classList.remove('hidden');
-          ratesConfigContainer.classList.remove('hidden');
           summaryWinningsContainer.classList.remove('hidden');
           summaryTotalCostCard.classList.remove('col-span-2');
           if (window.lastCalculatedBets) {
@@ -903,7 +811,6 @@
           }
         } else {
           resultsContainer.classList.add('hidden');
-          ratesConfigContainer.classList.add('hidden');
           summaryWinningsContainer.classList.add('hidden');
           summaryTotalCostCard.classList.add('col-span-2');
           netResultContainer.classList.add('hidden');
@@ -1002,6 +909,7 @@
         const allPrizesRaw = allPrizesInput.value.trim();
         const board = document.getElementById('twoDigitBoard');
         const container = document.getElementById('twoDigitBoardContainer');
+        const lbl27Giai = document.getElementById('lbl27Giai');
 
         if (!specialPrize || !allPrizesRaw) {
           container.classList.add('hidden');
@@ -1016,19 +924,27 @@
 
         container.classList.remove('hidden');
         const deNumber = specialPrize.slice(-2);
+        const bacangDe = specialPrize.length >= 3 ? specialPrize.slice(-3) : specialPrize;
+        
+        if (lbl27Giai) {
+          lbl27Giai.innerHTML = `<span style="color: #ff3b30 !important; font-weight: 700;">GIẢI ĐẶC BIỆT</span> <span style="color: #ff0000 !important; font-size: 1.35em; font-weight: 900; margin-left: 4px; vertical-align: middle;">${bacangDe}</span>`;
+        }
+
+        // Extract last 2 digits and sort from smallest to largest
+        const digits = prizes.map(p => p.slice(-2));
+        digits.sort((a, b) => parseInt(a) - parseInt(b));
         
         let html = "";
-        prizes.forEach((prize, index) => {
-          const last2 = prize.slice(-2);
+        digits.forEach((last2) => {
           const isDe = last2 === deNumber;
           const bgClass = isDe 
-            ? 'bg-red-600 border-red-500 text-white font-extrabold shadow-md shadow-red-600/30' 
-            : 'bg-slate-900/60 border-slate-800 text-slate-300 font-medium';
+            ? 'bg-red-600 border-red-500 text-white font-extrabold px-2 py-0.5 rounded shadow-sm shadow-red-600/30' 
+            : 'bg-slate-900 border-slate-800/80 text-slate-300 font-medium px-2 py-0.5 rounded';
             
           html += `
-            <div class="p-2.5 rounded-lg border text-center transition-all ${bgClass}" title="Giải ${index + 1}: ${prize}">
+            <span class="${bgClass}">
               ${last2}
-            </div>`;
+            </span>`;
         });
         
         board.innerHTML = html;
@@ -1087,6 +1003,9 @@
         fetchBtnSpinner.classList.remove('hidden');
         fetchBtnText.innerText = 'Đang tải...';
         btnFetchResults.disabled = true;
+        autoResultStatus.innerText = 'Đang tải...';
+        autoResultStatus.className = 'text-[10px] font-bold text-indigo-400 bg-indigo-950/20 px-2 py-0.5 rounded border border-indigo-900/30';
+        autoResultStatus.classList.remove('hidden');
 
         const targetDate = resultDateInput.value;
 
@@ -1137,8 +1056,10 @@
           }
 
           fetchedPrizesData = data;
-          autoResultStatus.innerText = `✅ Tải kết quả thành công (${data.sourceName}) ngày ${data.dateText}!`;
-          autoResultStatus.className = 'text-xs p-3 bg-emerald-950/20 text-emerald-400 rounded-lg border border-emerald-900/30';
+          const dayMonth = data.dateText.split('/').slice(0, 2).join('/');
+          autoResultStatus.innerText = `Tải Ok! ${dayMonth}`;
+          autoResultStatus.className = 'text-[10px] font-bold text-emerald-400 bg-emerald-950/20 px-2 py-0.5 rounded border border-emerald-900/30';
+          autoResultStatus.classList.remove('hidden');
           
           // Populate fields
           specialPrizeInput.value = data.specialPrize;
@@ -1149,11 +1070,12 @@
 
         } catch (error) {
           console.error(error);
-          autoResultStatus.innerText = `❌ Không thể tải kết quả tự động. Vui lòng chuyển qua chế độ 'Nhập thủ công'. Chi tiết: ${error.message}`;
-          autoResultStatus.className = 'text-xs p-3 bg-rose-950/20 text-rose-400 rounded-lg border border-rose-900/30';
+          autoResultStatus.innerText = `Lỗi!`;
+          autoResultStatus.className = 'text-[10px] font-bold text-rose-400 bg-rose-950/20 px-2 py-0.5 rounded border border-rose-900/30';
+          autoResultStatus.classList.remove('hidden');
         } finally {
           fetchBtnSpinner.classList.add('hidden');
-          fetchBtnText.innerText = '🔄 Tải Kết Quả';
+          fetchBtnText.innerText = 'Tải KQ';
           btnFetchResults.disabled = false;
         }
       }
@@ -1530,7 +1452,23 @@
       }
 
       function resolveShorthands(numbersString) {
-        const parts = numbersString.split(/([.,\-\s]+)/);
+        let s = numbersString;
+        
+        // Pre-process combined prefix patterns like:
+        // d4,5,6 -> d4,d5,d6
+        // d'4,5,6 -> d'4,d'5,d'6
+        // dau4,5,6 -> dau4,dau5,dau6
+        // dit4,5,6 -> dit4,dit5,dit6
+        // he05,06 -> he05,he06
+        // bo05,06 -> bo05,bo06
+        const combinedRegex = /(dau|dit|d'|d|he|bo|t|cham)([0-9]{1,2})((?:[.,\-\s]+[0-9]{1,2})+)/gi;
+        s = s.replace(combinedRegex, (match, prefix, firstDigit, rest) => {
+          const digits = rest.split(/[^0-9]+/).filter(Boolean);
+          const expanded = [prefix + firstDigit, ...digits.map(d => prefix + d)];
+          return expanded.join(',');
+        });
+
+        const parts = s.split(/([.,\-\s]+)/);
         const resolvedParts = parts.map(part => {
           const normalized = normalizeShorthandToken(part);
           if (shorthands[normalized]) {
@@ -1547,7 +1485,7 @@
         let processedInput = inputString.replace(/[’‘ʼ＇`]/g, "'");
 
         // Preprocess same-line category keywords
-        const sameLinePattern = /[\s,;]+\b(đề|de|lô|lo|xiên|xien|x|x2|x3|x4)\b|[\s,;]+\b(3càng|3cang|3c|3clô|3clo|3cl)\b|[\s,;]+\b(d|l)\b(?=\s+\d)/gi;
+        const sameLinePattern = /[\s,;]+\b(đề|de|lô|lo|xiên|xien|x|x2|x3|x4)\b|[\s,;]+\b(3càng|3cang|3c|3clô|3clo|3cl)\b|[\s,;]+\b(d|l)\b(?=\s+[a-z0-9'’‘ʼ＇`])/gi;
         processedInput = processedInput.replace(sameLinePattern, (match) => {
           const cleanedKeyword = match.replace(/^[\s,;]+/g, '').trim();
           return "\n" + cleanedKeyword;
@@ -1882,13 +1820,13 @@
             const winTransferred = calculateTotalWinnings(transferred);
             const winRetained = calculateTotalWinnings(retained);
 
-            document.getElementById('breakdownReceived').innerText = Math.round(costReceived).toLocaleString('vi-VN') + "đ / " + Math.round(winReceived).toLocaleString('vi-VN') + "đ";
-            document.getElementById('breakdownTransferred').innerText = Math.round(costTransferred).toLocaleString('vi-VN') + "đ / " + Math.round(winTransferred).toLocaleString('vi-VN') + "đ";
-            document.getElementById('breakdownRetained').innerText = Math.round(costRetained).toLocaleString('vi-VN') + "đ / " + Math.round(winRetained).toLocaleString('vi-VN') + "đ";
+            document.getElementById('breakdownReceived').innerText = Math.round(costReceived).toLocaleString('vi-VN') + " / " + Math.round(winReceived).toLocaleString('vi-VN');
+            document.getElementById('breakdownTransferred').innerText = Math.round(costTransferred).toLocaleString('vi-VN') + " / " + Math.round(winTransferred).toLocaleString('vi-VN');
+            document.getElementById('breakdownRetained').innerText = Math.round(costRetained).toLocaleString('vi-VN') + " / " + Math.round(winRetained).toLocaleString('vi-VN');
           } else {
-            document.getElementById('breakdownReceived').innerText = Math.round(costReceived).toLocaleString('vi-VN') + "đ";
-            document.getElementById('breakdownTransferred').innerText = Math.round(costTransferred).toLocaleString('vi-VN') + "đ";
-            document.getElementById('breakdownRetained').innerText = Math.round(costRetained).toLocaleString('vi-VN') + "đ";
+            document.getElementById('breakdownReceived').innerText = Math.round(costReceived).toLocaleString('vi-VN');
+            document.getElementById('breakdownTransferred').innerText = Math.round(costTransferred).toLocaleString('vi-VN');
+            document.getElementById('breakdownRetained').innerText = Math.round(costRetained).toLocaleString('vi-VN');
           }
         }
 
@@ -2163,8 +2101,8 @@
         totalWinningsAll += baCangLoCalc.winSum;
 
         // --- RENDER FINANCIAL GRAND SUMMARY ---
-        document.getElementById('summaryTotalCost').innerText = Math.round(totalCostAll).toLocaleString('vi-VN') + "đ";
-        document.getElementById('summaryTotalWinnings').innerText = Math.round(totalWinningsAll).toLocaleString('vi-VN') + "đ";
+        document.getElementById('summaryTotalCost').innerText = Math.round(totalCostAll).toLocaleString('vi-VN');
+        document.getElementById('summaryTotalWinnings').innerText = Math.round(totalWinningsAll).toLocaleString('vi-VN');
         
         const netResult = (totalWinningsAll - totalCostAll) * 1000;
         window.lastCalculatedNetResult = netResult;
@@ -2173,17 +2111,17 @@
         const summaryNetLabel = document.getElementById('summaryNetLabel');
         const netResultContainer = document.getElementById('netResultContainer');
 
-        summaryNetValue.innerText = Math.round(Math.abs(netResult) / 1000).toLocaleString('vi-VN') + "đ";
+        summaryNetValue.innerText = Math.round(Math.abs(netResult) / 1000).toLocaleString('vi-VN');
         
         if (togglePayoutCalc.checked) {
           netResultContainer.classList.remove('hidden');
           if (netResult > 0) {
-            summaryNetLabel.innerText = "Lấy Về (Đại lý lãi / Chủ thầu bù)";
+            summaryNetLabel.innerText = "Chủ thầu bù";
             summaryNetLabel.className = "block text-xs font-bold text-accent-emerald mt-1 uppercase tracking-wider";
             netResultContainer.className = "p-4 rounded-xl bg-emerald-950/20 border border-emerald-900/30 text-center";
             summaryNetValue.className = "text-3xl font-extrabold text-accent-emerald";
           } else if (netResult < 0) {
-            summaryNetLabel.innerText = "Phải Nộp (Đại lý lỗ / Chủ thầu thu)";
+            summaryNetLabel.innerText = "Đại lý Nộp";
             summaryNetLabel.className = "block text-xs font-bold text-accent-rose mt-1 uppercase tracking-wider";
             netResultContainer.className = "p-4 rounded-xl bg-rose-950/20 border border-rose-900/30 text-center";
             summaryNetValue.className = "text-3xl font-extrabold text-accent-rose";
@@ -2213,7 +2151,7 @@
         if (togglePayoutCalc.checked) {
           document.getElementById('summaryInWords').innerText = docso(Math.round(Math.abs(netResult)));
 
-          const netLabelText = summaryNetLabel.innerText.includes("LÃI") ? "LẤY VỀ" : "NỘP";
+          const netLabelText = /lấy về|lãi|trả|bù/i.test(summaryNetLabel.innerText) ? "LẤY VỀ" : "NỘP";
           document.getElementById('printReportNetValue').innerText = formatMoneyK(Math.abs(netResult));
           document.getElementById('printReportNetLabel').innerText = netLabelText;
           document.getElementById('printReportHeaderWinnings').classList.remove('hidden');
@@ -2383,7 +2321,7 @@
           const baCangStr = `3c: ${formatMoneyK(details.bacang.xac)} / ${formatMoneyK(details.bacang.trung)}`;
           const baCangLoStr = `3c Lô: ${details.bacang_lo.xac}/ ${details.bacang_lo.trung}`;
           
-          const netLabelText = netLabel.includes("LẤY VỀ") || netLabel.includes("LÃI") ? "LẤY VỀ" : "NỘP";
+          const netLabelText = /lấy về|lãi|trả|bù/i.test(netLabel) ? "LẤY VỀ" : "NỘP";
           const netValK = formatMoneyK(Math.abs(window.lastCalculatedNetResult || 0));
 
           reportText = `${headerText}\n` +
@@ -2502,6 +2440,31 @@
         tabModalList.className = "py-1.5 px-3 rounded-lg text-slate-400 hover:text-slate-200 transition-all text-[11px] font-medium";
         modalListView.classList.add('hidden');
         modalRawView.classList.remove('hidden');
+      });
+
+      // Price config popup modal listeners
+      const btnPriceConfig = document.getElementById('btnPriceConfig');
+      const modalPriceConfig = document.getElementById('modalPriceConfig');
+      const btnClosePriceConfig = document.getElementById('btnClosePriceConfig');
+      const btnClosePriceConfigBtn = document.getElementById('btnClosePriceConfigBtn');
+
+      btnPriceConfig.addEventListener('click', () => {
+        modalPriceConfig.classList.remove('hidden');
+      });
+
+      const closePriceConfigModal = () => {
+        modalPriceConfig.classList.add('hidden');
+        if (document.getElementById('combinedBetInput').value.trim()) {
+          calculateLottoReport();
+        }
+      };
+
+      btnClosePriceConfig.addEventListener('click', closePriceConfigModal);
+      btnClosePriceConfigBtn.addEventListener('click', closePriceConfigModal);
+      modalPriceConfig.addEventListener('click', (e) => {
+        if (e.target === modalPriceConfig) {
+          closePriceConfigModal();
+        }
       });
 
       // Trigger auto load on load
@@ -2768,6 +2731,122 @@ ditto=05.06.07.08.09.15.16.17.18.19.25.26.27.28.29.35.36.37.38.39.45.46.47.48.49
       <div class="p-4 border-t border-slate-800/80 flex justify-end">
         <button id="btnCloseShorthandModalBtn" class="btn-secondary py-2.5 px-5 text-xs font-bold">
           Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Cấu hình giá -->
+  <div id="modalPriceConfig" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/60 backdrop-blur-sm p-4">
+    <div class="glass-panel w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl p-0">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center p-5 border-b border-slate-800/80">
+        <h3 class="text-sm font-bold text-indigo-300 flex items-center gap-2 uppercase tracking-wider">
+          ⚙️ Cấu Hình Giá & Hoa Hồng
+        </h3>
+        <button id="btnClosePriceConfig" class="text-slate-400 hover:text-slate-200 text-lg font-bold transition-all p-1">
+          &times;
+        </button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-4">
+        <div class="flex justify-end mb-2">
+          <button id="btnResetRates" class="text-xs text-brand-300 hover:underline">
+            Khôi phục mặc định
+          </button>
+        </div>
+        <div id="ratesConfigContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Số Đề settings -->
+          <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">
+            <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🔴 Số Đề</h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Giá gốc (%)</label>
+                <input type="number" id="rateDeComm" value="82" min="0" max="100" class="input-premium text-center text-xs">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Thưởng (1 ăn...)</label>
+                <input type="number" id="rateDePayout" value="80" min="0" class="input-premium text-center text-xs">
+              </div>
+            </div>
+          </div>
+
+          <!-- Đánh Lô settings -->
+          <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">
+            <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🔵 Đánh Lô</h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Vốn 1 điểm (đ)</label>
+                <input type="number" id="rateLoCost" value="23000" min="0" class="input-premium text-center text-xs">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Thưởng 1 điểm (đ)</label>
+                <input type="number" id="rateLoPayout" value="80000" min="0" class="input-premium text-center text-xs">
+              </div>
+            </div>
+          </div>
+
+          <!-- Lô Xiên settings -->
+          <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">
+            <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🟢 Lô Xiên (Xiên 2, 3, 4)</h3>
+            <div class="grid grid-cols-4 gap-2 mb-2">
+              <div class="col-span-4">
+                <label class="block text-[11px] text-slate-400 mb-1">Giá gốc (%)</label>
+                <input type="number" id="rateXienComm" value="65" min="0" max="100" class="input-premium text-center text-xs">
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 text-center">Xiên 2 (1 ăn...)</label>
+                <input type="number" id="rateXien2Payout" value="15" min="0" class="input-premium text-center text-xs">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 text-center">Xiên 3 (1 ăn...)</label>
+                <input type="number" id="rateXien3Payout" value="50" min="0" class="input-premium text-center text-xs">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 text-center">Xiên 4 (1 ăn...)</label>
+                <input type="number" id="rateXien4Payout" value="120" min="0" class="input-premium text-center text-xs">
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 Càng settings -->
+          <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">
+            <h3 class="text-xs font-bold text-indigo-300 mb-3 uppercase tracking-wider">🟣 Ba Càng Đề & Lô</h3>
+            <div class="grid grid-cols-2 gap-3 mb-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">3C Đề Giá gốc (%)</label>
+                <input type="number" id="rate3CComm" value="75" min="0" max="100" class="input-premium text-center text-xs">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">3C Đề (1 ăn...)</label>
+                <input type="number" id="rate3CPayout" value="400" min="0" class="input-premium text-center text-xs">
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="col-span-1">
+                <label class="block text-[10px] text-slate-400 mb-1 text-center">Áp Má (1 ăn...)</label>
+                <input type="number" id="rate3CApMa" value="5" min="0" class="input-premium text-center text-xs">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 text-center">3C Lô Vốn (đ/đ)</label>
+                <input type="number" id="rate3CLoCost" value="23000" min="0" class="input-premium text-center text-xs">
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-1 text-center">3C Lô Thưởng (đ/đ)</label>
+                <input type="number" id="rate3CLoPayout" value="960000" min="0" class="input-premium text-center text-xs">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800/80 flex justify-end">
+        <button id="btnClosePriceConfigBtn" class="btn-primary py-2.5 px-5 text-xs font-bold">
+          Xác nhận
         </button>
       </div>
     </div>
