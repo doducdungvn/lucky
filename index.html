@@ -1082,14 +1082,18 @@ function calculateSum() {
   if (!inputEl) return;
   const inputString = inputEl.value;
 
-  const specialPrizeEl = document.getElementById("specialPrizeInput") || document.getElementById("specialPrize");
-  const specialPrizeRaw = specialPrizeEl ? specialPrizeEl.value.trim() : "";
-  const specialPrizeLast2 = specialPrizeRaw ? specialPrizeRaw.slice(-2) : "";
-  const specialPrizeLast3 = specialPrizeRaw ? specialPrizeRaw.slice(-3) : "";
-
   const allPrizesEl = document.getElementById("allPrizesInput") || document.getElementById("twentySevenNumbers");
   const allPrizesRaw = allPrizesEl ? allPrizesEl.value.trim() : "";
   const allPrizes = allPrizesRaw ? allPrizesRaw.split(/[\s,]+/).filter(Boolean) : [];
+
+  const specialPrizeEl = document.getElementById("specialPrizeInput") || document.getElementById("specialPrize");
+  let specialPrizeRaw = specialPrizeEl ? specialPrizeEl.value.trim() : "";
+  if (!specialPrizeRaw && allPrizes.length > 0) {
+    specialPrizeRaw = allPrizes[0];
+  }
+  const specialPrizeLast2 = specialPrizeRaw ? specialPrizeRaw.slice(-2) : "";
+  const specialPrizeLast3 = specialPrizeRaw ? specialPrizeRaw.slice(-3) : "";
+
   const allPrizesLast2 = allPrizes.map(p => p.slice(-2));
   const allPrizesLast3 = allPrizes.filter(p => p.length >= 3).map(p => p.slice(-3));
 
@@ -1592,7 +1596,7 @@ function calculateSum() {
   });
   if (baCangLayoffHtml && modifiedResultDiv) {
     const header = document.createElement("div");
-    header.innerHTML = `<strong>🟣 3C ${formatHeaderMoney(baCangVonChuyen, baCangTrungChuyen)}</strong>`;
+    header.innerHTML = `<strong>🟣 Bc ${formatHeaderMoney(baCangVonChuyen, baCangTrungChuyen)}</strong>`;
     header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
     modifiedResultDiv.appendChild(header);
     const listContainer = document.createElement("div");
@@ -1936,8 +1940,9 @@ function normalizeTwentySevenNumbers() {
 
 function copyText() {
   let textToCopy = document.getElementById("modifiedResult").innerText;
-  textToCopy = textToCopy.replace(/^(?:🔴|🔵|🟤|🟢|🟣)\s*(Đề|Lô\(đ\)|3cLô|Xiên|3C)\s*\(.*?$/gm, "$1");
+  textToCopy = textToCopy.replace(/^(?:🔴|🔵|🟤|🟢|🟣)\s*(Đề|Lô\(đ\)|3cLô|Xiên|3C|Bc)\s*\(.*?$/gm, "$1");
   textToCopy = textToCopy.replace(/^Lô\(đ\)$/gm, "Lô");
+  textToCopy = textToCopy.replace(/^3C$/gm, "Bc");
   copyToClipboard(textToCopy, "Đã sao chép kết quả thành công!");
 }
 
@@ -2105,14 +2110,14 @@ function setupEventListeners() {
   const toggleExtraPanels = document.getElementById('toggleExtraPanels');
   const lotteryResultsPanel = document.getElementById('lotteryResultsPanel');
   const shortcutsPanel = document.getElementById('shortcutsPanel');
-  if (toggleExtraPanels && lotteryResultsPanel && shortcutsPanel) {
+  if (toggleExtraPanels) {
     toggleExtraPanels.addEventListener('change', function() {
       if (this.checked) {
-        lotteryResultsPanel.classList.remove('hidden');
-        shortcutsPanel.classList.remove('hidden');
+        if (lotteryResultsPanel) lotteryResultsPanel.classList.remove('hidden');
+        if (shortcutsPanel) shortcutsPanel.classList.remove('hidden');
       } else {
-        lotteryResultsPanel.classList.add('hidden');
-        shortcutsPanel.classList.add('hidden');
+        if (lotteryResultsPanel) lotteryResultsPanel.classList.add('hidden');
+        if (shortcutsPanel) shortcutsPanel.classList.add('hidden');
       }
     });
   }
