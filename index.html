@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>☆ Lucky Wheel ☆</title>
+  <title>Z8</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -40,6 +40,11 @@
         @apply text-danger font-bold;
         color: #ef4444 !important;
       }
+      #combinedBetInput:empty:before {
+        content: "Ví dụ nhập:\AĐề 12.34.56x50\ALô 01-02-03x10\AXiên 12-34-56x100\A3C 123.456x20\A3CL 789.912x5";
+        color: #9ca3af;
+        white-space: pre-wrap;
+      }
     }
   </style>
 </head>
@@ -51,18 +56,21 @@
       <span class="hidden dark:inline">☀️</span>
     </button>
 
-    <h1 class="text-3xl font-bold text-center mb-6 text-primary dark:text-secondary text-shadow">☆ Lucky Wheel ☆</h1>
+    <h1 class="text-3xl font-bold text-center mb-6 text-primary dark:text-secondary text-shadow">Z8</h1>
 
     <div class="flex flex-col lg:flex-row gap-6">
       <div class="flex-1 space-y-4">
         <div class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 transition-all hover:shadow-lg">
           <label class="block text-sm font-medium mb-1">Nhập số liệu (Hỗn hợp):</label>
-          <textarea 
+          <div 
             id="combinedBetInput" 
-            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-primary dark:focus:ring-secondary focus:border-transparent bg-white dark:bg-dark-700 font-mono text-sm leading-relaxed" 
-            style="height: 330px"
+            contenteditable="true"
+            class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-primary dark:focus:ring-secondary focus:border-transparent bg-white dark:bg-dark-700 font-mono text-sm leading-relaxed overflow-y-auto whitespace-pre-wrap break-all" 
+            style="height: 330px; outline: none;"
             placeholder="Ví dụ nhập:&#10;Đề 12.34.56x50&#10;Lô 01-02-03x10&#10;Xiên 12-34-56x100&#10;3C 123.456x20&#10;3CL 789.912x5"
-          ></textarea>
+            role="textbox"
+            aria-multiline="true"
+          ></div>
           <p class="text-[11px] text-gray-500 mt-1.5">
             💡 Hỗ trợ: Đề (de, d), Lô (lo, l), Xiên (x, x2, x3, x4, xien), Xiên Quay (xienquay, xq, xienq, quay, q, xquay), 3 Càng (3c, 3cang), 3 Càng Lô (3cl, 3clo). Phân cách bằng dấu cách, phẩy, chấm, gạch ngang; dùng 'x', '+' hoặc '*' trước tiền/điểm cược.
           </p>
@@ -192,8 +200,8 @@
         </div>
       </div>
 
-      <div class="flex-1 space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div id="column2" class="flex-1 space-y-4">
+        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 transition-all hover:shadow-lg border border-gray-200 dark:border-gray-700">
             <h3 class="font-medium flex items-center gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">
               <span class="animate-bounce-slow">📊</span>
@@ -256,7 +264,7 @@
         </div>
 
         <!-- Lotto Report & Grand Summary Card (Ported from thau_lode.html style) -->
-        <div class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 transition-all hover:shadow-lg space-y-4">
+        <div id="baoCaoThauCard" class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 transition-all hover:shadow-lg space-y-4">
           <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2">
             <h2 class="text-sm font-semibold uppercase tracking-wider flex items-center gap-2">
               📊 Báo Cáo Thầu
@@ -612,12 +620,41 @@ function parseNumbersFromBetString(numbersString, betType) {
   return numbers;
 }
 
+function stripAccents(str) {
+  return str.normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/đ/g, "d")
+            .replace(/Đ/g, "D");
+}
+
+function normalizeBetLine(line) {
+  let normalized = stripAccents(line.trim());
+  normalized = normalized.replace(/[’‘ʼ＇`]/g, "'");
+  normalized = normalized.replace(/(\d),(\d)/g, '$1.$2');
+  normalized = normalized.replace(/\b(?:kep lech)\b/gi, 'kl');
+  normalized = normalized.replace(/\b(?:lip|kep)\b/gi, 'k');
+  normalized = normalized.replace(/\b(?:dau)\s*(\d)\b/gi, 'dau$1');
+  normalized = normalized.replace(/\b(?:dit|duoi)\s*(\d)\b/gi, 'dit$1');
+  normalized = normalized.replace(/\b(?:cham)\s*(\d)\b/gi, 'cham$1');
+  normalized = normalized.replace(/\b(?:tong)\s*(\d)\b/gi, 't$1');
+  normalized = normalized.replace(/\b(?:bo|he)\s*(\d{1,2})\b/gi, 'bo$1');
+  normalized = normalized.replace(/\b(?:moi con bang|moi con)\b/gi, 'mc');
+  normalized = normalized.replace(/=\s*(?:mc\s*)?(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n))?(?![a-z0-9])/gi, 'x$1');
+  normalized = normalized.replace(/\bmc\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n))?(?![a-z0-9])/gi, 'x$1');
+  normalized = normalized.replace(/\bx\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n))?(?![a-z0-9])/gi, 'x$1');
+  normalized = normalized.replace(/\s+(\d+(?:\.\d+)?)\s*(?:d|đ|₫|k|n)(?![a-z0-9])/gi, ' x$1');
+  return normalized;
+}
+
 function parseCombinedInput(inputString) {
   let processedInput = inputString.replace(/[’‘ʼ＇`]/g, "'");
-  const sameLinePattern = /[\s,;]+\b(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|lô|lo|xiên|xien|x|x2|x3|x4)\b|[\s,;]+\b(3càng|3cang|3c|3clô|3clo|3cl)\b|[\s,;]+\b(d|l|c)\b(?=\s+[a-z0-9'’‘ʼ＇`])/gi;
+  const sameLinePattern = /[\s,;]+(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|đê|đe|dê|dè|đè|Dè|Đè|lô|lo|l|xiên|xien|x2|x3|x4)(?=[\s.,;\-\d]|$)|[\s,;]+(3càng|3cang|3c|3clô|3clo|3cl)(?=[\s.,;\-\d]|$)|[\s,;]+(d|đ|l|c)(?=[\s.,;\-\d]|$)(?=\s+[a-z0-9'’‘＇`])/gi;
   processedInput = processedInput.replace(sameLinePattern, (match) => {
     return "\n" + match.replace(/^[\s,;]+/g, '').trim();
   });
+
+  const betSplitRegex = /((?:(?:=|x|\+|\*|mc|mc\s*=|=\s*mc|mỗi\s+con\s*=?|moi\s+con\s*=?)\s*\d+(?:\.\d+)?\s*(?:d|đ|₫|k|n)?|\s+\d+(?:\.\d+)?\s*(?:d|đ|₫|k|n)))\b[\s.,;\-]+(?=[^\s.,;\-])/gi;
+  processedInput = processedInput.replace(betSplitRegex, '$1\n');
 
   const lines = processedInput.split('\n');
   const parsedBets = {
@@ -632,22 +669,24 @@ function parseCombinedInput(inputString) {
   };
 
   const typeRegex = {
-    de: /^(đề|de|d)$/i,
-    lo: /^(lô|lo|l)$/i,
+    de: /^(de|d)$/i,
+    lo: /^(lo|l)$/i,
     xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
-    xien: /^(lô\s+xiên|lo\s+xien|xiên|xien|x|x2|x3|x4)$/i,
-    bacang: /^(3càng|3cang|3c|c)$/i,
-    bacang_lo: /^(3clô|3clo|3cl)$/i
+    xien: /^(lo\s+xien|xien|x|x2|x3|x4)$/i,
+    bacang: /^(3cang|3c|c)$/i,
+    bacang_lo: /^(3clo|3cl)$/i
   };
 
   let activeCategory = 'de';
 
   lines.forEach(line => {
-    let trimmed = line.trim();
-    if (!trimmed) return;
+    let originalLine = line.trim();
+    if (!originalLine) return;
+
+    let trimmed = normalizeBetLine(originalLine);
 
     let lineType = '';
-    const spaceMatch = trimmed.match(/^(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|lô|lo|xiên|xien|x|x2|x3|x4|3càng|3cang|3c|3clô|3clo|3cl|d|l|c)(?:\s+(.*))?$/i);
+    const spaceMatch = trimmed.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c)(?:\s+(.*))?$/i);
     if (spaceMatch) {
       const rawType = spaceMatch[1].toLowerCase();
       if (typeRegex.de.test(rawType)) lineType = 'de';
@@ -661,33 +700,13 @@ function parseCombinedInput(inputString) {
         activeCategory = lineType;
         trimmed = spaceMatch[2] ? spaceMatch[2].trim() : '';
       }
-    } else {
-      if (trimmed.match(/^l(\d+)/i)) {
-        activeCategory = 'lo';
-        lineType = 'lo';
-        trimmed = trimmed.substring(1).trim();
-      } else if (trimmed.match(/^xq(\d+)/i)) {
-        activeCategory = 'xienquay';
-        lineType = 'xienquay';
-        trimmed = trimmed.substring(2).trim();
-      } else if (trimmed.match(/^q(\d+)/i)) {
-        activeCategory = 'xienquay';
-        lineType = 'xienquay';
-        trimmed = trimmed.substring(1).trim();
-      } else if (trimmed.match(/^3c(\d+)/i) || trimmed.match(/^c(\d+)/i)) {
-        activeCategory = 'bacang';
-        lineType = 'bacang';
-        trimmed = trimmed.replace(/^(3c|c)/i, '').trim();
-      } else if (trimmed.match(/^3cl(\d+)/i)) {
-        activeCategory = 'bacang_lo';
-        lineType = 'bacang_lo';
-        trimmed = trimmed.substring(3).trim();
-      }
     }
 
     if (!lineType) lineType = activeCategory;
 
-    const groupRegex = /([a-wy-z0-9'.,\-\s]+)([x+*])(\d+)/gi;
+    let parsedCountBefore = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length + parsedBets.bacang_lo.length;
+
+    const groupRegex = /([a-wy-z0-9'.,\-\s]+)([x+*])(\d+(?:\.\d+)?)/gi;
     let groupMatch;
     while ((groupMatch = groupRegex.exec(trimmed)) !== null) {
       const rawNumString = groupMatch[1].trim();
@@ -707,6 +726,7 @@ function parseCombinedInput(inputString) {
           parsedBets[`xien${numbers.length}`].push(item);
           parsedBets.rawOrder.push({
             type: `xien${numbers.length}`,
+            originalLine: originalLine,
             numbers: numbers,
             amount: amount
           });
@@ -739,6 +759,7 @@ function parseCombinedInput(inputString) {
                 parsedBets[`xien${size}`].push(item);
                 parsedBets.rawOrder.push({
                   type: `xien${size}`,
+                  originalLine: originalLine,
                   numbers: combo,
                   amount: amount
                 });
@@ -755,12 +776,30 @@ function parseCombinedInput(inputString) {
           parsedBets[lineType].push(item);
           parsedBets.rawOrder.push({
             type: lineType,
+            originalLine: originalLine,
             numbers: [num],
             amount: amount
           });
         });
       }
     }
+
+    let parsedCountAfter = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length + parsedBets.bacang_lo.length;
+    if (parsedCountAfter === parsedCountBefore) {
+      parsedBets.rawOrder.push({
+        type: 'invalid',
+        originalLine: originalLine,
+        amount: 0
+      });
+    }
+  });
+
+  parsedBets.lineStates = lines.map(line => {
+    let originalLine = line.trim();
+    if (!originalLine) return { text: line, isValid: true };
+    const hasValid = parsedBets.rawOrder.some(b => b.originalLine === originalLine && b.type !== 'invalid');
+    const hasInvalid = parsedBets.rawOrder.some(b => b.originalLine === originalLine && b.type === 'invalid');
+    return { text: line, isValid: hasValid || !hasInvalid };
   });
 
   return parsedBets;
@@ -1074,13 +1113,22 @@ function loadShortcuts() {
   }
 }
 
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // Calculation Engine
 function calculateSum() {
   saveShortcuts();
 
   const inputEl = document.getElementById("combinedBetInput") || document.getElementById("numbers");
   if (!inputEl) return;
-  const inputString = inputEl.value;
+  const inputString = inputEl.tagName.toLowerCase() === "textarea" ? inputEl.value : inputEl.innerText;
 
   const allPrizesEl = document.getElementById("allPrizesInput") || document.getElementById("twentySevenNumbers");
   const allPrizesRaw = allPrizesEl ? allPrizesEl.value.trim() : "";
@@ -1133,7 +1181,37 @@ function calculateSum() {
   const loCostFactor = getLoCostFactor(loCost);
   const loPayoutFactor = getLoPayoutFactor(loPayout);
 
+  function checkLineValidity(lineText) {
+    const trimmed = lineText.trim();
+    if (trimmed === "") return true;
+    
+    // Check if it's a category transition line (like Đề, Lô, d, l, etc.)
+    const normalized = normalizeBetLine(trimmed);
+    const catMatch = normalized.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c)$/i);
+    if (catMatch) return true;
+
+    const res = parseCombinedInput(lineText);
+    const totalCount = res.de.length + res.lo.length + res.xien2.length + res.xien3.length + res.xien4.length + res.bacang.length + res.bacang_lo.length;
+    return totalCount > 0;
+  }
+
   const parsedBets = parseCombinedInput(inputString);
+
+  if (inputEl.tagName.toLowerCase() !== "textarea") {
+    const originalLines = inputString.split('\n');
+    let editorHtml = originalLines.map(line => {
+      if (line.trim() === "") {
+        return "";
+      }
+      const isValid = checkLineValidity(line);
+      if (isValid) {
+        return escapeHtml(line);
+      } else {
+        return `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(line)}</span>`;
+      }
+    }).join('\n');
+    inputEl.innerHTML = editorHtml;
+  }
 
   const resultDiv = document.getElementById("result");
   const modifiedResultDiv = document.getElementById("modifiedResult");
@@ -1148,6 +1226,7 @@ function calculateSum() {
   let loWinSum = 0;
   let xienBetSum = 0;
   let xienWinSum = 0;
+  let xienWinXac = 0;
   let baCangBetSum = 0;
   let baCangWinSum = 0;
 
@@ -1224,6 +1303,7 @@ function calculateSum() {
     if (allHit) {
       const winRate = size === 2 ? x2Payout : (size === 3 ? x3Payout : x4Payout);
       xienWinSum += bet.amount * winRate;
+      xienWinXac += bet.amount;
     }
   });
 
@@ -1261,28 +1341,74 @@ function calculateSum() {
   });
 
   // Render detail in original entry order
-  parsedBets.rawOrder.forEach(bet => {
-    let occurrences = 0;
-    const num = bet.numbers[0];
-    const typeLabel = bet.type === "de" ? "Đề" : (bet.type === "lo" ? "Lô" : (bet.type.startsWith("xien") ? `Xiên${bet.numbers.length}` : (bet.type === "bacang" ? "3C" : "3CLô")));
-    
-    if (bet.type === "de") {
-      occurrences = num === specialPrizeLast2 ? 1 : 0;
-    } else if (bet.type === "lo") {
-      occurrences = allPrizesLast2.filter(p => p === num).length;
-    } else if (bet.type.startsWith("xien")) {
-      const allHit = bet.numbers.every(n => allPrizesLast2.includes(n));
-      occurrences = allHit ? 1 : 0;
-    } else if (bet.type === "bacang") {
-      const match3 = num === specialPrizeLast3;
-      const match2 = num.slice(-2) === specialPrizeLast2;
-      occurrences = match3 ? 1 : (match2 ? 0.5 : 0);
-    } else if (bet.type === "bacang_lo") {
-      occurrences = allPrizesLast3.filter(p => p === num).length;
-    }
+  const originalLinesList = inputString.split('\n');
+  originalLinesList.forEach(lineText => {
+    const trimmedLine = lineText.trim();
+    if (trimmedLine === "") return;
 
-    const numStr = bet.type.startsWith("xien") ? bet.numbers.join('-') : num;
-    renderDetail(numStr, bet.amount, typeLabel, occurrences);
+    const isValid = checkLineValidity(trimmedLine);
+    if (!isValid) {
+      if (inputListDiv) {
+        const li = document.createElement("li");
+        li.className = "text-danger font-bold bg-red-100 dark:bg-red-950/40 p-1.5 rounded border border-red-300 dark:border-red-900/50 mt-1 mb-1";
+        li.textContent = `❌ Lỗi cú pháp: ${trimmedLine}`;
+        inputListDiv.appendChild(li);
+      }
+    } else {
+      // Find all valid bets from parsedBets.rawOrder that belong to this line
+      const lineBets = parsedBets.rawOrder.filter(b => b.type !== 'invalid' && !b.rendered && trimmedLine.indexOf(b.originalLine) !== -1);
+      lineBets.forEach(bet => {
+        bet.rendered = true;
+        let occurrences = 0;
+        const num = bet.numbers[0];
+        const typeLabel = bet.type === "de" ? "Đề" : (bet.type === "lo" ? "Lô" : (bet.type.startsWith("xien") ? `Xiên${bet.numbers.length}` : (bet.type === "bacang" ? "3C" : "3CLô")));
+        
+        if (bet.type === "de") {
+          occurrences = num === specialPrizeLast2 ? 1 : 0;
+        } else if (bet.type === "lo") {
+          occurrences = allPrizesLast2.filter(p => p === num).length;
+        } else if (bet.type.startsWith("xien")) {
+          const allHit = bet.numbers.every(n => allPrizesLast2.includes(n));
+          occurrences = allHit ? 1 : 0;
+        } else if (bet.type === "bacang") {
+          const match3 = num === specialPrizeLast3;
+          const match2 = num.slice(-2) === specialPrizeLast2;
+          occurrences = match3 ? 1 : (match2 ? 0.5 : 0);
+        } else if (bet.type === "bacang_lo") {
+          occurrences = allPrizesLast3.filter(p => p === num).length;
+        }
+
+        const numStr = bet.type.startsWith("xien") ? bet.numbers.join('-') : num;
+        renderDetail(numStr, bet.amount, typeLabel, occurrences);
+      });
+    }
+  });
+
+  // Fallback for any remaining unrendered bets
+  parsedBets.rawOrder.forEach(bet => {
+    if (bet.type !== 'invalid' && !bet.rendered) {
+      let occurrences = 0;
+      const num = bet.numbers[0];
+      const typeLabel = bet.type === "de" ? "Đề" : (bet.type === "lo" ? "Lô" : (bet.type.startsWith("xien") ? `Xiên${bet.numbers.length}` : (bet.type === "bacang" ? "3C" : "3CLô")));
+      
+      if (bet.type === "de") {
+        occurrences = num === specialPrizeLast2 ? 1 : 0;
+      } else if (bet.type === "lo") {
+        occurrences = allPrizesLast2.filter(p => p === num).length;
+      } else if (bet.type.startsWith("xien")) {
+        const allHit = bet.numbers.every(n => allPrizesLast2.includes(n));
+        occurrences = allHit ? 1 : 0;
+      } else if (bet.type === "bacang") {
+        const match3 = num === specialPrizeLast3;
+        const match2 = num.slice(-2) === specialPrizeLast2;
+        occurrences = match3 ? 1 : (match2 ? 0.5 : 0);
+      } else if (bet.type === "bacang_lo") {
+        occurrences = allPrizesLast3.filter(p => p === num).length;
+      }
+
+      const numStr = bet.type.startsWith("xien") ? bet.numbers.join('-') : num;
+      renderDetail(numStr, bet.amount, typeLabel, occurrences);
+    }
   });
 
   // Render Kết quả column
@@ -1400,16 +1526,20 @@ function calculateSum() {
 
   let xienVonChuyen = 0;
   let xienTrungChuyen = 0;
+  let xienXacChuyen = 0;
+  let xienWinXacChuyen = 0;
   xienBets.forEach(bet => {
     let modifiedSum = retainType === "money" ? bet.amount - retainNumber : bet.amount - (bet.amount * (retainNumber / 100));
     if (modifiedSum >= 1) {
       modifiedSum = Math.trunc(modifiedSum);
+      xienXacChuyen += modifiedSum;
       xienVonChuyen += modifiedSum * (xienComm / 100);
       const allHit = bet.numbers.every(num => allPrizesLast2.includes(num));
       if (allHit) {
         const size = bet.numbers.length;
         const winRate = size === 2 ? x2Payout : (size === 3 ? x3Payout : x4Payout);
         xienTrungChuyen += modifiedSum * winRate;
+        xienWinXacChuyen += modifiedSum;
       }
     }
   });
@@ -1433,6 +1563,94 @@ function calculateSum() {
 
   const totalVonChuyen = deVonChuyen + loVonChuyen + xienVonChuyen + baCangVonChuyen + baCangLoVonChuyen;
   const totalTrungChuyen = deTrungChuyen + loTrungChuyen + xienTrungChuyen + baCangTrungChuyen + baCangLoTrungChuyen;
+
+  const getModifiedValue = (val) => {
+    let modifiedSum = retainType === "money" ? val - retainNumber : val - (val * (retainNumber / 100));
+    return modifiedSum >= 1 ? Math.trunc(modifiedSum) : 0;
+  };
+
+  const deWinSumChuyen = deSums[specialPrizeLast2] ? getModifiedValue(deSums[specialPrizeLast2]) : 0;
+
+  let loWinSumChuyen = 0;
+  Object.entries(loSums).forEach(([num, val]) => {
+    const occurrences = allPrizesLast2.filter(p => p === num).length;
+    if (occurrences > 0) {
+      loWinSumChuyen += occurrences * getModifiedValue(val);
+    }
+  });
+
+  let baCangDeWinSumChuyen = 0;
+  let baCangDeApMaWinSumChuyen = 0;
+  Object.entries(baCangSums).forEach(([num, val]) => {
+    const match3 = num === specialPrizeLast3;
+    const match2 = num.slice(-2) === specialPrizeLast2;
+    const modVal = getModifiedValue(val);
+    if (match3) {
+      baCangDeWinSumChuyen += modVal;
+    } else if (match2) {
+      baCangDeApMaWinSumChuyen += modVal;
+    }
+  });
+
+  let baCangLoWinSumChuyen = 0;
+  Object.entries(baCangLoSums).forEach(([num, val]) => {
+    const occurrences = allPrizesLast3.filter(p => p === num).length;
+    if (occurrences > 0) {
+      baCangLoWinSumChuyen += occurrences * getModifiedValue(val);
+    }
+  });
+
+  function formatBreakdown(isChuyen) {
+    const list = [];
+    
+    // 1. Đề
+    const deXacVal = isChuyen ? deLayoff.costSum : deBetSum;
+    const deWinVal = isChuyen ? deWinSumChuyen : deWinSum;
+    if (deXacVal > 0) {
+      list.push(`<div class="flex justify-between"><span>🔴 Đề:</span><span class="font-bold text-gray-700 dark:text-gray-300">${Math.round(deXacVal).toLocaleString('vi-VN')} / ${Math.round(deWinVal).toLocaleString('vi-VN')}</span></div>`);
+    }
+
+    // 2. Lô
+    const loXacVal = isChuyen ? loLayoff.costSum : loBetSum;
+    const loWinVal = isChuyen ? loWinSumChuyen : loWinSum;
+    if (loXacVal > 0) {
+      list.push(`<div class="flex justify-between"><span>🔵 Lô:</span><span class="font-bold text-gray-700 dark:text-gray-300">${Math.round(loXacVal).toLocaleString('vi-VN')} / ${Math.round(loWinVal).toLocaleString('vi-VN')}</span></div>`);
+    }
+
+    // 3. 3 Càng
+    const baCangXacVal = isChuyen ? baCangLayoff.costSum : baCangDeBetSum;
+    if (baCangXacVal > 0) {
+      if (isChuyen) {
+        if (baCangDeApMaWinSumChuyen > 0) {
+          list.push(`<div class="flex justify-between"><span>🟣 3c:</span><span class="font-bold text-gray-700 dark:text-gray-300">${Math.round(baCangXacVal).toLocaleString('vi-VN')} / (${Math.round(baCangDeWinSumChuyen).toLocaleString('vi-VN')} / ${Math.round(baCangDeApMaWinSumChuyen).toLocaleString('vi-VN')})</span></div>`);
+        } else {
+          list.push(`<div class="flex justify-between"><span>🟣 3c:</span><span class="font-bold text-gray-700 dark:text-gray-300">${Math.round(baCangXacVal).toLocaleString('vi-VN')} / ${Math.round(baCangDeWinSumChuyen).toLocaleString('vi-VN')}</span></div>`);
+        }
+      } else {
+        if (baCangDeApMaWinSum > 0) {
+          list.push(`<div class="flex justify-between"><span>🟣 3c:</span><span class="font-bold text-gray-700 dark:text-gray-300">${Math.round(baCangXacVal).toLocaleString('vi-VN')} / (${Math.round(baCangDeWinSum).toLocaleString('vi-VN')} / ${Math.round(baCangDeApMaWinSum).toLocaleString('vi-VN')})</span></div>`);
+        } else {
+          list.push(`<div class="flex justify-between"><span>🟣 3c:</span><span class="font-bold text-gray-700 dark:text-gray-300">${Math.round(baCangXacVal).toLocaleString('vi-VN')} / ${Math.round(baCangDeWinSum).toLocaleString('vi-VN')}</span></div>`);
+        }
+      }
+    }
+
+    // 4. Xiên
+    const xienXacValToUse = isChuyen ? xienXacChuyen : xienBetSum;
+    const xienWinVal = isChuyen ? xienWinXacChuyen : xienWinXac;
+    if (xienXacValToUse > 0) {
+      list.push(`<div class="flex justify-between"><span>🟢 Xiên:</span><span class="font-bold text-gray-700 dark:text-gray-300">${Math.round(xienXacValToUse).toLocaleString('vi-VN')} / ${Math.round(xienWinVal).toLocaleString('vi-VN')}</span></div>`);
+    }
+
+    // 5. 3C Lô
+    const baCangLoXacVal = isChuyen ? baCangLoLayoff.costSum : baCangLoBetSum;
+    const baCangLoWinVal = isChuyen ? baCangLoWinSumChuyen : baCangLoWinSum;
+    if (baCangLoXacVal > 0) {
+      list.push(`<div class="flex justify-between"><span>🟤 3cLo:</span><span class="font-bold text-gray-700 dark:text-gray-300">${Math.round(baCangLoXacVal).toLocaleString('vi-VN')} / ${Math.round(baCangLoWinVal).toLocaleString('vi-VN')}</span></div>`);
+    }
+
+    return list.join('');
+  }
 
   // 3. Render Kết quả list with formatHeaderMoney
   const formatHeaderMoney = (von, trung) => {
@@ -1628,7 +1846,10 @@ function calculateSum() {
 
     setCell("tblDeXac", deXac, false);
     setCell("tblDeVon", deVon);
-    setCell("tblDeTrung", deTrung);
+    const tblDeTrungEl = document.getElementById("tblDeTrung");
+    if (tblDeTrungEl) {
+      tblDeTrungEl.textContent = deWinSum > 0 ? `(${Math.round(deWinSum).toLocaleString('vi-VN')})${Math.round(deTrung).toLocaleString('vi-VN')}` : "0";
+    }
     setCell("tblDeNet", deNet);
     if (document.getElementById("tblDeNet")) {
       document.getElementById("tblDeNet").className = deNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
@@ -1636,7 +1857,10 @@ function calculateSum() {
 
     setCell("tblLoXac", loXac, false);
     setCell("tblLoVon", loVon);
-    setCell("tblLoTrung", loTrung);
+    const tblLoTrungEl = document.getElementById("tblLoTrung");
+    if (tblLoTrungEl) {
+      tblLoTrungEl.textContent = loWinSum > 0 ? `(${Math.round(loWinSum).toLocaleString('vi-VN')})${Math.round(loTrung).toLocaleString('vi-VN')}` : "0";
+    }
     setCell("tblLoNet", loNet);
     if (document.getElementById("tblLoNet")) {
       document.getElementById("tblLoNet").className = loNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
@@ -1644,7 +1868,10 @@ function calculateSum() {
 
     setCell("tblXienXac", xienXac, false);
     setCell("tblXienVon", xienVon);
-    setCell("tblXienTrung", xienTrung);
+    const tblXienTrungEl = document.getElementById("tblXienTrung");
+    if (tblXienTrungEl) {
+      tblXienTrungEl.textContent = xienWinXac > 0 ? `(${Math.round(xienWinXac).toLocaleString('vi-VN')})${Math.round(xienTrung).toLocaleString('vi-VN')}` : "0";
+    }
     setCell("tblXienNet", xienNet);
     if (document.getElementById("tblXienNet")) {
       document.getElementById("tblXienNet").className = xienNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
@@ -1652,7 +1879,11 @@ function calculateSum() {
 
     setCell("tbl3CXac", baCangXac, false);
     setCell("tbl3CVon", baCangVon);
-    setCell("tbl3CTrung", baCangTrung);
+    const tbl3CTrungEl = document.getElementById("tbl3CTrung");
+    if (tbl3CTrungEl) {
+      const baCangWinXac = baCangDeWinSum + baCangDeApMaWinSum;
+      tbl3CTrungEl.textContent = baCangWinXac > 0 ? `(${Math.round(baCangWinXac).toLocaleString('vi-VN')})${Math.round(baCangTrung).toLocaleString('vi-VN')}` : "0";
+    }
     setCell("tbl3CNet", baCangNet);
     if (document.getElementById("tbl3CNet")) {
       document.getElementById("tbl3CNet").className = baCangNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
@@ -1660,7 +1891,10 @@ function calculateSum() {
 
     setCell("tbl3CLXac", baCangLoXac, false);
     setCell("tbl3CLVon", baCangLoVon);
-    setCell("tbl3CLTrung", baCangLoTrung);
+    const tbl3CLTrungEl = document.getElementById("tbl3CLTrung");
+    if (tbl3CLTrungEl) {
+      tbl3CLTrungEl.textContent = baCangLoWinSum > 0 ? `(${Math.round(baCangLoWinSum).toLocaleString('vi-VN')})${Math.round(baCangLoTrung).toLocaleString('vi-VN')}` : "0";
+    }
     setCell("tbl3CLNet", baCangLoNet);
     if (document.getElementById("tbl3CLNet")) {
       document.getElementById("tbl3CLNet").className = baCangLoNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
@@ -1711,10 +1945,14 @@ function calculateSum() {
     const totalSumLabel = document.getElementById("totalSum");
     const modifiedTotalSumLabel = document.getElementById("modifiedTotalSum");
     if (totalSumLabel) {
-      totalSumLabel.textContent = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
+      const totalText = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
+      const breakdown = formatBreakdown(false);
+      totalSumLabel.innerHTML = breakdown ? `${totalText}<div class="mt-1.5 pt-1 border-t border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 font-normal space-y-0.5 text-[11px] text-left">${breakdown}</div>` : totalText;
     }
     if (modifiedTotalSumLabel) {
-      modifiedTotalSumLabel.textContent = `${Math.round(totalVonChuyen).toLocaleString("vi-VN")} / ${Math.round(totalTrungChuyen).toLocaleString("vi-VN")}`;
+      const totalText = `${Math.round(totalVonChuyen).toLocaleString("vi-VN")} / ${Math.round(totalTrungChuyen).toLocaleString("vi-VN")}`;
+      const breakdown = formatBreakdown(true);
+      modifiedTotalSumLabel.innerHTML = breakdown ? `${totalText}<div class="mt-1.5 pt-1 border-t border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 font-normal space-y-0.5 text-[11px] text-left">${breakdown}</div>` : totalText;
     }
 
   } else {
@@ -1846,7 +2084,9 @@ function calculateSum() {
   if (inputListTotalSpan) inputListTotalSpan.textContent = totalBetValue.toLocaleString("vi-VN");
   const inputTotalSumEl = document.getElementById("inputTotalSum");
   if (inputTotalSumEl) {
-    inputTotalSumEl.textContent = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
+    const totalText = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
+    const breakdown = formatBreakdown(false);
+    inputTotalSumEl.innerHTML = breakdown ? `${totalText}<div class="mt-1.5 pt-1 border-t border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 font-normal space-y-0.5 text-[11px] text-left">${breakdown}</div>` : totalText;
   }
 }
 
@@ -2087,6 +2327,15 @@ function saveRates() {
 
 // Setup Event Listeners
 function setupEventListeners() {
+  const combinedBetInput = document.getElementById('combinedBetInput');
+  if (combinedBetInput && combinedBetInput.tagName.toLowerCase() !== "textarea") {
+    combinedBetInput.addEventListener('paste', function(e) {
+      e.preventDefault();
+      const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+      document.execCommand("insertText", false, text);
+    });
+  }
+
   const calcBtn = document.getElementById('calculateButton');
   if (calcBtn) {
     calcBtn.addEventListener('click', calculateSum);
@@ -2110,7 +2359,22 @@ function setupEventListeners() {
   const toggleExtraPanels = document.getElementById('toggleExtraPanels');
   const lotteryResultsPanel = document.getElementById('lotteryResultsPanel');
   const shortcutsPanel = document.getElementById('shortcutsPanel');
+  const cardsGrid = document.getElementById('cardsGrid');
+  const baoCaoThauCard = document.getElementById('baoCaoThauCard');
+  const column2 = document.getElementById('column2');
+
+  function adjustBaoCaoThauPosition(isChecked) {
+    if (!cardsGrid || !baoCaoThauCard || !column2) return;
+    if (isChecked) {
+      column2.insertBefore(baoCaoThauCard, cardsGrid);
+    } else {
+      column2.appendChild(baoCaoThauCard);
+    }
+  }
+
   if (toggleExtraPanels) {
+    adjustBaoCaoThauPosition(toggleExtraPanels.checked);
+
     toggleExtraPanels.addEventListener('change', function() {
       if (this.checked) {
         if (lotteryResultsPanel) lotteryResultsPanel.classList.remove('hidden');
@@ -2119,6 +2383,7 @@ function setupEventListeners() {
         if (lotteryResultsPanel) lotteryResultsPanel.classList.add('hidden');
         if (shortcutsPanel) shortcutsPanel.classList.add('hidden');
       }
+      adjustBaoCaoThauPosition(this.checked);
     });
   }
 
