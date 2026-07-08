@@ -834,7 +834,7 @@ function formatLineWithHighlights(lineText, currentCategory) {
   let hasInvalid = false;
   let htmlResult = "";
   
-  const groupRegex = /(?:^|[\s,;])([a-wy-z0-9'.,\-\s\u00C0-\u024F\u1E00-\u1EFF]+?)(?:mỗi\s+con\s*=?|moi\s+con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?/gi;
+  const groupRegex = /(?:^|[\s,;])([a-wy-z0-9'’‘ʼ＇`.,\-\s\u00C0-\u024F\u1E00-\u1EFF]+?)(?:mỗi\s+con\s*=?|moi\s+con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?/gi;
   
   let lastIndex = 0;
   let match;
@@ -883,7 +883,8 @@ function stripAccents(str) {
 
 function normalizeBetLine(line) {
   let normalized = stripAccents(line.trim());
-  normalized = normalized.replace(/[’‘ʼ＇`]/g, "'");
+  normalized = normalized.replace(/([dđ])`/gi, '$1');
+  normalized = normalized.replace(/[’‘ʼ＇]/g, "'");
   normalized = normalized.replace(/(\d)\s*,\s*(\d)/g, '$1.$2');
   normalized = normalized.replace(/(\d)\s*\.\s*(\d)/g, '$1.$2');
   normalized = normalized.replace(/\b(?:dau\s+dit|dau\s+duoi)\s*(\d)(?![0-9])/gi, 'dau$1, dit$1');
@@ -970,7 +971,7 @@ function parseCombinedInput(inputString) {
 
     let parsedCountBefore = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length + parsedBets.bacang_lo.length;
 
-    const groupRegex = /([a-wy-z0-9'.,\-\s]+)([x+*])(\d+(?:\.\d+)?)/gi;
+    const groupRegex = /([a-wy-z0-9'’‘ʼ＇`.,\-\s]+)([x+*])(\d+(?:\.\d+)?)/gi;
     let groupMatch;
     while ((groupMatch = groupRegex.exec(trimmed)) !== null) {
       const rawNumString = groupMatch[1].trim();
