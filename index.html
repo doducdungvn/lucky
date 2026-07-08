@@ -599,17 +599,22 @@ function parseNumbersFromBetString(numbersString, betType) {
   segments.forEach(seg => {
     if (!/^\d+$/.test(seg)) return;
     if (betType === 'de' || betType === 'lo') {
-      if (seg.length === 1) {
-        numbers.push('0' + seg);
-      } else if (seg.length === 2) {
+      if (seg.length === 2) {
         numbers.push(seg);
       } else if (seg.length === 3) {
-        numbers.push(seg.substring(0, 2));
-        numbers.push(seg.substring(1, 3));
+        if (seg.charAt(0) === seg.charAt(2)) {
+          numbers.push(seg.substring(0, 2));
+          numbers.push(seg.substring(1, 3));
+        }
       }
     } else if (betType === 'xien' || betType === 'xienquay') {
       if (seg.length === 2) {
         numbers.push(seg);
+      } else if (seg.length === 3) {
+        if (seg.charAt(0) === seg.charAt(2)) {
+          numbers.push(seg.substring(0, 2));
+          numbers.push(seg.substring(1, 3));
+        }
       }
     } else if (betType === 'bacang' || betType === 'bacang_lo') {
       if (seg.length === 3) {
@@ -618,6 +623,220 @@ function parseNumbersFromBetString(numbersString, betType) {
     }
   });
   return numbers;
+}
+
+function verifyNonGroupText(text, currentCat) {
+  const tokens = text.match(/\s+|[^\s]+/g) || [];
+  let activeCat = currentCat;
+  let hasInvalid = false;
+  let html = "";
+  
+  tokens.forEach(token => {
+    const trimmed = token.trim();
+    if (!trimmed) {
+      html += escapeHtml(token);
+      return;
+    }
+    
+    const norm = normalizeBetLine(trimmed);
+    const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c)$/i);
+    if (spaceMatch) {
+      const rawType = spaceMatch[1].toLowerCase();
+      const typeRegex = {
+        de: /^(de|d)$/i,
+        lo: /^(lo|l)$/i,
+        xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
+        xien: /^(lo\s+xien|xien|x|x2|x3|x4)$/i,
+        bacang: /^(3cang|3c|c)$/i,
+        bacang_lo: /^(3clo|3cl)$/i
+      };
+      let newCat = '';
+      if (typeRegex.de.test(rawType)) newCat = 'de';
+      else if (typeRegex.lo.test(rawType)) newCat = 'lo';
+      else if (typeRegex.xienquay.test(rawType)) newCat = 'xienquay';
+      else if (typeRegex.xien.test(rawType)) newCat = 'xien';
+      else if (typeRegex.bacang.test(rawType)) newCat = 'bacang';
+      else if (typeRegex.bacang_lo.test(rawType)) newCat = 'bacang_lo';
+      
+      if (newCat) {
+        activeCat = newCat;
+        html += escapeHtml(token);
+        return;
+      }
+    }
+    
+    if (/\d/.test(token)) {
+      hasInvalid = true;
+      html += `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(token)}</span>`;
+    } else {
+      html += escapeHtml(token);
+    }
+  });
+  
+  return {
+    html: html,
+    newCategory: activeCat,
+    hasInvalid: hasInvalid
+  };
+}
+
+function verifyGroupText(groupText, currentCat) {
+  let activeCat = currentCat;
+  const normGroup = normalizeBetLine(groupText);
+  const match = normGroup.match(/^([a-wy-z0-9'.,\-\s]+)x(\d+(?:\.\d+)?)$/i);
+  if (!match) {
+    return {
+      html: `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(groupText)}</span>`,
+      newCategory: activeCat,
+      hasInvalid: true
+    };
+  }
+  
+  let rawNumString = match[1].trim();
+  const keywordMatch = rawNumString.match(/^(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|lo|lô|3c|d|đ|l|c|q|x)(.*)$/i);
+  if (keywordMatch) {
+    const rawType = keywordMatch[1].toLowerCase();
+    const typeRegex = {
+      de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè)$/i,
+      lo: /^(lo|lô|l)$/i,
+      xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
+      xien: /^(xien|xiên|x)$/i,
+      bacang: /^(3cang|3c|c)$/i,
+      bacang_lo: /^(3clo|3cl)$/i
+    };
+    let newCat = '';
+    if (typeRegex.de.test(rawType)) newCat = 'de';
+    else if (typeRegex.lo.test(rawType)) newCat = 'lo';
+    else if (typeRegex.xienquay.test(rawType)) newCat = 'xienquay';
+    else if (typeRegex.xien.test(rawType)) newCat = 'xien';
+    else if (typeRegex.bacang.test(rawType)) newCat = 'bacang';
+    else if (typeRegex.bacang_lo.test(rawType)) newCat = 'bacang_lo';
+    
+    if (newCat) {
+      activeCat = newCat;
+      rawNumString = keywordMatch[2].trim();
+    }
+  }
+  
+  const numString = resolveShorthands(rawNumString);
+  const segments = numString.split(/[.,\-\s]+/).filter(s => s.length > 0);
+  let isValidGroup = true;
+  let parsedNumbersCount = 0;
+  
+  if (segments.length === 0) {
+    isValidGroup = false;
+  } else {
+    segments.forEach(seg => {
+      if (!/^\d+$/.test(seg)) {
+        const isShorthand = /^(kl|k|dau\d|dit\d|cham\d|t\d|bo\d{1,2})$/i.test(seg);
+        if (isShorthand) {
+          if (activeCat !== 'de' && activeCat !== 'lo') {
+            isValidGroup = false;
+          } else {
+            parsedNumbersCount += 2;
+          }
+        } else {
+          isValidGroup = false;
+        }
+        return;
+      }
+      
+      if (activeCat === 'de' || activeCat === 'lo') {
+        if (seg.length === 2) {
+          parsedNumbersCount += 1;
+        } else if (seg.length === 3) {
+          if (seg.charAt(0) === seg.charAt(2)) {
+            parsedNumbersCount += 2;
+          } else {
+            isValidGroup = false;
+          }
+        } else {
+          isValidGroup = false;
+        }
+      } else if (activeCat === 'xien' || activeCat === 'xienquay') {
+        if (seg.length === 2) {
+          parsedNumbersCount += 1;
+        } else if (seg.length === 3) {
+          if (seg.charAt(0) === seg.charAt(2)) {
+            parsedNumbersCount += 2;
+          } else {
+            isValidGroup = false;
+          }
+        } else {
+          isValidGroup = false;
+        }
+      } else if (activeCat === 'bacang' || activeCat === 'bacang_lo') {
+        if (seg.length === 3) {
+          parsedNumbersCount += 1;
+        } else {
+          isValidGroup = false;
+        }
+      }
+    });
+    
+    if ((activeCat === 'xien' || activeCat === 'xienquay') && parsedNumbersCount < 2) {
+      isValidGroup = false;
+    }
+  }
+  
+  if (isValidGroup) {
+    return {
+      html: escapeHtml(groupText),
+      newCategory: activeCat,
+      hasInvalid: false
+    };
+  } else {
+    return {
+      html: `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(groupText)}</span>`,
+      newCategory: activeCat,
+      hasInvalid: true
+    };
+  }
+}
+
+function formatLineWithHighlights(lineText, currentCategory) {
+  let activeCat = currentCategory;
+  let hasInvalid = false;
+  let htmlResult = "";
+  
+  const groupRegex = /([a-wy-z0-9'.,\-\s]+?)(?:=|x|\+|\*|mc|mc\s*=|=\s*mc|mỗi\s+con\s*=?|moi\s+con\s*=?)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?/gi;
+  
+  let lastIndex = 0;
+  let match;
+  
+  while ((match = groupRegex.exec(lineText)) !== null) {
+    const matchIndex = match.index;
+    const matchedStr = match[0];
+    
+    if (matchIndex > lastIndex) {
+      const gapText = lineText.substring(lastIndex, matchIndex);
+      const gapRes = verifyNonGroupText(gapText, activeCat);
+      htmlResult += gapRes.html;
+      activeCat = gapRes.newCategory;
+      if (gapRes.hasInvalid) hasInvalid = true;
+    }
+    
+    const groupRes = verifyGroupText(matchedStr, activeCat);
+    htmlResult += groupRes.html;
+    activeCat = groupRes.newCategory;
+    if (groupRes.hasInvalid) hasInvalid = true;
+    
+    lastIndex = groupRegex.lastIndex;
+  }
+  
+  if (lastIndex < lineText.length) {
+    const gapText = lineText.substring(lastIndex);
+    const gapRes = verifyNonGroupText(gapText, activeCat);
+    htmlResult += gapRes.html;
+    activeCat = gapRes.newCategory;
+    if (gapRes.hasInvalid) hasInvalid = true;
+  }
+  
+  return {
+    html: htmlResult,
+    newCategory: activeCat,
+    hasInvalid: hasInvalid
+  };
 }
 
 function stripAccents(str) {
@@ -639,22 +858,23 @@ function normalizeBetLine(line) {
   normalized = normalized.replace(/\b(?:tong)\s*(\d)\b/gi, 't$1');
   normalized = normalized.replace(/\b(?:bo|he)\s*(\d{1,2})\b/gi, 'bo$1');
   normalized = normalized.replace(/\b(?:moi con bang|moi con)\b/gi, 'mc');
-  normalized = normalized.replace(/=\s*(?:mc\s*)?(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n))?(?![a-z0-9])/gi, 'x$1');
-  normalized = normalized.replace(/\bmc\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n))?(?![a-z0-9])/gi, 'x$1');
-  normalized = normalized.replace(/\bx\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n))?(?![a-z0-9])/gi, 'x$1');
+  normalized = normalized.replace(/([a-z0-9])\s*(=|x|\+|\*|mc|mc\s*=|=\s*mc|mỗi\s+con\s*=?|moi\s+con\s*=?)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, '$1x$3');
+  normalized = normalized.replace(/\bmc\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, 'x$1');
   normalized = normalized.replace(/\s+(\d+(?:\.\d+)?)\s*(?:d|đ|₫|k|n)(?![a-z0-9])/gi, ' x$1');
   return normalized;
 }
 
 function parseCombinedInput(inputString) {
   let processedInput = inputString.replace(/[’‘ʼ＇`]/g, "'");
+  const keywordRegex = /(^|[\s,;])(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|lo|lô|3c|d|đ|l|c|q|x)(\d)/gi;
+  processedInput = processedInput.replace(keywordRegex, "$1$2 $3");
   const sameLinePattern = /[\s,;]+(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|đê|đe|dê|dè|đè|Dè|Đè|lô|lo|l|xiên|xien|x2|x3|x4)(?=[\s.,;\-\d]|$)|[\s,;]+(3càng|3cang|3c|3clô|3clo|3cl)(?=[\s.,;\-\d]|$)|[\s,;]+(d|đ|l|c)(?=[\s.,;\-\d]|$)(?=\s+[a-z0-9'’‘＇`])/gi;
   processedInput = processedInput.replace(sameLinePattern, (match) => {
     return "\n" + match.replace(/^[\s,;]+/g, '').trim();
   });
 
-  const betSplitRegex = /((?:(?:=|x|\+|\*|mc|mc\s*=|=\s*mc|mỗi\s+con\s*=?|moi\s+con\s*=?)\s*\d+(?:\.\d+)?\s*(?:d|đ|₫|k|n)?|\s+\d+(?:\.\d+)?\s*(?:d|đ|₫|k|n)))\b[\s.,;\-]+(?=[^\s.,;\-])/gi;
-  processedInput = processedInput.replace(betSplitRegex, '$1\n');
+  const betSplitRegex = /([a-z0-9])\s*((?:=|x|\+|\*|mc|mc\s*=|=\s*mc|mỗi\s+con\s*=?|moi\s+con\s*=?)\s*\d+(?:\.\d+)?(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?)\b[\s.,;\-]+(?=[^\s.,;\-])/gi;
+  processedInput = processedInput.replace(betSplitRegex, '$1$2\n');
 
   const lines = processedInput.split('\n');
   const parsedBets = {
@@ -715,7 +935,72 @@ function parseCombinedInput(inputString) {
 
       const numString = resolveShorthands(rawNumString);
       const numbers = parseNumbersFromBetString(numString, lineType);
-      if (numbers.length === 0) continue;
+      
+      let isValidGroup = (numbers.length > 0);
+      if (isValidGroup) {
+        let parsedNumbersCount = 0;
+        const segments = numString.split(/[.,\-\s]+/).filter(s => s.length > 0);
+        segments.forEach(seg => {
+          if (!/^\d+$/.test(seg)) {
+            const isShorthand = /^(kl|k|dau\d|dit\d|cham\d|t\d|bo\d{1,2})$/i.test(seg);
+            if (isShorthand) {
+              if (lineType !== 'de' && lineType !== 'lo') {
+                isValidGroup = false;
+              } else {
+                parsedNumbersCount += 2;
+              }
+            } else {
+              isValidGroup = false;
+            }
+            return;
+          }
+          if (lineType === 'de' || lineType === 'lo') {
+            if (seg.length === 2) {
+              parsedNumbersCount += 1;
+            } else if (seg.length === 3) {
+              if (seg.charAt(0) === seg.charAt(2)) {
+                parsedNumbersCount += 2;
+              } else {
+                isValidGroup = false;
+              }
+            } else {
+              isValidGroup = false;
+            }
+          } else if (lineType === 'xien' || lineType === 'xienquay') {
+            if (seg.length === 2) {
+              parsedNumbersCount += 1;
+            } else if (seg.length === 3) {
+              if (seg.charAt(0) === seg.charAt(2)) {
+                parsedNumbersCount += 2;
+              } else {
+                isValidGroup = false;
+              }
+            } else {
+              isValidGroup = false;
+            }
+          } else if (lineType === 'bacang' || lineType === 'bacang_lo') {
+            if (seg.length === 3) {
+              parsedNumbersCount += 1;
+            } else {
+              isValidGroup = false;
+            }
+          }
+        });
+
+        if ((lineType === 'xien' || lineType === 'xienquay') && parsedNumbersCount < 2) {
+          isValidGroup = false;
+        }
+      }
+
+      if (!isValidGroup) {
+        parsedBets.rawOrder.push({
+          type: 'invalid',
+          originalLine: originalLine,
+          invalidText: groupMatch[0],
+          amount: 0
+        });
+        continue;
+      }
 
       if (lineType === 'xien') {
         if (numbers.length >= 2 && numbers.length <= 4) {
@@ -1199,16 +1484,14 @@ function calculateSum() {
 
   if (inputEl.tagName.toLowerCase() !== "textarea") {
     const originalLines = inputString.split('\n');
+    let currentCat = 'de';
     let editorHtml = originalLines.map(line => {
       if (line.trim() === "") {
         return "";
       }
-      const isValid = checkLineValidity(line);
-      if (isValid) {
-        return escapeHtml(line);
-      } else {
-        return `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(line)}</span>`;
-      }
+      const res = formatLineWithHighlights(line, currentCat);
+      currentCat = res.newCategory;
+      return res.html;
     }).join('\n');
     inputEl.innerHTML = editorHtml;
   }
@@ -1341,74 +1624,40 @@ function calculateSum() {
   });
 
   // Render detail in original entry order
-  const originalLinesList = inputString.split('\n');
-  originalLinesList.forEach(lineText => {
-    const trimmedLine = lineText.trim();
-    if (trimmedLine === "") return;
-
-    const isValid = checkLineValidity(trimmedLine);
-    if (!isValid) {
+  if (inputListDiv) inputListDiv.innerHTML = "";
+  
+  parsedBets.rawOrder.forEach(bet => {
+    if (bet.type === 'invalid') {
       if (inputListDiv) {
         const li = document.createElement("li");
-        li.className = "text-danger font-bold bg-red-100 dark:bg-red-950/40 p-1.5 rounded border border-red-300 dark:border-red-900/50 mt-1 mb-1";
-        li.textContent = `❌ Lỗi cú pháp: ${trimmedLine}`;
+        li.className = "text-danger font-bold bg-red-100 dark:bg-red-950/40 p-1.5 rounded border border-red-300 dark:border-red-900/50 mt-1 mb-1 list-none text-xs";
+        li.textContent = `❌ Lỗi cú pháp: ${bet.invalidText || bet.originalLine}`;
         inputListDiv.appendChild(li);
       }
-    } else {
-      // Find all valid bets from parsedBets.rawOrder that belong to this line
-      const lineBets = parsedBets.rawOrder.filter(b => b.type !== 'invalid' && !b.rendered && trimmedLine.indexOf(b.originalLine) !== -1);
-      lineBets.forEach(bet => {
-        bet.rendered = true;
-        let occurrences = 0;
-        const num = bet.numbers[0];
-        const typeLabel = bet.type === "de" ? "Đề" : (bet.type === "lo" ? "Lô" : (bet.type.startsWith("xien") ? `Xiên${bet.numbers.length}` : (bet.type === "bacang" ? "3C" : "3CLô")));
-        
-        if (bet.type === "de") {
-          occurrences = num === specialPrizeLast2 ? 1 : 0;
-        } else if (bet.type === "lo") {
-          occurrences = allPrizesLast2.filter(p => p === num).length;
-        } else if (bet.type.startsWith("xien")) {
-          const allHit = bet.numbers.every(n => allPrizesLast2.includes(n));
-          occurrences = allHit ? 1 : 0;
-        } else if (bet.type === "bacang") {
-          const match3 = num === specialPrizeLast3;
-          const match2 = num.slice(-2) === specialPrizeLast2;
-          occurrences = match3 ? 1 : (match2 ? 0.5 : 0);
-        } else if (bet.type === "bacang_lo") {
-          occurrences = allPrizesLast3.filter(p => p === num).length;
-        }
-
-        const numStr = bet.type.startsWith("xien") ? bet.numbers.join('-') : num;
-        renderDetail(numStr, bet.amount, typeLabel, occurrences);
-      });
+      return;
     }
-  });
 
-  // Fallback for any remaining unrendered bets
-  parsedBets.rawOrder.forEach(bet => {
-    if (bet.type !== 'invalid' && !bet.rendered) {
-      let occurrences = 0;
-      const num = bet.numbers[0];
-      const typeLabel = bet.type === "de" ? "Đề" : (bet.type === "lo" ? "Lô" : (bet.type.startsWith("xien") ? `Xiên${bet.numbers.length}` : (bet.type === "bacang" ? "3C" : "3CLô")));
-      
-      if (bet.type === "de") {
-        occurrences = num === specialPrizeLast2 ? 1 : 0;
-      } else if (bet.type === "lo") {
-        occurrences = allPrizesLast2.filter(p => p === num).length;
-      } else if (bet.type.startsWith("xien")) {
-        const allHit = bet.numbers.every(n => allPrizesLast2.includes(n));
-        occurrences = allHit ? 1 : 0;
-      } else if (bet.type === "bacang") {
-        const match3 = num === specialPrizeLast3;
-        const match2 = num.slice(-2) === specialPrizeLast2;
-        occurrences = match3 ? 1 : (match2 ? 0.5 : 0);
-      } else if (bet.type === "bacang_lo") {
-        occurrences = allPrizesLast3.filter(p => p === num).length;
-      }
-
-      const numStr = bet.type.startsWith("xien") ? bet.numbers.join('-') : num;
-      renderDetail(numStr, bet.amount, typeLabel, occurrences);
+    let occurrences = 0;
+    const num = bet.numbers[0];
+    const typeLabel = bet.type === "de" ? "Đề" : (bet.type === "lo" ? "Lô" : (bet.type.startsWith("xien") ? `Xiên${bet.numbers.length}` : (bet.type === "bacang" ? "3C" : "3CLô")));
+    
+    if (bet.type === "de") {
+      occurrences = num === specialPrizeLast2 ? 1 : 0;
+    } else if (bet.type === "lo") {
+      occurrences = allPrizesLast2.filter(p => p === num).length;
+    } else if (bet.type.startsWith("xien")) {
+      const allHit = bet.numbers.every(n => allPrizesLast2.includes(n));
+      occurrences = allHit ? 1 : 0;
+    } else if (bet.type === "bacang") {
+      const match3 = num === specialPrizeLast3;
+      const match2 = num.slice(-2) === specialPrizeLast2;
+      occurrences = match3 ? 1 : (match2 ? 0.5 : 0);
+    } else if (bet.type === "bacang_lo") {
+      occurrences = allPrizesLast3.filter(p => p === num).length;
     }
+
+    const numStr = bet.type.startsWith("xien") ? bet.numbers.join('-') : num;
+    renderDetail(numStr, bet.amount, typeLabel, occurrences);
   });
 
   // Render Kết quả column
@@ -2408,19 +2657,30 @@ function setupEventListeners() {
 
   const autoFetchToggle = document.getElementById('autoFetchToggle');
   if (autoFetchToggle) {
-    autoFetchToggle.addEventListener('change', (e) => {
+    const updateManualFieldsVisibility = () => {
       const btnFetchResults = document.getElementById('btnFetchResults');
       const autoResultStatus = document.getElementById('autoResultStatus');
-      
-      if (e.target.checked) {
+      const manualFields = document.getElementById('manualFields');
+      if (autoFetchToggle.checked) {
         if (btnFetchResults) btnFetchResults.classList.remove('hidden');
         if (autoResultStatus) autoResultStatus.classList.remove('hidden');
-        triggerAutoFetch();
+        if (manualFields) manualFields.classList.add('hidden');
       } else {
         if (btnFetchResults) btnFetchResults.classList.add('hidden');
         if (autoResultStatus) autoResultStatus.classList.add('hidden');
+        if (manualFields) manualFields.classList.remove('hidden');
+      }
+    };
+
+    autoFetchToggle.addEventListener('change', (e) => {
+      updateManualFieldsVisibility();
+      if (e.target.checked) {
+        triggerAutoFetch();
       }
     });
+    
+    // Set initial state
+    updateManualFieldsVisibility();
   }
 
   const btnFetchResults = document.getElementById('btnFetchResults');
