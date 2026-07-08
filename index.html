@@ -57,17 +57,16 @@
     </button>
 
     <div class="flex justify-center mb-6">
-      <a href="index.html" class="group flex items-center justify-center gap-3 focus:outline-none">
-        <div class="relative w-11 h-11 flex items-center justify-center rounded-full shadow-md overflow-hidden p-0.5">
+      <button id="logoButton" class="group flex items-center justify-center focus:outline-none cursor-pointer">
+        <div class="relative w-12 h-12 flex items-center justify-center rounded-full shadow-md overflow-hidden p-0.5">
           <!-- Rotating outer ring -->
           <div class="absolute inset-0 bg-gradient-to-tr from-emerald-400 via-primary to-secondary rounded-full animate-spin [animation-duration:6s] opacity-90 group-hover:opacity-100 transition-opacity"></div>
           <!-- Inner circle to make it look like a ring -->
           <div class="absolute inset-[3px] bg-gray-50 dark:bg-dark-900 rounded-full transition-colors"></div>
           <!-- Stationary Z8 Text Inside Ring -->
-          <span class="relative text-sm font-black text-primary dark:text-secondary transform group-hover:scale-110 transition-transform">Z8</span>
+          <span class="relative text-base font-black text-primary dark:text-secondary transform group-hover:scale-110 transition-transform">Z8</span>
         </div>
-        <span class="text-3xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-shadow tracking-wider">Z8</span>
-      </a>
+      </button>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-6">
@@ -705,7 +704,7 @@ function verifyGroupText(groupText, currentCat) {
   }
   
   let rawNumString = match[1].trim();
-  const keywordMatch = rawNumString.match(/^(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|d|đ|l|c|q|x)(.*)$/i);
+  const keywordMatch = rawNumString.match(/^(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|d(?![a-z])|đ(?![a-z])|l(?![a-z])|c(?![a-z])|q(?![a-z])|x(?![a-z]))(.*)$/i);
   if (keywordMatch) {
     const rawType = keywordMatch[1].toLowerCase();
     const typeRegex = {
@@ -863,6 +862,7 @@ function normalizeBetLine(line) {
   normalized = normalized.replace(/[’‘ʼ＇`]/g, "'");
   normalized = normalized.replace(/(\d)\s*,\s*(\d)/g, '$1.$2');
   normalized = normalized.replace(/(\d)\s*\.\s*(\d)/g, '$1.$2');
+  normalized = normalized.replace(/\b(?:dau\s+dit|dau\s+duoi)\s*(\d)(?![0-9])/gi, 'dau$1, dit$1');
   normalized = normalized.replace(/\b(?:kep lech)\b/gi, 'kl');
   normalized = normalized.replace(/\b(?:lip|kep)\b/gi, 'k');
   normalized = normalized.replace(/\b(?:dau)\s*(\d)(?![0-9])/gi, 'dau$1');
@@ -1411,6 +1411,67 @@ function loadShortcuts() {
   }
 }
 
+function saveAppState() {
+  const combinedBetInput = document.getElementById('combinedBetInput');
+  const allPrizesInput = document.getElementById('allPrizesInput');
+  const specialPrizeInput = document.getElementById('specialPrizeInput');
+  const autoFetchToggle = document.getElementById('autoFetchToggle');
+  const resultDateInput = document.getElementById('resultDateInput');
+
+  if (combinedBetInput) {
+    localStorage.setItem('z8_combined_bet', combinedBetInput.innerText || '');
+  }
+  if (allPrizesInput) {
+    localStorage.setItem('z8_all_prizes', allPrizesInput.value || '');
+  }
+  if (specialPrizeInput) {
+    localStorage.setItem('z8_special_prize', specialPrizeInput.value || '');
+  }
+  if (autoFetchToggle) {
+    localStorage.setItem('z8_auto_fetch', autoFetchToggle.checked ? '1' : '0');
+  }
+  if (resultDateInput) {
+    localStorage.setItem('z8_result_date', resultDateInput.value || '');
+  }
+}
+
+function loadAppState() {
+  const combinedBetInput = document.getElementById('combinedBetInput');
+  const allPrizesInput = document.getElementById('allPrizesInput');
+  const specialPrizeInput = document.getElementById('specialPrizeInput');
+  const autoFetchToggle = document.getElementById('autoFetchToggle');
+  const resultDateInput = document.getElementById('resultDateInput');
+
+  const savedBet = localStorage.getItem('z8_combined_bet');
+  const savedPrizes = localStorage.getItem('z8_all_prizes');
+  const savedSpecial = localStorage.getItem('z8_special_prize');
+  const savedAutoFetch = localStorage.getItem('z8_auto_fetch');
+  const savedDate = localStorage.getItem('z8_result_date');
+
+  let hasData = false;
+
+  if (savedBet !== null && combinedBetInput) {
+    combinedBetInput.innerText = savedBet;
+    if (savedBet.trim() !== '') hasData = true;
+  }
+  if (savedPrizes !== null && allPrizesInput) {
+    allPrizesInput.value = savedPrizes;
+  }
+  if (savedSpecial !== null && specialPrizeInput) {
+    specialPrizeInput.value = savedSpecial;
+  }
+  if (savedAutoFetch !== null && autoFetchToggle) {
+    autoFetchToggle.checked = (savedAutoFetch === '1');
+  }
+  if (savedDate !== null && resultDateInput) {
+    resultDateInput.value = savedDate;
+  }
+
+  if (hasData) {
+    calculateSum();
+  }
+}
+
 function getCaretOffset(element) {
   let caretOffset = 0;
   const doc = element.ownerDocument || element.document;
@@ -1452,9 +1513,20 @@ function setCaretOffset(element, offset) {
     }
   }
   
-  if (found && sel) {
-    sel.removeAllRanges();
-    sel.addRange(range);
+  if (sel) {
+    if (found) {
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      try {
+        range.selectNodeContents(element);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch (err) {
+        console.error("Error setting caret fallback", err);
+      }
+    }
   }
 }
 
@@ -1470,6 +1542,7 @@ function escapeHtml(text) {
 // Calculation Engine
 function calculateSum() {
   saveShortcuts();
+  saveAppState();
 
   const inputEl = document.getElementById("combinedBetInput") || document.getElementById("numbers");
   if (!inputEl) return;
@@ -2644,54 +2717,24 @@ function setupEventListeners() {
       document.execCommand("insertText", false, text);
     });
 
-    let highlightTimeout = null;
-    combinedBetInput.addEventListener('input', function() {
-      if (highlightTimeout) clearTimeout(highlightTimeout);
-      highlightTimeout = setTimeout(() => {
-        const caretOffset = getCaretOffset(combinedBetInput);
-        const inputString = combinedBetInput.innerText;
-        
-        const originalLines = inputString.split('\n');
-        let currentCat = 'de';
-        let editorHtml = originalLines.map(line => {
-          if (line.trim() === "") {
-            return "";
-          }
-          const res = formatLineWithHighlights(line, currentCat);
-          currentCat = res.newCategory;
-          return res.html;
-        }).join('\n');
-        
-        if (combinedBetInput.innerHTML !== editorHtml) {
-          combinedBetInput.innerHTML = editorHtml;
-          setCaretOffset(combinedBetInput, caretOffset);
-        }
-      }, 800);
-    });
+    combinedBetInput.addEventListener('input', saveAppState);
 
-    combinedBetInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        if (highlightTimeout) clearTimeout(highlightTimeout);
-        setTimeout(() => {
-          const caretOffset = getCaretOffset(combinedBetInput);
-          const inputString = combinedBetInput.innerText;
-          
-          const originalLines = inputString.split('\n');
-          let currentCat = 'de';
-          let editorHtml = originalLines.map(line => {
-            if (line.trim() === "") {
-              return "";
-            }
-            const res = formatLineWithHighlights(line, currentCat);
-            currentCat = res.newCategory;
-            return res.html;
-          }).join('\n');
-          
-          if (combinedBetInput.innerHTML !== editorHtml) {
-            combinedBetInput.innerHTML = editorHtml;
-            setCaretOffset(combinedBetInput, caretOffset);
-          }
-        }, 50);
+    combinedBetInput.addEventListener('blur', function() {
+      saveAppState();
+      const inputString = combinedBetInput.innerText;
+      const originalLines = inputString.split('\n');
+      let currentCat = 'de';
+      let editorHtml = originalLines.map(line => {
+        if (line.trim() === "") {
+          return "";
+        }
+        const res = formatLineWithHighlights(line, currentCat);
+        currentCat = res.newCategory;
+        return res.html;
+      }).join('\n');
+      
+      if (combinedBetInput.innerHTML !== editorHtml) {
+        combinedBetInput.innerHTML = editorHtml;
       }
     });
   }
@@ -2714,6 +2757,33 @@ function setupEventListeners() {
   const cpInputBtn = document.getElementById('copyInputListButton');
   if (cpInputBtn) {
     cpInputBtn.addEventListener('click', copyInputList);
+  }
+
+  const logoBtn = document.getElementById('logoButton');
+  if (logoBtn) {
+    logoBtn.addEventListener('click', function() {
+      if (confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu cược và kết quả hiện tại?")) {
+        const combinedBetInput = document.getElementById('combinedBetInput');
+        const allPrizesInput = document.getElementById('allPrizesInput');
+        const specialPrizeInput = document.getElementById('specialPrizeInput');
+        
+        if (combinedBetInput) {
+          combinedBetInput.innerText = "";
+          combinedBetInput.innerHTML = "";
+          localStorage.removeItem('z8_combined_bet');
+        }
+        if (allPrizesInput) {
+          allPrizesInput.value = "";
+          localStorage.removeItem('z8_all_prizes');
+        }
+        if (specialPrizeInput) {
+          specialPrizeInput.value = "";
+          localStorage.removeItem('z8_special_prize');
+        }
+        
+        calculateSum();
+      }
+    });
   }
 
   const toggleExtraPanels = document.getElementById('toggleExtraPanels');
@@ -2751,11 +2821,13 @@ function setupEventListeners() {
   const allPrizesInput = document.getElementById('allPrizesInput');
   if (allPrizesInput) {
     allPrizesInput.addEventListener('blur', normalizeTwentySevenNumbers);
+    allPrizesInput.addEventListener('input', saveAppState);
   }
 
   const specialPrizeInput = document.getElementById('specialPrizeInput');
   if (specialPrizeInput) {
     specialPrizeInput.addEventListener('input', updateTwoDigitBoard);
+    specialPrizeInput.addEventListener('input', saveAppState);
   }
 
   // Date and Source selectors for crawler
@@ -2764,6 +2836,7 @@ function setupEventListeners() {
     // Default date YYYY-MM-DD
     const localDate = new Date(Date.now() - (new Date().getTimezoneOffset()*60*1000)).toISOString().split('T')[0];
     resultDateInput.value = localDate;
+    resultDateInput.addEventListener('change', saveAppState);
   }
 
   const autoFetchToggle = document.getElementById('autoFetchToggle');
@@ -2785,6 +2858,7 @@ function setupEventListeners() {
 
     autoFetchToggle.addEventListener('change', (e) => {
       updateManualFieldsVisibility();
+      saveAppState();
       if (e.target.checked) {
         triggerAutoFetch();
       }
@@ -2957,6 +3031,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeDefaultValues();
     loadShortcuts();
     setupEventListeners();
+    loadAppState();
     checkDarkModePreference();
 
     // Auto-fetch results on page load is disabled by default
