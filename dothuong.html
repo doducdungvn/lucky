@@ -361,8 +361,49 @@ const shorthands = {
   "ditto": "05.06.07.08.09.15.16.17.18.19.25.26.27.28.29.35.36.37.38.39.45.46.47.48.49.55.56.57.58.59.65.66.67.68.69.75.76.77.78.79.85.86.87.88.89.95.96.97.98.99"
 };
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function stripAccents(str) {
+  return str.normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/đ/g, "d")
+            .replace(/Đ/g, "D");
+}
+
+function normalizeBetLine(line) {
+  let normalized = stripAccents(line.trim());
+  normalized = normalized.replace(/[’‘ʼ＇`]/g, "'");
+  normalized = normalized.replace(/(\d)\s*,\s*(\d)/g, '$1.$2');
+  normalized = normalized.replace(/(\d)\s*\.\s*(\d)/g, '$1.$2');
+  normalized = normalized.replace(/\b(?:dau\s+dit|dau\s+duoi)\s*(\d)(?![0-9])/gi, 'dau$1, dit$1');
+  normalized = normalized.replace(/\b(?:dd)\s*(\d)(?![0-9])/gi, 'dau$1, dit$1');
+  normalized = normalized.replace(/\b(?:kep lech)\b/gi, 'kl');
+  normalized = normalized.replace(/\b(?:lip|kep)\b/gi, 'k');
+  normalized = normalized.replace(/\b(?:dau)\s*(\d)(?![0-9])/gi, 'dau$1');
+  normalized = normalized.replace(/\b(?:dit|duoi)\s*(\d)(?![0-9])/gi, 'dit$1');
+  normalized = normalized.replace(/\b(?:cham)\s*(\d)(?![0-9])/gi, 'cham$1');
+  normalized = normalized.replace(/\b(?:tong)\s*(\d)(?![0-9])/gi, 't$1');
+  normalized = normalized.replace(/\b(?:d)\s*(\d)(?![0-9])/gi, 'd$1');
+  normalized = normalized.replace(/\b(?:t)\s*(\d)(?![0-9])/gi, 't$1');
+  normalized = normalized.replace(/\b(?:bo|he)\s*(\d{1,2})(?![0-9])/gi, 'bo$1');
+  normalized = normalized.replace(/\b(?:moi con bang|moi con)\b/gi, 'mc');
+  normalized = normalized.replace(/\s*[,.]\s*(?==|x|mc|moi\s+con|\+|\*)/gi, ' ');
+  normalized = normalized.replace(/([a-z0-9])\s*(mỗi\s+con\s*=?|moi\s+con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, '$1x$3');
+  normalized = normalized.replace(/\bmc\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, 'x$1');
+  normalized = normalized.replace(/\s+(\d+(?:\.\d+)?)\s*(?:d|đ|₫|k|n)(?![a-z0-9])/gi, ' x$1');
+  return normalized;
+}
+
 function normalizeShorthandToken(token) {
-  let t = token.trim().toLowerCase();
+  let t = token.trim().toLowerCase().replace(/[’‘ʼ＇`]/g, "'");
   const dauMatch = t.match(/^dau(\d)$/);
   if (dauMatch) return 'd' + dauMatch[1];
   const ditMatch = t.match(/^dit(\d)$/);
@@ -437,12 +478,19 @@ function parseNumbersFromBetString(numbersString, betType) {
       } else if (seg.length === 2) {
         numbers.push(seg);
       } else if (seg.length === 3) {
-        numbers.push(seg.substring(0, 2));
-        numbers.push(seg.substring(1, 3));
+        if (seg.charAt(0) === seg.charAt(2)) {
+          numbers.push(seg.substring(0, 2));
+          numbers.push(seg.substring(1, 3));
+        }
       }
     } else if (betType === 'xien' || betType === 'xienquay') {
       if (seg.length === 2) {
         numbers.push(seg);
+      } else if (seg.length === 3) {
+        if (seg.charAt(0) === seg.charAt(2)) {
+          numbers.push(seg.substring(0, 2));
+          numbers.push(seg.substring(1, 3));
+        }
       }
     } else if (betType === 'bacang' || betType === 'bacang_lo') {
       if (seg.length === 3) {
@@ -455,10 +503,15 @@ function parseNumbersFromBetString(numbersString, betType) {
 
 function parseCombinedInput(inputString) {
   let processedInput = inputString.replace(/[’‘ʼ＇`]/g, "'");
-  const sameLinePattern = /[\s,;]+\b(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|lô|lo|xiên|xien|x|x2|x3|x4)\b|[\s,;]+\b(3càng|3cang|3c|3clô|3clo|3cl)\b|[\s,;]+\b(d|l|c)\b(?=\s+[a-z0-9'’‘ʼ＇`])/gi;
+  const keywordRegex = /(^|[\s,;])(xienquay|xquay|xienq|3cang|3càng|3\s+càng|3\s+cang|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|bc|càng|cang|d|đ|l|c|q|x)(\d)/gi;
+  processedInput = processedInput.replace(keywordRegex, "$1$2 $3");
+  const sameLinePattern = /[\s,;]+(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lô|lo|l|xiên|xien|x2|x3|x4)(?=[\s.,;\-\d]|$)|[\s,;]+(3càng|3cang|3\s+càng|3\s+cang|3c|3clô|3clo|3cl|bc|càng|cang)(?=[\s.,;\-\d]|$)|[\s,;]+(d|đ|l|c)(?=[\s.,;\-\d]|$)(?=\s+[a-z0-9'’‘＇`\u00C0-\u024F\u1E00-\u1EFF])/gi;
   processedInput = processedInput.replace(sameLinePattern, (match) => {
     return "\n" + match.replace(/^[\s,;]+/g, '').trim();
   });
+
+  const betSplitRegex = /([a-z0-9])\s*((?:mỗi\s+con\s*=?|moi\s+con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*\d+(?:\.\d+)?(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?)\b[\s.,;\-]+(?=[^\s.,;\-])/gi;
+  processedInput = processedInput.replace(betSplitRegex, '$1$2\n');
 
   const lines = processedInput.split('\n');
   const parsedBets = {
@@ -473,22 +526,24 @@ function parseCombinedInput(inputString) {
   };
 
   const typeRegex = {
-    de: /^(đề|de|d)$/i,
-    lo: /^(lô|lo|l)$/i,
+    de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
+    lo: /^(lo|lô|l)$/i,
     xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
-    xien: /^(lô\s+xiên|lo\s+xien|xiên|xien|x|x2|x3|x4)$/i,
-    bacang: /^(3càng|3cang|3c|c)$/i,
-    bacang_lo: /^(3clô|3clo|3cl)$/i
+    xien: /^(lo\s+xien|xien|x|x2|x3|x4)$/i,
+    bacang: /^(3cang|3c|c|bc|cang|3\s+cang)$/i,
+    bacang_lo: /^(3clo|3cl)$/i
   };
 
   let activeCategory = 'de';
 
   lines.forEach(line => {
-    let trimmed = line.trim();
-    if (!trimmed) return;
+    let originalLine = line.trim();
+    if (!originalLine) return;
+
+    let trimmed = normalizeBetLine(originalLine);
 
     let lineType = '';
-    const spaceMatch = trimmed.match(/^(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|lô|lo|xiên|xien|x|x2|x3|x4|3càng|3cang|3c|3clô|3clo|3cl|d|l|c)(?:\s+(.*))?$/i);
+    const spaceMatch = trimmed.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c|bc|cang|3\s+cang)(?:\s+(.*))?$/i);
     if (spaceMatch) {
       const rawType = spaceMatch[1].toLowerCase();
       if (typeRegex.de.test(rawType)) lineType = 'de';
@@ -501,34 +556,17 @@ function parseCombinedInput(inputString) {
       if (lineType) {
         activeCategory = lineType;
         trimmed = spaceMatch[2] ? spaceMatch[2].trim() : '';
-      }
-    } else {
-      if (trimmed.match(/^l(\d+)/i)) {
-        activeCategory = 'lo';
-        lineType = 'lo';
-        trimmed = trimmed.substring(1).trim();
-      } else if (trimmed.match(/^xq(\d+)/i)) {
-        activeCategory = 'xienquay';
-        lineType = 'xienquay';
-        trimmed = trimmed.substring(2).trim();
-      } else if (trimmed.match(/^q(\d+)/i)) {
-        activeCategory = 'xienquay';
-        lineType = 'xienquay';
-        trimmed = trimmed.substring(1).trim();
-      } else if (trimmed.match(/^3c(\d+)/i) || trimmed.match(/^c(\d+)/i)) {
-        activeCategory = 'bacang';
-        lineType = 'bacang';
-        trimmed = trimmed.replace(/^(3c|c)/i, '').trim();
-      } else if (trimmed.match(/^3cl(\d+)/i)) {
-        activeCategory = 'bacang_lo';
-        lineType = 'bacang_lo';
-        trimmed = trimmed.substring(3).trim();
+        if (trimmed === '') {
+          return; // Standalone category header line - do not treat as error
+        }
       }
     }
 
     if (!lineType) lineType = activeCategory;
 
-    const groupRegex = /([a-wy-z0-9'.,\-\s]+)([x+*])(\d+)/gi;
+    let parsedCountBefore = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length + parsedBets.bacang_lo.length;
+
+    const groupRegex = /([a-wy-z0-9'.,\-\s]+)([x+*])(\d+(?:\.\d+)?)/gi;
     let groupMatch;
     while ((groupMatch = groupRegex.exec(trimmed)) !== null) {
       const rawNumString = groupMatch[1].trim();
@@ -537,7 +575,72 @@ function parseCombinedInput(inputString) {
 
       const numString = resolveShorthands(rawNumString);
       const numbers = parseNumbersFromBetString(numString, lineType);
-      if (numbers.length === 0) continue;
+      
+      let isValidGroup = (numbers.length > 0);
+      if (isValidGroup) {
+        let parsedNumbersCount = 0;
+        const segments = numString.split(/[.,\-\s]+/).filter(s => s.length > 0);
+        segments.forEach(seg => {
+          if (!/^\d+$/.test(seg)) {
+            const isShorthand = /^(kl|k|dau\d|dit\d|cham\d|t\d|bo\d{1,2})$/i.test(seg);
+            if (isShorthand) {
+              if (lineType !== 'de' && lineType !== 'lo') {
+                isValidGroup = false;
+              } else {
+                parsedNumbersCount += 2;
+              }
+            } else {
+              isValidGroup = false;
+            }
+            return;
+          }
+          if (lineType === 'de' || lineType === 'lo') {
+            if (seg.length === 2) {
+              parsedNumbersCount += 1;
+            } else if (seg.length === 3) {
+              if (seg.charAt(0) === seg.charAt(2)) {
+                parsedNumbersCount += 2;
+              } else {
+                isValidGroup = false;
+              }
+            } else {
+              isValidGroup = false;
+            }
+          } else if (lineType === 'xien' || lineType === 'xienquay') {
+            if (seg.length === 2) {
+              parsedNumbersCount += 1;
+            } else if (seg.length === 3) {
+              if (seg.charAt(0) === seg.charAt(2)) {
+                parsedNumbersCount += 2;
+              } else {
+                isValidGroup = false;
+              }
+            } else {
+              isValidGroup = false;
+            }
+          } else if (lineType === 'bacang' || lineType === 'bacang_lo') {
+            if (seg.length === 3) {
+              parsedNumbersCount += 1;
+            } else {
+              isValidGroup = false;
+            }
+          }
+        });
+
+        if ((lineType === 'xien' || lineType === 'xienquay') && parsedNumbersCount < 2) {
+          isValidGroup = false;
+        }
+      }
+
+      if (!isValidGroup) {
+        parsedBets.rawOrder.push({
+          type: 'invalid',
+          originalLine: originalLine,
+          invalidText: groupMatch[0],
+          amount: 0
+        });
+        continue;
+      }
 
       if (lineType === 'xien') {
         if (numbers.length >= 2 && numbers.length <= 4) {
@@ -548,6 +651,7 @@ function parseCombinedInput(inputString) {
           parsedBets[`xien${numbers.length}`].push(item);
           parsedBets.rawOrder.push({
             type: `xien${numbers.length}`,
+            originalLine: originalLine,
             numbers: numbers,
             amount: amount
           });
@@ -580,6 +684,7 @@ function parseCombinedInput(inputString) {
                 parsedBets[`xien${size}`].push(item);
                 parsedBets.rawOrder.push({
                   type: `xien${size}`,
+                  originalLine: originalLine,
                   numbers: combo,
                   amount: amount
                 });
@@ -596,11 +701,21 @@ function parseCombinedInput(inputString) {
           parsedBets[lineType].push(item);
           parsedBets.rawOrder.push({
             type: lineType,
+            originalLine: originalLine,
             numbers: [num],
             amount: amount
           });
         });
       }
+    }
+
+    let parsedCountAfter = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length + parsedBets.bacang_lo.length;
+    if (parsedCountAfter === parsedCountBefore) {
+      parsedBets.rawOrder.push({
+        type: 'invalid',
+        originalLine: originalLine,
+        amount: 0
+      });
     }
   });
 
@@ -1103,8 +1218,15 @@ function calculateSum() {
 
   // Render detail in original entry order
   parsedBets.rawOrder.forEach(bet => {
+    if (bet.type === "invalid") {
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/20 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-900/30 text-xs">❌ Lỗi cú pháp: ${escapeHtml(bet.originalLine || bet.invalidText || '')}</span>`;
+      inputListDiv.appendChild(li);
+      return;
+    }
+    
     let occurrences = 0;
-    const num = bet.numbers[0];
+    const num = bet.numbers ? bet.numbers[0] : '';
     const typeLabel = bet.type === "de" ? "Đề" : (bet.type === "lo" ? "Lô" : (bet.type.startsWith("xien") ? `Xiên${bet.numbers.length}` : (bet.type === "bacang" ? "3C" : "3CLô")));
     
     if (bet.type === "de") {
@@ -2174,7 +2296,7 @@ function resetTable() {
             shortcutsArea.placeholder = "Không thể tải dữ liệu mặc định. Vui lòng kiểm tra kết nối.";
           });
       }
-
+    });
   </script>
 
   <!-- Modal Cấu hình giá (Ported from thau_lode.html) -->
