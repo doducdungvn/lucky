@@ -56,7 +56,19 @@
       <span class="hidden dark:inline">☀️</span>
     </button>
 
-    <h1 class="text-3xl font-bold text-center mb-6 text-primary dark:text-secondary text-shadow">Z8</h1>
+    <div class="flex justify-center mb-6">
+      <a href="index.html" class="group flex items-center justify-center gap-3 focus:outline-none">
+        <div class="relative w-11 h-11 flex items-center justify-center rounded-full shadow-md overflow-hidden p-0.5">
+          <!-- Rotating outer ring -->
+          <div class="absolute inset-0 bg-gradient-to-tr from-emerald-400 via-primary to-secondary rounded-full animate-spin [animation-duration:6s] opacity-90 group-hover:opacity-100 transition-opacity"></div>
+          <!-- Inner circle to make it look like a ring -->
+          <div class="absolute inset-[3px] bg-gray-50 dark:bg-dark-900 rounded-full transition-colors"></div>
+          <!-- Stationary Z8 Text Inside Ring -->
+          <span class="relative text-sm font-black text-primary dark:text-secondary transform group-hover:scale-110 transition-transform">Z8</span>
+        </div>
+        <span class="text-3xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-shadow tracking-wider">Z8</span>
+      </a>
+    </div>
 
     <div class="flex flex-col lg:flex-row gap-6">
       <div class="flex-1 space-y-4">
@@ -639,7 +651,7 @@ function verifyNonGroupText(text, currentCat) {
     }
     
     const norm = normalizeBetLine(trimmed);
-    const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c)$/i);
+    const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c)$/i);
     if (spaceMatch) {
       const rawType = spaceMatch[1].toLowerCase();
       const typeRegex = {
@@ -693,11 +705,11 @@ function verifyGroupText(groupText, currentCat) {
   }
   
   let rawNumString = match[1].trim();
-  const keywordMatch = rawNumString.match(/^(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|lo|lô|3c|d|đ|l|c|q|x)(.*)$/i);
+  const keywordMatch = rawNumString.match(/^(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|d|đ|l|c|q|x)(.*)$/i);
   if (keywordMatch) {
     const rawType = keywordMatch[1].toLowerCase();
     const typeRegex = {
-      de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè)$/i,
+      de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
       lo: /^(lo|lô|l)$/i,
       xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
       xien: /^(xien|xiên|x)$/i,
@@ -799,7 +811,7 @@ function formatLineWithHighlights(lineText, currentCategory) {
   let hasInvalid = false;
   let htmlResult = "";
   
-  const groupRegex = /([a-wy-z0-9'.,\-\s]+?)(?:=|x|\+|\*|mc|mc\s*=|=\s*mc|mỗi\s+con\s*=?|moi\s+con\s*=?)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?/gi;
+  const groupRegex = /(?:^|[\s,;])([a-wy-z0-9'.,\-\s\u00C0-\u024F\u1E00-\u1EFF]+?)(?:mỗi\s+con\s*=?|moi\s+con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?/gi;
   
   let lastIndex = 0;
   let match;
@@ -849,16 +861,17 @@ function stripAccents(str) {
 function normalizeBetLine(line) {
   let normalized = stripAccents(line.trim());
   normalized = normalized.replace(/[’‘ʼ＇`]/g, "'");
-  normalized = normalized.replace(/(\d),(\d)/g, '$1.$2');
+  normalized = normalized.replace(/(\d)\s*,\s*(\d)/g, '$1.$2');
+  normalized = normalized.replace(/(\d)\s*\.\s*(\d)/g, '$1.$2');
   normalized = normalized.replace(/\b(?:kep lech)\b/gi, 'kl');
   normalized = normalized.replace(/\b(?:lip|kep)\b/gi, 'k');
-  normalized = normalized.replace(/\b(?:dau)\s*(\d)\b/gi, 'dau$1');
-  normalized = normalized.replace(/\b(?:dit|duoi)\s*(\d)\b/gi, 'dit$1');
-  normalized = normalized.replace(/\b(?:cham)\s*(\d)\b/gi, 'cham$1');
-  normalized = normalized.replace(/\b(?:tong)\s*(\d)\b/gi, 't$1');
-  normalized = normalized.replace(/\b(?:bo|he)\s*(\d{1,2})\b/gi, 'bo$1');
+  normalized = normalized.replace(/\b(?:dau)\s*(\d)(?![0-9])/gi, 'dau$1');
+  normalized = normalized.replace(/\b(?:dit|duoi)\s*(\d)(?![0-9])/gi, 'dit$1');
+  normalized = normalized.replace(/\b(?:cham)\s*(\d)(?![0-9])/gi, 'cham$1');
+  normalized = normalized.replace(/\b(?:tong)\s*(\d)(?![0-9])/gi, 't$1');
+  normalized = normalized.replace(/\b(?:bo|he)\s*(\d{1,2})(?![0-9])/gi, 'bo$1');
   normalized = normalized.replace(/\b(?:moi con bang|moi con)\b/gi, 'mc');
-  normalized = normalized.replace(/([a-z0-9])\s*(=|x|\+|\*|mc|mc\s*=|=\s*mc|mỗi\s+con\s*=?|moi\s+con\s*=?)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, '$1x$3');
+  normalized = normalized.replace(/([a-z0-9])\s*(mỗi\s+con\s*=?|moi\s+con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, '$1x$3');
   normalized = normalized.replace(/\bmc\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, 'x$1');
   normalized = normalized.replace(/\s+(\d+(?:\.\d+)?)\s*(?:d|đ|₫|k|n)(?![a-z0-9])/gi, ' x$1');
   return normalized;
@@ -866,14 +879,14 @@ function normalizeBetLine(line) {
 
 function parseCombinedInput(inputString) {
   let processedInput = inputString.replace(/[’‘ʼ＇`]/g, "'");
-  const keywordRegex = /(^|[\s,;])(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|lo|lô|3c|d|đ|l|c|q|x)(\d)/gi;
+  const keywordRegex = /(^|[\s,;])(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|d|đ|l|c|q|x)(\d)/gi;
   processedInput = processedInput.replace(keywordRegex, "$1$2 $3");
-  const sameLinePattern = /[\s,;]+(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|đê|đe|dê|dè|đè|Dè|Đè|lô|lo|l|xiên|xien|x2|x3|x4)(?=[\s.,;\-\d]|$)|[\s,;]+(3càng|3cang|3c|3clô|3clo|3cl)(?=[\s.,;\-\d]|$)|[\s,;]+(d|đ|l|c)(?=[\s.,;\-\d]|$)(?=\s+[a-z0-9'’‘＇`])/gi;
+  const sameLinePattern = /[\s,;]+(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lô|lo|l|xiên|xien|x2|x3|x4)(?=[\s.,;\-\d]|$)|[\s,;]+(3càng|3cang|3c|3clô|3clo|3cl)(?=[\s.,;\-\d]|$)|[\s,;]+(d|đ|l|c)(?=[\s.,;\-\d]|$)(?=\s+[a-z0-9'’‘＇`])/gi;
   processedInput = processedInput.replace(sameLinePattern, (match) => {
     return "\n" + match.replace(/^[\s,;]+/g, '').trim();
   });
 
-  const betSplitRegex = /([a-z0-9])\s*((?:=|x|\+|\*|mc|mc\s*=|=\s*mc|mỗi\s+con\s*=?|moi\s+con\s*=?)\s*\d+(?:\.\d+)?(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?)\b[\s.,;\-]+(?=[^\s.,;\-])/gi;
+  const betSplitRegex = /([a-z0-9])\s*((?:mỗi\s+con\s*=?|moi\s+con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*\d+(?:\.\d+)?(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?)\b[\s.,;\-]+(?=[^\s.,;\-])/gi;
   processedInput = processedInput.replace(betSplitRegex, '$1$2\n');
 
   const lines = processedInput.split('\n');
@@ -1395,6 +1408,53 @@ function loadShortcuts() {
   const shortcutsArea = document.getElementById("shortcuts");
   if (shortcutsData && shortcutsArea) {
     shortcutsArea.value = shortcutsData;
+  }
+}
+
+function getCaretOffset(element) {
+  let caretOffset = 0;
+  const doc = element.ownerDocument || element.document;
+  const win = doc.defaultView || doc.parentWindow;
+  const sel = win.getSelection();
+  if (sel && sel.rangeCount > 0) {
+    const range = sel.getRangeAt(0);
+    const preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(element);
+    preCaretRange.setEnd(range.endContainer, range.endOffset);
+    caretOffset = preCaretRange.toString().length;
+  }
+  return caretOffset;
+}
+
+function setCaretOffset(element, offset) {
+  const range = document.createRange();
+  const sel = window.getSelection();
+  let charIndex = 0;
+  const nodeStack = [element];
+  let node;
+  let found = false;
+  
+  while (nodeStack.length > 0 && !found) {
+    node = nodeStack.pop();
+    if (node.nodeType === 3) {
+      const nextCharIndex = charIndex + node.length;
+      if (offset >= charIndex && offset <= nextCharIndex) {
+        range.setStart(node, offset - charIndex);
+        range.collapse(true);
+        found = true;
+      }
+      charIndex = nextCharIndex;
+    } else {
+      let i = node.childNodes.length;
+      while (i--) {
+        nodeStack.push(node.childNodes[i]);
+      }
+    }
+  }
+  
+  if (found && sel) {
+    sel.removeAllRanges();
+    sel.addRange(range);
   }
 }
 
@@ -2582,6 +2642,57 @@ function setupEventListeners() {
       e.preventDefault();
       const text = (e.originalEvent || e).clipboardData.getData('text/plain');
       document.execCommand("insertText", false, text);
+    });
+
+    let highlightTimeout = null;
+    combinedBetInput.addEventListener('input', function() {
+      if (highlightTimeout) clearTimeout(highlightTimeout);
+      highlightTimeout = setTimeout(() => {
+        const caretOffset = getCaretOffset(combinedBetInput);
+        const inputString = combinedBetInput.innerText;
+        
+        const originalLines = inputString.split('\n');
+        let currentCat = 'de';
+        let editorHtml = originalLines.map(line => {
+          if (line.trim() === "") {
+            return "";
+          }
+          const res = formatLineWithHighlights(line, currentCat);
+          currentCat = res.newCategory;
+          return res.html;
+        }).join('\n');
+        
+        if (combinedBetInput.innerHTML !== editorHtml) {
+          combinedBetInput.innerHTML = editorHtml;
+          setCaretOffset(combinedBetInput, caretOffset);
+        }
+      }, 800);
+    });
+
+    combinedBetInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        if (highlightTimeout) clearTimeout(highlightTimeout);
+        setTimeout(() => {
+          const caretOffset = getCaretOffset(combinedBetInput);
+          const inputString = combinedBetInput.innerText;
+          
+          const originalLines = inputString.split('\n');
+          let currentCat = 'de';
+          let editorHtml = originalLines.map(line => {
+            if (line.trim() === "") {
+              return "";
+            }
+            const res = formatLineWithHighlights(line, currentCat);
+            currentCat = res.newCategory;
+            return res.html;
+          }).join('\n');
+          
+          if (combinedBetInput.innerHTML !== editorHtml) {
+            combinedBetInput.innerHTML = editorHtml;
+            setCaretOffset(combinedBetInput, caretOffset);
+          }
+        }, 50);
+      }
     });
   }
 
