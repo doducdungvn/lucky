@@ -863,6 +863,7 @@ function normalizeBetLine(line) {
   normalized = normalized.replace(/(\d)\s*,\s*(\d)/g, '$1.$2');
   normalized = normalized.replace(/(\d)\s*\.\s*(\d)/g, '$1.$2');
   normalized = normalized.replace(/\b(?:dau\s+dit|dau\s+duoi)\s*(\d)(?![0-9])/gi, 'dau$1, dit$1');
+  normalized = normalized.replace(/\b(?:dd)\s*(\d)(?![0-9])/gi, 'dau$1, dit$1');
   normalized = normalized.replace(/\b(?:kep lech)\b/gi, 'kl');
   normalized = normalized.replace(/\b(?:lip|kep)\b/gi, 'k');
   normalized = normalized.replace(/\b(?:dau)\s*(\d)(?![0-9])/gi, 'dau$1');
@@ -1404,11 +1405,29 @@ function saveShortcuts() {
 }
 
 function loadShortcuts() {
-  const shortcutsData = localStorage.getItem("shortcutsData");
   const shortcutsArea = document.getElementById("shortcuts");
-  if (shortcutsData && shortcutsArea) {
-    shortcutsArea.value = shortcutsData;
+  if (!shortcutsArea) return;
+  
+  // Set cached value immediately first to avoid flash of empty textarea
+  const cached = localStorage.getItem("shortcutsData");
+  if (cached) {
+    shortcutsArea.value = cached;
   }
+  
+  fetch("https://raw.githubusercontent.com/doducdungvn/lucky/refs/heads/main/nhaptat.txt")
+    .then(response => {
+      if (!response.ok) throw new Error("Network response was not ok");
+      return response.text();
+    })
+    .then(data => {
+      if (data && data.trim() !== "") {
+        shortcutsArea.value = data;
+        localStorage.setItem("shortcutsData", data);
+      }
+    })
+    .catch(err => {
+      console.error("Error fetching shortcuts:", err);
+    });
 }
 
 function saveAppState() {
@@ -2717,10 +2736,61 @@ function setupEventListeners() {
       document.execCommand("insertText", false, text);
     });
 
-    combinedBetInput.addEventListener('input', saveAppState);
+    let highlightTimeout = null;
+    combinedBetInput.addEventListener('input', function() {
+      saveAppState();
+      if (highlightTimeout) clearTimeout(highlightTimeout);
+      highlightTimeout = setTimeout(() => {
+        const caretOffset = getCaretOffset(combinedBetInput);
+        const inputString = combinedBetInput.innerText;
+        
+        const originalLines = inputString.split('\n');
+        let currentCat = 'de';
+        let editorHtml = originalLines.map(line => {
+          if (line.trim() === "") {
+            return "";
+          }
+          const res = formatLineWithHighlights(line, currentCat);
+          currentCat = res.newCategory;
+          return res.html;
+        }).join('\n');
+        
+        if (combinedBetInput.innerHTML !== editorHtml) {
+          combinedBetInput.innerHTML = editorHtml;
+          setCaretOffset(combinedBetInput, caretOffset);
+        }
+      }, 800);
+    });
+
+    combinedBetInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        if (highlightTimeout) clearTimeout(highlightTimeout);
+        setTimeout(() => {
+          const caretOffset = getCaretOffset(combinedBetInput);
+          const inputString = combinedBetInput.innerText;
+          
+          const originalLines = inputString.split('\n');
+          let currentCat = 'de';
+          let editorHtml = originalLines.map(line => {
+            if (line.trim() === "") {
+              return "";
+            }
+            const res = formatLineWithHighlights(line, currentCat);
+            currentCat = res.newCategory;
+            return res.html;
+          }).join('\n');
+          
+          if (combinedBetInput.innerHTML !== editorHtml) {
+            combinedBetInput.innerHTML = editorHtml;
+            setCaretOffset(combinedBetInput, caretOffset);
+          }
+        }, 50);
+      }
+    });
 
     combinedBetInput.addEventListener('blur', function() {
       saveAppState();
+      if (highlightTimeout) clearTimeout(highlightTimeout);
       const inputString = combinedBetInput.innerText;
       const originalLines = inputString.split('\n');
       let currentCat = 'de';
