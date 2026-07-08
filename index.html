@@ -693,116 +693,165 @@ function verifyNonGroupText(text, currentCat) {
 
 function verifyGroupText(groupText, currentCat) {
   let activeCat = currentCat;
-  const normGroup = normalizeBetLine(groupText);
-  const match = normGroup.match(/^([a-wy-z0-9'.,\-\s]+)x(\d+(?:\.\d+)?)$/i);
-  if (!match) {
+  let hasInvalid = false;
+  
+  const normalizedGroupText = groupText.normalize("NFC");
+  
+  const opRegex = /(?:mỗi\s+con\s*=?|moi\s+con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*\d+(?:\.\d+)?(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?$/i;
+  const opMatch = normalizedGroupText.match(opRegex);
+  
+  let numbersPart = normalizedGroupText;
+  let operatorPart = "";
+  if (opMatch) {
+    numbersPart = normalizedGroupText.substring(0, opMatch.index);
+    operatorPart = opMatch[0];
+  } else {
     return {
-      html: `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(groupText)}</span>`,
+      html: `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(normalizedGroupText)}</span>`,
       newCategory: activeCat,
       hasInvalid: true
     };
   }
-  
-  let rawNumString = match[1].trim();
-  const keywordMatch = rawNumString.match(/^(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|bc|cang|d(?![a-z])|đ(?![a-z])|l(?![a-z])|c(?![a-z])|q(?![a-z])|x(?![a-z]))(.*)$/i);
-  if (keywordMatch) {
-    const rawType = keywordMatch[1].toLowerCase();
-    const typeRegex = {
-      de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
-      lo: /^(lo|lô|l)$/i,
-      xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
-      xien: /^(xien|xiên|x)$/i,
-      bacang: /^(3cang|3c|c|bc|cang|3\s+cang)$/i,
-      bacang_lo: /^(3clo|3cl)$/i
-    };
-    let newCat = '';
-    if (typeRegex.de.test(rawType)) newCat = 'de';
-    else if (typeRegex.lo.test(rawType)) newCat = 'lo';
-    else if (typeRegex.xienquay.test(rawType)) newCat = 'xienquay';
-    else if (typeRegex.xien.test(rawType)) newCat = 'xien';
-    else if (typeRegex.bacang.test(rawType)) newCat = 'bacang';
-    else if (typeRegex.bacang_lo.test(rawType)) newCat = 'bacang_lo';
+
+  const typeRegex = {
+    de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
+    lo: /^(lo|lô|l)$/i,
+    xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
+    xien: /^(xien|xiên|x)$/i,
+    bacang: /^(3cang|3c|c|bc|cang|3\s+cang)$/i,
+    bacang_lo: /^(3clo|3cl)$/i
+  };
+
+  function isTokenValid(seg, cat, prefix) {
+    if (seg.indexOf(',') !== -1) {
+      const parts = seg.split(',');
+      return parts.every(p => isTokenValid(p.trim(), cat, prefix));
+    }
     
-    if (newCat) {
-      activeCat = newCat;
-      rawNumString = keywordMatch[2].trim();
+    if (!/^\d+$/.test(seg)) {
+      const isShorthand = /^(kl|k|dau\d|dit\d|cham\d|t\d|bo\d{1,2})$/i.test(seg);
+      if (isShorthand) {
+        return (cat === 'de' || cat === 'lo');
+      }
+      return false;
+    }
+    
+    if (prefix === 'bo' && seg.length === 2) return true;
+    if (['dau', 'dit', 'tong', 'cham'].indexOf(prefix) !== -1 && seg.length === 1) return true;
+    
+    if (cat === 'de' || cat === 'lo') {
+      if (seg.length === 2) return true;
+      if (seg.length === 3) return (seg.charAt(0) === seg.charAt(2));
+      return false;
+    } else if (cat === 'xien' || cat === 'xienquay') {
+      if (seg.length === 2) return true;
+      if (seg.length === 3) return (seg.charAt(0) === seg.charAt(2));
+      return false;
+    } else if (cat === 'bacang' || cat === 'bacang_lo') {
+      return (seg.length === 3);
+    }
+    return false;
+  }
+
+  const shortcutsInput = document.getElementById("shortcuts")?.value || "";
+  const shortcutsArray = shortcutsInput.split("\n");
+  const customShortcuts = {};
+  for (let j = 0; j < shortcutsArray.length; j++) {
+    const parts = shortcutsArray[j].split("=");
+    const k = parts[0]?.trim().toLowerCase();
+    if (k) customShortcuts[k] = true;
+  }
+
+  const tokenRegex = /(\s+|[.,;/\-\+=\*x]+|(?:dau\s+dit|đầu\s+đít|dau\s+duoi|đầu\s+đuôi|đau\s+đit|đau\s+đít)\s*\d(?![0-9])|(?:kep\s+lech|kép\s+lệch)|(?:dau|đầu|đau|đàu|dit|đít|đit|duoi|đuôi|cham|chạm|tong|tổng|bo|bộ|he|hệ)\s*\d{1,2}(?![0-9])|[a-zA-Z0-9'’‘＇`\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036f]+|.)/gi;
+  const tokens = numbersPart.match(tokenRegex) || [];
+  let html = "";
+  let validTokensCount = 0;
+  let activeShorthandPrefix = "";
+
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (/^[\s.,;/\-\+=\*x]+$/.test(t)) {
+      html += escapeHtml(t);
+    } else {
+      const trimmed = t.trim();
+      if (!trimmed) {
+        html += escapeHtml(t);
+        continue;
+      }
+
+      let newCat = '';
+      const normTokenForCat = normalizeBetLine(trimmed);
+      if (typeRegex.de.test(normTokenForCat)) newCat = 'de';
+      else if (typeRegex.lo.test(normTokenForCat)) newCat = 'lo';
+      else if (typeRegex.xienquay.test(normTokenForCat)) newCat = 'xienquay';
+      else if (typeRegex.xien.test(normTokenForCat)) newCat = 'xien';
+      else if (typeRegex.bacang.test(normTokenForCat)) newCat = 'bacang';
+      else if (typeRegex.bacang_lo.test(normTokenForCat)) newCat = 'bacang_lo';
+
+      if (newCat) {
+        activeCat = newCat;
+        html += escapeHtml(t);
+        activeShorthandPrefix = "";
+      } else {
+        const normToken = normalizeBetLine(trimmed);
+        const shorthandNormalized = normalizeShorthandToken(normToken);
+        const isValid = isTokenValid(normToken, activeCat, activeShorthandPrefix) || customShortcuts[normToken] || customShortcuts[shorthandNormalized];
+        
+        if (isValid) {
+          html += escapeHtml(t);
+          
+          if (normToken.indexOf(',') !== -1) {
+            validTokensCount += 2;
+          } else if (/^\d+$/.test(normToken)) {
+            if (normToken.length === 3 && (activeCat === 'de' || activeCat === 'lo' || activeCat === 'xien' || activeCat === 'xienquay')) {
+              validTokensCount += 2;
+            } else {
+              validTokensCount += 1;
+            }
+          } else {
+            validTokensCount += 2; 
+          }
+          
+          const m = normToken.match(/^(dau|dit|duoi|cham|tong|t|d|d'|bo|he)(\d{1,2})$/i);
+          if (m) {
+            activeShorthandPrefix = m[1].toLowerCase();
+            if (activeShorthandPrefix === 'd') activeShorthandPrefix = 'dau';
+            if (activeShorthandPrefix === 'd\'') activeShorthandPrefix = 'dit';
+            if (activeShorthandPrefix === 'duoi') activeShorthandPrefix = 'dit';
+            if (activeShorthandPrefix === 't') activeShorthandPrefix = 'tong';
+            if (activeShorthandPrefix === 'he') activeShorthandPrefix = 'bo';
+          } else if (/^\d+$/.test(normToken)) {
+            let isShorthandListItem = false;
+            if (activeShorthandPrefix === 'bo') {
+              if (normToken.length === 2) isShorthandListItem = true;
+            } else if (['dau', 'dit', 'tong', 'cham'].indexOf(activeShorthandPrefix) !== -1) {
+              if (normToken.length === 1) isShorthandListItem = true;
+            }
+            if (!isShorthandListItem) {
+              activeShorthandPrefix = "";
+            }
+          }
+        } else {
+          hasInvalid = true;
+          html += `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(t)}</span>`;
+        }
+      }
     }
   }
-  
-  const numString = resolveShorthands(rawNumString);
-  const segments = numString.split(/[.,\-\s]+/).filter(s => s.length > 0);
-  let isValidGroup = true;
-  let parsedNumbersCount = 0;
-  
-  if (segments.length === 0) {
-    isValidGroup = false;
-  } else {
-    segments.forEach(seg => {
-      if (!/^\d+$/.test(seg)) {
-        const isShorthand = /^(kl|k|dau\d|dit\d|cham\d|t\d|bo\d{1,2})$/i.test(seg);
-        if (isShorthand) {
-          if (activeCat !== 'de' && activeCat !== 'lo') {
-            isValidGroup = false;
-          } else {
-            parsedNumbersCount += 2;
-          }
-        } else {
-          isValidGroup = false;
-        }
-        return;
-      }
-      
-      if (activeCat === 'de' || activeCat === 'lo') {
-        if (seg.length === 2) {
-          parsedNumbersCount += 1;
-        } else if (seg.length === 3) {
-          if (seg.charAt(0) === seg.charAt(2)) {
-            parsedNumbersCount += 2;
-          } else {
-            isValidGroup = false;
-          }
-        } else {
-          isValidGroup = false;
-        }
-      } else if (activeCat === 'xien' || activeCat === 'xienquay') {
-        if (seg.length === 2) {
-          parsedNumbersCount += 1;
-        } else if (seg.length === 3) {
-          if (seg.charAt(0) === seg.charAt(2)) {
-            parsedNumbersCount += 2;
-          } else {
-            isValidGroup = false;
-          }
-        } else {
-          isValidGroup = false;
-        }
-      } else if (activeCat === 'bacang' || activeCat === 'bacang_lo') {
-        if (seg.length === 3) {
-          parsedNumbersCount += 1;
-        } else {
-          isValidGroup = false;
-        }
-      }
-    });
-    
-    if ((activeCat === 'xien' || activeCat === 'xienquay') && parsedNumbersCount < 2) {
-      isValidGroup = false;
-    }
-  }
-  
-  if (isValidGroup) {
+
+  if ((activeCat === 'xien' || activeCat === 'xienquay') && validTokensCount < 2 && !hasInvalid) {
     return {
-      html: escapeHtml(groupText),
-      newCategory: activeCat,
-      hasInvalid: false
-    };
-  } else {
-    return {
-      html: `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(groupText)}</span>`,
+      html: `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(numbersPart)}</span>${escapeHtml(operatorPart)}`,
       newCategory: activeCat,
       hasInvalid: true
     };
   }
+
+  return {
+    html: html + escapeHtml(operatorPart),
+    newCategory: activeCat,
+    hasInvalid: hasInvalid
+  };
 }
 
 function formatLineWithHighlights(lineText, currentCategory) {
@@ -872,6 +921,7 @@ function normalizeBetLine(line) {
   normalized = normalized.replace(/\b(?:tong)\s*(\d)(?![0-9])/gi, 't$1');
   normalized = normalized.replace(/\b(?:bo|he)\s*(\d{1,2})(?![0-9])/gi, 'bo$1');
   normalized = normalized.replace(/\b(?:moi con bang|moi con)\b/gi, 'mc');
+  normalized = normalized.replace(/\s*[,.]\s*(?==|x|mc|moi\s+con|\+|\*)/gi, ' ');
   normalized = normalized.replace(/([a-z0-9])\s*(mỗi\s+con\s*=?|moi\s+con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, '$1x$3');
   normalized = normalized.replace(/\bmc\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, 'x$1');
   normalized = normalized.replace(/\s+(\d+(?:\.\d+)?)\s*(?:d|đ|₫|k|n)(?![a-z0-9])/gi, ' x$1');
