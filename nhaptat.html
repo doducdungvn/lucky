@@ -58,6 +58,9 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <button id="toggleConfigBtn" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-semibold transition-all active:scale-95 flex items-center gap-1.5 shadow-sm">
+          ⚙️ <span>Cấu hình GitHub</span>
+        </button>
         <button id="darkModeToggle" class="p-2 rounded-full bg-white dark:bg-dark-800 shadow hover:scale-105 transition-transform">
           <span class="dark:hidden">🌙</span>
           <span class="hidden dark:inline">☀️</span>
@@ -72,7 +75,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       <!-- Left Column: GitHub Config -->
-      <div class="space-y-4 lg:col-span-1">
+      <div id="githubConfigColumn" class="space-y-4 lg:col-span-1 transition-all duration-300">
         <div class="bg-white dark:bg-dark-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700/50 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="font-bold text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cấu hình GitHub</h3>
@@ -131,7 +134,7 @@
       </div>
 
       <!-- Right Column: Editor & Table List -->
-      <div class="lg:col-span-2 space-y-4">
+      <div id="editorColumn" class="lg:col-span-2 space-y-4 transition-all duration-300">
         
         <!-- Action Banner/Logs -->
         <div id="statusBanner" class="hidden p-3 rounded-lg text-sm font-semibold border"></div>
@@ -255,6 +258,31 @@
       localStorage.setItem('z8_gh_branch', document.getElementById('ghBranch').value.trim());
       localStorage.setItem('z8_gh_path', document.getElementById('ghPath').value.trim());
       showStatus('Đã lưu thông số cấu hình GitHub!', 'success');
+      applyConfigVisibility(true); // Auto-hide configuration panel after saving
+    }
+
+    // Apply visibility styles for GitHub Config panel
+    function applyConfigVisibility(shouldHide) {
+      const configCol = document.getElementById('githubConfigColumn');
+      const editorCol = document.getElementById('editorColumn');
+      const toggleConfigBtn = document.getElementById('toggleConfigBtn');
+      if (!configCol || !editorCol || !toggleConfigBtn) return;
+      
+      if (shouldHide) {
+        configCol.classList.add('hidden');
+        editorCol.classList.remove('lg:col-span-2');
+        editorCol.classList.add('lg:col-span-3');
+        toggleConfigBtn.classList.remove('bg-indigo-50', 'text-indigo-700', 'dark:bg-indigo-950/40', 'dark:text-indigo-300');
+        toggleConfigBtn.classList.add('bg-gray-100', 'text-gray-600', 'dark:bg-dark-800', 'dark:text-gray-400');
+        toggleConfigBtn.querySelector('span').innerText = 'Hiện cấu hình';
+      } else {
+        configCol.classList.remove('hidden');
+        editorCol.classList.remove('lg:col-span-3');
+        editorCol.classList.add('lg:col-span-2');
+        toggleConfigBtn.classList.add('bg-indigo-50', 'text-indigo-700', 'dark:bg-indigo-950/40', 'dark:text-indigo-300');
+        toggleConfigBtn.classList.remove('bg-gray-100', 'text-gray-600', 'dark:bg-dark-800', 'dark:text-gray-400');
+        toggleConfigBtn.querySelector('span').innerText = 'Ẩn cấu hình';
+      }
     }
 
     // Populate configuration inputs
@@ -585,6 +613,15 @@
       // Dark Mode
       document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
 
+      // Toggle Configuration Sidebar
+      document.getElementById('toggleConfigBtn').addEventListener('click', () => {
+        const configCol = document.getElementById('githubConfigColumn');
+        if (configCol) {
+          const isHidden = configCol.classList.contains('hidden');
+          applyConfigVisibility(!isHidden);
+        }
+      });
+
       // GitHub config
       document.getElementById('saveConfigBtn').addEventListener('click', saveGhConfig);
       
@@ -683,6 +720,14 @@
         addFormContainer.classList.add('hidden');
         showStatus("Đã thêm từ khóa mới vào danh sách nháp!", "success");
       });
+
+      // Scroll to Top / Bottom Buttons listeners
+      document.getElementById('scrollToTopBtn').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      document.getElementById('scrollToBottomBtn').addEventListener('click', () => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      });
     }
 
     // App Initialization
@@ -690,8 +735,23 @@
       checkDarkModePreference();
       populateConfigInputs();
       setupEventListeners();
+      
+      // Auto-hide configuration panel if token exists
+      const config = getGhConfig();
+      applyConfigVisibility(!!config.token);
+      
       syncFromGitHub(); // Auto-load from raw GitHub on launch
     });
   </script>
+
+  <!-- Floating Scroll Buttons -->
+  <div class="fixed bottom-6 right-6 flex flex-col gap-2 z-50">
+    <button id="scrollToTopBtn" class="w-11 h-11 rounded-full bg-white dark:bg-dark-800 text-gray-700 dark:text-gray-200 shadow-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:scale-110 active:scale-95 transition-all hover:bg-gray-100 dark:hover:bg-dark-700 focus:outline-none text-lg font-bold" title="Cuộn lên đầu trang">
+      ▲
+    </button>
+    <button id="scrollToBottomBtn" class="w-11 h-11 rounded-full bg-white dark:bg-dark-800 text-gray-700 dark:text-gray-200 shadow-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:scale-110 active:scale-95 transition-all hover:bg-gray-100 dark:hover:bg-dark-700 focus:outline-none text-lg font-bold" title="Cuộn xuống cuối trang">
+      ▼
+    </button>
+  </div>
 </body>
 </html>
