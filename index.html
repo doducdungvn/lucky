@@ -540,7 +540,7 @@ const shorthands = {
 };
 
 function normalizeShorthandToken(token) {
-  let t = token.trim().toLowerCase();
+  let t = token.trim().toLowerCase().replace(/[’‘ʼ＇`]/g, "'");
   const dauMatch = t.match(/^dau(\d)$/);
   if (dauMatch) return 'd' + dauMatch[1];
   const ditMatch = t.match(/^dit(\d)$/);
@@ -728,41 +728,17 @@ function verifyGroupText(groupText, currentCat) {
       return parts.every(p => isTokenValid(p.trim(), cat, prefix));
     }
     
-    if (!/^\d+$/.test(seg)) {
-      const isShorthand = /^(kl|k|dau\d|dit\d|cham\d|t\d|bo\d{1,2})$/i.test(seg);
-      if (isShorthand) {
-        return (cat === 'de' || cat === 'lo');
-      }
-      return false;
+    let testStr = seg;
+    if (prefix && /^\d+$/.test(seg)) {
+      testStr = prefix + seg;
     }
     
-    if (prefix === 'bo' && seg.length === 2) return true;
-    if (['dau', 'dit', 'tong', 'cham'].indexOf(prefix) !== -1 && seg.length === 1) return true;
-    
-    if (cat === 'de' || cat === 'lo') {
-      if (seg.length === 2) return true;
-      if (seg.length === 3) return (seg.charAt(0) === seg.charAt(2));
-      return false;
-    } else if (cat === 'xien' || cat === 'xienquay') {
-      if (seg.length === 2) return true;
-      if (seg.length === 3) return (seg.charAt(0) === seg.charAt(2));
-      return false;
-    } else if (cat === 'bacang' || cat === 'bacang_lo') {
-      return (seg.length === 3);
-    }
-    return false;
+    const resolved = resolveShorthands(testStr);
+    const parsedNums = parseNumbersFromBetString(resolved, cat);
+    return parsedNums.length > 0;
   }
 
-  const shortcutsInput = document.getElementById("shortcuts")?.value || "";
-  const shortcutsArray = shortcutsInput.split("\n");
-  const customShortcuts = {};
-  for (let j = 0; j < shortcutsArray.length; j++) {
-    const parts = shortcutsArray[j].split("=");
-    const k = parts[0]?.trim().toLowerCase();
-    if (k) customShortcuts[k] = true;
-  }
-
-  const tokenRegex = /(\s+|[.,;/\-\+=\*x]+|(?:dau\s+dit|đầu\s+đít|dau\s+duoi|đầu\s+đuôi|đau\s+đit|đau\s+đít)\s*\d(?![0-9])|(?:kep\s+lech|kép\s+lệch)|(?:dau|đầu|đau|đàu|dit|đít|đit|duoi|đuôi|cham|chạm|tong|tổng|bo|bộ|he|hệ)\s*\d{1,2}(?![0-9])|[a-zA-Z0-9'’‘＇`\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036f]+|.)/gi;
+  const tokenRegex = /(\s+|[.,;/\-\+=\*x]+|(?:dau\s+dit|đầu\s+đít|dau\s+duoi|đầu\s+đuôi|đau\s+đit|đau\s+đít|dd|đđ)\s*\d(?![0-9])|(?:kep\s+lech|kép\s+lệch)|(?:dau|đầu|đau|đàu|dit|đít|đit|duoi|đuôi|cham|chạm|tong|tổng|bo|bộ|he|hệ)\s*\d{1,2}(?![0-9])|[a-zA-Z0-9'’‘＇`\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036f]+|.)/gi;
   const tokens = numbersPart.match(tokenRegex) || [];
   let html = "";
   let validTokensCount = 0;
@@ -794,8 +770,7 @@ function verifyGroupText(groupText, currentCat) {
         activeShorthandPrefix = "";
       } else {
         const normToken = normalizeBetLine(trimmed);
-        const shorthandNormalized = normalizeShorthandToken(normToken);
-        const isValid = isTokenValid(normToken, activeCat, activeShorthandPrefix) || customShortcuts[normToken] || customShortcuts[shorthandNormalized];
+        const isValid = isTokenValid(normToken, activeCat, activeShorthandPrefix);
         
         if (isValid) {
           html += escapeHtml(t);
