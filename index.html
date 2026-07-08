@@ -650,7 +650,7 @@ function verifyNonGroupText(text, currentCat) {
     }
     
     const norm = normalizeBetLine(trimmed);
-    const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c)$/i);
+    const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c|bc|cang|3\s+cang)$/i);
     if (spaceMatch) {
       const rawType = spaceMatch[1].toLowerCase();
       const typeRegex = {
@@ -658,7 +658,7 @@ function verifyNonGroupText(text, currentCat) {
         lo: /^(lo|l)$/i,
         xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
         xien: /^(lo\s+xien|xien|x|x2|x3|x4)$/i,
-        bacang: /^(3cang|3c|c)$/i,
+        bacang: /^(3cang|3c|c|bc|cang|3\s+cang)$/i,
         bacang_lo: /^(3clo|3cl)$/i
       };
       let newCat = '';
@@ -704,7 +704,7 @@ function verifyGroupText(groupText, currentCat) {
   }
   
   let rawNumString = match[1].trim();
-  const keywordMatch = rawNumString.match(/^(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|d(?![a-z])|đ(?![a-z])|l(?![a-z])|c(?![a-z])|q(?![a-z])|x(?![a-z]))(.*)$/i);
+  const keywordMatch = rawNumString.match(/^(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|bc|cang|d(?![a-z])|đ(?![a-z])|l(?![a-z])|c(?![a-z])|q(?![a-z])|x(?![a-z]))(.*)$/i);
   if (keywordMatch) {
     const rawType = keywordMatch[1].toLowerCase();
     const typeRegex = {
@@ -712,7 +712,7 @@ function verifyGroupText(groupText, currentCat) {
       lo: /^(lo|lô|l)$/i,
       xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
       xien: /^(xien|xiên|x)$/i,
-      bacang: /^(3cang|3c|c)$/i,
+      bacang: /^(3cang|3c|c|bc|cang|3\s+cang)$/i,
       bacang_lo: /^(3clo|3cl)$/i
     };
     let newCat = '';
@@ -880,9 +880,9 @@ function normalizeBetLine(line) {
 
 function parseCombinedInput(inputString) {
   let processedInput = inputString.replace(/[’‘ʼ＇`]/g, "'");
-  const keywordRegex = /(^|[\s,;])(xienquay|xquay|xienq|3cang|3clo|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|d|đ|l|c|q|x)(\d)/gi;
+  const keywordRegex = /(^|[\s,;])(xienquay|xquay|xienq|3cang|3càng|3\s+càng|3\s+cang|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|bc|càng|cang|d|đ|l|c|q|x)(\d)/gi;
   processedInput = processedInput.replace(keywordRegex, "$1$2 $3");
-  const sameLinePattern = /[\s,;]+(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lô|lo|l|xiên|xien|x2|x3|x4)(?=[\s.,;\-\d]|$)|[\s,;]+(3càng|3cang|3c|3clô|3clo|3cl)(?=[\s.,;\-\d]|$)|[\s,;]+(d|đ|l|c)(?=[\s.,;\-\d]|$)(?=\s+[a-z0-9'’‘＇`])/gi;
+  const sameLinePattern = /[\s,;]+(xienquay|xq|xienq|quay|q|xquay|lô\s+xiên|lo\s+xien|đề|de|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lô|lo|l|xiên|xien|x2|x3|x4)(?=[\s.,;\-\d]|$)|[\s,;]+(3càng|3cang|3\s+càng|3\s+cang|3c|3clô|3clo|3cl|bc|càng|cang)(?=[\s.,;\-\d]|$)|[\s,;]+(d|đ|l|c)(?=[\s.,;\-\d]|$)(?=\s+[a-z0-9'’‘＇`])/gi;
   processedInput = processedInput.replace(sameLinePattern, (match) => {
     return "\n" + match.replace(/^[\s,;]+/g, '').trim();
   });
@@ -907,7 +907,7 @@ function parseCombinedInput(inputString) {
     lo: /^(lo|l)$/i,
     xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
     xien: /^(lo\s+xien|xien|x|x2|x3|x4)$/i,
-    bacang: /^(3cang|3c|c)$/i,
+    bacang: /^(3cang|3c|c|bc|cang|3\s+cang)$/i,
     bacang_lo: /^(3clo|3cl)$/i
   };
 
@@ -920,7 +920,7 @@ function parseCombinedInput(inputString) {
     let trimmed = normalizeBetLine(originalLine);
 
     let lineType = '';
-    const spaceMatch = trimmed.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c)(?:\s+(.*))?$/i);
+    const spaceMatch = trimmed.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c|bc|cang|3\s+cang)(?:\s+(.*))?$/i);
     if (spaceMatch) {
       const rawType = spaceMatch[1].toLowerCase();
       if (typeRegex.de.test(rawType)) lineType = 'de';
@@ -2760,32 +2760,6 @@ function setupEventListeners() {
           setCaretOffset(combinedBetInput, caretOffset);
         }
       }, 800);
-    });
-
-    combinedBetInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        if (highlightTimeout) clearTimeout(highlightTimeout);
-        setTimeout(() => {
-          const caretOffset = getCaretOffset(combinedBetInput);
-          const inputString = combinedBetInput.innerText;
-          
-          const originalLines = inputString.split('\n');
-          let currentCat = 'de';
-          let editorHtml = originalLines.map(line => {
-            if (line.trim() === "") {
-              return "";
-            }
-            const res = formatLineWithHighlights(line, currentCat);
-            currentCat = res.newCategory;
-            return res.html;
-          }).join('\n');
-          
-          if (combinedBetInput.innerHTML !== editorHtml) {
-            combinedBetInput.innerHTML = editorHtml;
-            setCaretOffset(combinedBetInput, caretOffset);
-          }
-        }, 50);
-      }
     });
 
     combinedBetInput.addEventListener('blur', function() {
