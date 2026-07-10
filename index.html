@@ -82,9 +82,14 @@
             role="textbox"
             aria-multiline="true"
           ></div>
-          <p class="text-[11px] text-gray-500 mt-1.5">
-            💡 Hỗ trợ: Đề (de, d), Lô (lo, l), Xiên (x, x2, x3, x4, xien), Xiên Quay (xienquay, xq, xienq, quay, q, xquay), 3 Càng (3c, 3cang), 3 Càng Lô (3cl, 3clo). Phân cách bằng dấu cách, phẩy, chấm, gạch ngang; dùng 'x', '+' hoặc '*' trước tiền/điểm cược.
-          </p>
+          <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+            <button id="btnClearBetInput" class="text-[11px] bg-rose-600/10 hover:bg-rose-600 text-rose-500 hover:text-white border border-rose-500/20 px-1.5 py-0.5 rounded transition-all flex items-center gap-1 active:scale-95 shrink-0" title="Xóa toàn bộ khung nhập cược">
+              💡 <span>Xóa cược</span>
+            </button>
+            <p class="text-[11px] text-gray-500 leading-tight">
+              Hỗ trợ: Đề (de, d), Lô (lo, l), Xiên (x, x2, x3, x4, xien), Xiên Quay (xienquay, xq, xienq, quay, q, xquay), 3 Càng (3c, 3cang), 3 Càng Lô (3cl, 3clo). Phân cách bằng dấu cách, phẩy, chấm, gạch ngang; dùng 'x', '+' hoặc '*' trước tiền/điểm cược.
+            </p>
+          </div>
         </div>
 
         <div class="flex flex-wrap gap-2">
@@ -92,29 +97,65 @@
             Tính tổng
           </button>
           <button id="copyButton" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-md flex-1 transition-all hover:scale-[1.02] active:scale-95">
-            Sao chép Chuyển
+            Chuyển
           </button>
           <button id="copyInputListButton" class="bg-warning hover:bg-warning/90 text-white px-4 py-2 rounded-md flex-1 transition-all hover:scale-[1.02] active:scale-95">
-            Sao chép Input
+            Input
           </button>
         </div>
 
-        <div class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 space-y-2 transition-all hover:shadow-lg">
-          <div class="flex flex-wrap items-center gap-2">
-            <label class="text-sm font-medium">Giữ lại:</label>
-            <input type="text" id="retainNumber" value="0" 
-                   class="w-20 border border-gray-300 dark:border-gray-600 rounded-md p-1 text-center bg-white dark:bg-dark-700 focus:ring-2 focus:ring-primary">
-            <div class="flex items-center gap-4">
-              <label class="flex items-center gap-1 text-sm">
-                <input type="radio" name="retainType" id="retainTypeMoney" value="money" checked 
-                       class="form-radio text-primary dark:text-secondary border-gray-300 dark:border-gray-600">
-                <span>Tiền</span>
-              </label>
-              <label class="flex items-center gap-1 text-sm">
-                <input type="radio" name="retainType" id="retainTypePercentage" value="percentage" 
-                       class="form-radio text-primary dark:text-secondary border-gray-300 dark:border-gray-600">
-                <span>Phần trăm</span>
-              </label>
+        <div class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 space-y-4 transition-all hover:shadow-lg">
+          <!-- Retain Config Header -->
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2 border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-3">
+              <label class="text-sm font-bold text-gray-700 dark:text-gray-300">Giữ lại:</label>
+              <span id="balanceCounterLabel" class="text-xs text-primary dark:text-secondary font-bold">Số Lần Đã Cân Chuyển = 0</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3">
+                <label class="flex items-center gap-1 text-sm cursor-pointer">
+                  <input type="radio" name="retainType" id="retainTypeMoney" value="money" checked 
+                         class="form-radio text-primary dark:text-secondary border-gray-300 dark:border-gray-600">
+                  <span>Tiền</span>
+                </label>
+                <label class="flex items-center gap-1 text-sm cursor-pointer">
+                  <input type="radio" name="retainType" id="retainTypePercentage" value="percentage" 
+                         class="form-radio text-primary dark:text-secondary border-gray-300 dark:border-gray-600">
+                  <span>Phần trăm</span>
+                </label>
+              </div>
+              <button id="btnResetBalance" class="bg-rose-600 hover:bg-rose-700 text-white text-[11px] px-2 py-0.5 rounded transition-all hover:scale-105 active:scale-95 whitespace-nowrap">
+                Từ đầu
+              </button>
+            </div>
+          </div>
+          
+          <!-- Category Specific Inputs -->
+          <div class="grid grid-cols-5 gap-2">
+            <div class="flex flex-col items-center">
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Đ</span>
+              <input type="text" id="retainDe" value="0" 
+                     class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-1 text-center bg-white dark:bg-dark-700 focus:ring-2 focus:ring-primary text-sm">
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">L</span>
+              <input type="text" id="retainLo" value="0" 
+                     class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-1 text-center bg-white dark:bg-dark-700 focus:ring-2 focus:ring-primary text-sm">
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">3c</span>
+              <input type="text" id="retain3c" value="0" 
+                     class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-1 text-center bg-white dark:bg-dark-700 focus:ring-2 focus:ring-primary text-sm">
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">X</span>
+              <input type="text" id="retainX" value="0" 
+                     class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-1 text-center bg-white dark:bg-dark-700 focus:ring-2 focus:ring-primary text-sm">
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">3cL</span>
+              <input type="text" id="retain3cL" value="0" 
+                     class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-1 text-center bg-white dark:bg-dark-700 focus:ring-2 focus:ring-primary text-sm">
             </div>
           </div>
         </div>
@@ -537,6 +578,20 @@ const shorthands = {
   "ditle": "01.03.05.07.09.11.13.15.17.19.21.23.25.27.29.31.33.35.37.39.41.43.45.47.49.51.53.55.57.59.61.63.65.67.69.71.73.75.77.79.81.83.85.87.89.91.93.95.97.99",
   "ditbe": "00.01.02.03.04.10.11.12.13.14.20.21.22.23.24.30.31.32.33.34.40.41.42.43.44.50.51.52.53.54.60.61.62.63.64.70.71.72.73.74.80.81.82.83.84.90.91.92.93.94",
   "ditto": "05.06.07.08.09.15.16.17.18.19.25.26.27.28.29.35.36.37.38.39.45.46.47.48.49.55.56.57.58.59.65.66.67.68.69.75.76.77.78.79.85.86.87.88.89.95.96.97.98.99"
+};
+
+let balanceState = {
+  step: 0,
+  deTransfers: {},
+  loTransfers: {},
+  baCangTransfers: {},
+  xienTransfers: {},
+  baCangLoTransfers: {},
+  deSums: {},
+  loSums: {},
+  baCangSums: {},
+  baCangLoSums: {},
+  xienBets: []
 };
 
 function normalizeShorthandToken(token) {
@@ -971,7 +1026,7 @@ function parseCombinedInput(inputString) {
 
     let parsedCountBefore = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length + parsedBets.bacang_lo.length;
 
-    const groupRegex = /([a-wy-z0-9'’‘ʼ＇`.,\-\s]+)([x+*])(\d+(?:\.\d+)?)/gi;
+    const groupRegex = /([a-wy-z0-9'’‘＇`.,\-\s]+)([x+*])(\d+(?:\.\d+)?)/gi;
     let groupMatch;
     while ((groupMatch = groupRegex.exec(trimmed)) !== null) {
       const rawNumString = groupMatch[1].trim();
@@ -1928,16 +1983,67 @@ function calculateSum() {
   const totalNet = totalVon - totalTrung;
 
   // 2. Calculations for Chuyển column
-  const retainNumber = parseInt(document.getElementById("retainNumber")?.value) || 0;
+  const retainDe = parseFloat(document.getElementById("retainDe")?.value) || 0;
+  const retainLo = parseFloat(document.getElementById("retainLo")?.value) || 0;
+  const retain3c = parseFloat(document.getElementById("retain3c")?.value) || 0;
+  const retainX = parseFloat(document.getElementById("retainX")?.value) || 0;
+  const retain3cL = parseFloat(document.getElementById("retain3cL")?.value) || 0;
   const retainType = document.querySelector('input[name="retainType"]:checked')?.value || "money";
 
-  const getLayoffValues = (sumsMap, getPayoutFn) => {
+  const getCategoryRetainValue = (categoryKey) => {
+    if (categoryKey === 'de') return retainDe;
+    if (categoryKey === 'lo') return retainLo;
+    if (categoryKey === 'bacang') return retain3c;
+    if (categoryKey === 'xien') return retainX;
+    if (categoryKey === 'bacang_lo') return retain3cL;
+    return 0;
+  };
+
+  const getCategorySumsMap = (categoryKey) => {
+    if (categoryKey === 'de') return deSums;
+    if (categoryKey === 'lo') return loSums;
+    if (categoryKey === 'bacang') return baCangSums;
+    if (categoryKey === 'bacang_lo') return baCangLoSums;
+    if (categoryKey === 'xien') {
+      const map = {};
+      xienBets.forEach((bet, idx) => {
+        map[idx] = bet.amount;
+      });
+      return map;
+    }
+    return {};
+  };
+
+  const getCategoryTransferMap = (categoryKey) => {
+    if (balanceState.step === 0) {
+      const retainVal = getCategoryRetainValue(categoryKey);
+      const map = {};
+      const sumsMap = getCategorySumsMap(categoryKey);
+      Object.entries(sumsMap).forEach(([key, val]) => {
+        let excess = retainType === "money" ? val - retainVal : val - (val * (retainVal / 100));
+        excess = Math.max(0, Math.round(excess * 10) / 10);
+        if (excess >= 0.1) {
+          map[key] = excess;
+        }
+      });
+      return map;
+    } else {
+      if (categoryKey === 'de') return balanceState.lastDeTransfers || {};
+      if (categoryKey === 'lo') return balanceState.lastLoTransfers || {};
+      if (categoryKey === 'bacang') return balanceState.lastBaCangTransfers || {};
+      if (categoryKey === 'xien') return balanceState.lastXienTransfers || {};
+      if (categoryKey === 'bacang_lo') return balanceState.lastBaCangLoTransfers || {};
+      return {};
+    }
+  };
+
+  const getLayoffValues = (sumsMap, getPayoutFn, categoryKey) => {
     let costSum = 0;
     let winSum = 0;
+    const transferMap = getCategoryTransferMap(categoryKey);
     Object.entries(sumsMap).forEach(([key, value]) => {
-      let modifiedSum = retainType === "money" ? value - retainNumber : value - (value * (retainNumber / 100));
-      if (modifiedSum >= 1) {
-        modifiedSum = Math.trunc(modifiedSum);
+      let modifiedSum = transferMap[key] || 0;
+      if (modifiedSum >= 0.1) {
         costSum += modifiedSum;
         winSum += getPayoutFn(key, modifiedSum);
       }
@@ -1945,14 +2051,14 @@ function calculateSum() {
     return { costSum, winSum };
   };
 
-  const deLayoff = getLayoffValues(deSums, (key, amt) => (key === specialPrizeLast2 ? amt * dePayout : 0));
+  const deLayoff = getLayoffValues(deSums, (key, amt) => (key === specialPrizeLast2 ? amt * dePayout : 0), 'de');
   const deVonChuyen = deLayoff.costSum * (deComm / 100);
   const deTrungChuyen = deLayoff.winSum;
 
   const loLayoff = getLayoffValues(loSums, (key, amt) => {
     const occurrences = allPrizesLast2.filter(p => p === key).length;
     return occurrences * amt * loPayoutFactor;
-  });
+  }, 'lo');
   const loVonChuyen = loLayoff.costSum * loCostFactor;
   const loTrungChuyen = loLayoff.winSum;
 
@@ -1960,10 +2066,10 @@ function calculateSum() {
   let xienTrungChuyen = 0;
   let xienXacChuyen = 0;
   let xienWinXacChuyen = 0;
-  xienBets.forEach(bet => {
-    let modifiedSum = retainType === "money" ? bet.amount - retainNumber : bet.amount - (bet.amount * (retainNumber / 100));
-    if (modifiedSum >= 1) {
-      modifiedSum = Math.trunc(modifiedSum);
+  const xienTransferMap = getCategoryTransferMap('xien');
+  xienBets.forEach((bet, idx) => {
+    let modifiedSum = xienTransferMap[idx] || 0;
+    if (modifiedSum >= 0.1) {
       xienXacChuyen += modifiedSum;
       xienVonChuyen += modifiedSum * (xienComm / 100);
       const allHit = bet.numbers.every(num => allPrizesLast2.includes(num));
@@ -1982,41 +2088,39 @@ function calculateSum() {
     if (match3) return amt * baCangPayout;
     if (match2) return amt * baCangApMa;
     return 0;
-  });
+  }, 'bacang');
   const baCangVonChuyen = baCangLayoff.costSum * (baCangComm / 100);
   const baCangTrungChuyen = baCangLayoff.winSum;
 
   const baCangLoLayoff = getLayoffValues(baCangLoSums, (key, amt) => {
     const occurrences = allPrizesLast3.filter(p => p === key).length;
     return occurrences * amt * baCangLoPayout;
-  });
+  }, 'bacang_lo');
   const baCangLoVonChuyen = baCangLoLayoff.costSum * (baCangLoCost / 100);
   const baCangLoTrungChuyen = baCangLoLayoff.winSum;
 
   const totalVonChuyen = deVonChuyen + loVonChuyen + xienVonChuyen + baCangVonChuyen + baCangLoVonChuyen;
   const totalTrungChuyen = deTrungChuyen + loTrungChuyen + xienTrungChuyen + baCangTrungChuyen + baCangLoTrungChuyen;
 
-  const getModifiedValue = (val) => {
-    let modifiedSum = retainType === "money" ? val - retainNumber : val - (val * (retainNumber / 100));
-    return modifiedSum >= 1 ? Math.trunc(modifiedSum) : 0;
-  };
-
-  const deWinSumChuyen = deSums[specialPrizeLast2] ? getModifiedValue(deSums[specialPrizeLast2]) : 0;
+  const deTransferMap = getCategoryTransferMap('de');
+  const deWinSumChuyen = deSums[specialPrizeLast2] ? deTransferMap[specialPrizeLast2] || 0 : 0;
 
   let loWinSumChuyen = 0;
+  const loTransferMap = getCategoryTransferMap('lo');
   Object.entries(loSums).forEach(([num, val]) => {
     const occurrences = allPrizesLast2.filter(p => p === num).length;
     if (occurrences > 0) {
-      loWinSumChuyen += occurrences * getModifiedValue(val);
+      loWinSumChuyen += occurrences * (loTransferMap[num] || 0);
     }
   });
 
   let baCangDeWinSumChuyen = 0;
   let baCangDeApMaWinSumChuyen = 0;
+  const baCangTransferMap = getCategoryTransferMap('bacang');
   Object.entries(baCangSums).forEach(([num, val]) => {
     const match3 = num === specialPrizeLast3;
     const match2 = num.slice(-2) === specialPrizeLast2;
-    const modVal = getModifiedValue(val);
+    const modVal = baCangTransferMap[num] || 0;
     if (match3) {
       baCangDeWinSumChuyen += modVal;
     } else if (match2) {
@@ -2025,10 +2129,11 @@ function calculateSum() {
   });
 
   let baCangLoWinSumChuyen = 0;
+  const baCangLoTransferMap = getCategoryTransferMap('bacang_lo');
   Object.entries(baCangLoSums).forEach(([num, val]) => {
     const occurrences = allPrizesLast3.filter(p => p === num).length;
     if (occurrences > 0) {
-      baCangLoWinSumChuyen += occurrences * getModifiedValue(val);
+      baCangLoWinSumChuyen += occurrences * (baCangLoTransferMap[num] || 0);
     }
   });
 
@@ -2135,21 +2240,16 @@ function calculateSum() {
   }
 
   // 4. Render Chuyển (Layoff) lists
-  const renderGroupLayoff = (title, sumsMap, isLoto = false) => {
+  const renderGroupLayoff = (title, sumsMap, isLoto = false, categoryKey) => {
     if (!modifiedResultDiv) return;
     const sorted = Object.entries(sumsMap);
     let groupHtml = "";
+    const transferMap = getCategoryTransferMap(categoryKey);
 
     sorted.forEach(([key, value]) => {
-      let modifiedSum;
-      if (retainType === "money") {
-        modifiedSum = value - retainNumber;
-      } else {
-        modifiedSum = value - (value * (retainNumber / 100));
-      }
-
-      if (modifiedSum >= 1) {
-        modifiedSum = Math.trunc(modifiedSum);
+      let modifiedSum = transferMap[key] || 0;
+      if (modifiedSum >= 0.1) {
+        let displayAmt = Number(modifiedSum.toFixed(1));
         let isWin = false;
         let hitText = "";
         
@@ -2180,9 +2280,9 @@ function calculateSum() {
 
         const suffix = title.includes("Lô(đ)") ? 'đ' : '';
         if (isWin) {
-          groupHtml += `<div class="matching-number">${key}x${modifiedSum}${suffix}${hitText}</div>`;
+          groupHtml += `<div class="matching-number">${key}x${displayAmt}${suffix}${hitText}</div>`;
         } else {
-          groupHtml += `<div>${key}x${modifiedSum}${suffix}</div>`;
+          groupHtml += `<div>${key}x${displayAmt}${suffix}</div>`;
         }
       }
     });
@@ -2201,20 +2301,21 @@ function calculateSum() {
 
   const loLayoffPointsWin = loPayoutFactor > 0 ? Math.round(loLayoff.winSum / loPayoutFactor) : 0;
   
-  renderGroupLayoff(`🔴 Đề ${formatHeaderMoney(deVonChuyen, deTrungChuyen)}`, deSums, false);
-  renderGroupLayoff(`🔵 Lô(đ) ${formatHeaderMoney(loVonChuyen, loTrungChuyen)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loLayoff.costSum)}đ / ${loLayoffPointsWin}đ]</span>`, loSums, true);
-  renderGroupLayoff(`🟤 3cLô ${formatHeaderMoney(baCangLoVonChuyen, baCangLoTrungChuyen)}`, baCangLoSums, false);
+  renderGroupLayoff(`🔴 Đề ${formatHeaderMoney(deVonChuyen, deTrungChuyen)}`, deSums, false, 'de');
+  renderGroupLayoff(`🔵 Lô(đ) ${formatHeaderMoney(loVonChuyen, loTrungChuyen)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loLayoff.costSum)}đ / ${loLayoffPointsWin}đ]</span>`, loSums, true, 'lo');
+  renderGroupLayoff(`🟤 3cLô ${formatHeaderMoney(baCangLoVonChuyen, baCangLoTrungChuyen)}`, baCangLoSums, false, 'bacang_lo');
 
   let xienLayoffHtml = "";
-  xienBets.forEach(bet => {
-    let modifiedSum = retainType === "money" ? bet.amount - retainNumber : bet.amount - (bet.amount * (retainNumber / 100));
-    if (modifiedSum >= 1) {
-      modifiedSum = Math.trunc(modifiedSum);
+  // xienTransferMap is already defined above
+  xienBets.forEach((bet, idx) => {
+    let modifiedSum = xienTransferMap[idx] || 0;
+    if (modifiedSum >= 0.1) {
+      let displayAmt = Number(modifiedSum.toFixed(1));
       const allHit = bet.numbers.every(num => allPrizesLast2.includes(num));
       if (allHit) {
-        xienLayoffHtml += `<div class="matching-number">${bet.numbers.join('-')}x${modifiedSum} (Trúng)</div>`;
+        xienLayoffHtml += `<div class="matching-number">${bet.numbers.join('-')}x${displayAmt} (Trúng)</div>`;
       } else {
-        xienLayoffHtml += `<div>${bet.numbers.join('-')}x${modifiedSum}</div>`;
+        xienLayoffHtml += `<div>${bet.numbers.join('-')}x${displayAmt}</div>`;
       }
     }
   });
@@ -2229,18 +2330,19 @@ function calculateSum() {
   }
 
   let baCangLayoffHtml = "";
+  // baCangTransferMap is already defined above
   Object.entries(baCangSums).forEach(([key, value]) => {
-    let modifiedSum = retainType === "money" ? value - retainNumber : value - (value * (retainNumber / 100));
-    if (modifiedSum >= 1) {
-      modifiedSum = Math.trunc(modifiedSum);
+    let modifiedSum = baCangTransferMap[key] || 0;
+    if (modifiedSum >= 0.1) {
+      let displayAmt = Number(modifiedSum.toFixed(1));
       const match3 = key === specialPrizeLast3;
       const match2 = key.slice(-2) === specialPrizeLast2;
       if (match3) {
-        baCangLayoffHtml += `<div class="matching-number">${key}x${modifiedSum} (Trúng 3C)</div>`;
+        baCangLayoffHtml += `<div class="matching-number">${key}x${displayAmt} (Trúng 3C)</div>`;
       } else if (match2) {
-        baCangLayoffHtml += `<div class="matching-number">${key}x${modifiedSum} (Áp Má)</div>`;
+        baCangLayoffHtml += `<div class="matching-number">${key}x${displayAmt} (Áp Má)</div>`;
       } else {
-        baCangLayoffHtml += `<div>${key}x${modifiedSum}</div>`;
+        baCangLayoffHtml += `<div>${key}x${displayAmt}</div>`;
       }
     }
   });
@@ -2446,10 +2548,11 @@ function calculateSum() {
     `;
   };
 
-  const getLayoffCount = (sumsMap) => {
-    return Object.values(sumsMap).filter(value => {
-      let modifiedSum = retainType === "money" ? value - retainNumber : value - (value * (retainNumber / 100));
-      return Math.trunc(modifiedSum) >= 1;
+  const getLayoffCount = (sumsMap, categoryKey) => {
+    const transferMap = getCategoryTransferMap(categoryKey);
+    return Object.keys(sumsMap).filter(key => {
+      let modifiedSum = transferMap[key] || 0;
+      return modifiedSum >= 0.1;
     }).length;
   };
 
@@ -2459,14 +2562,14 @@ function calculateSum() {
   const res3CCount = Object.keys(baCangSums).length;
   const res3CLCount = Object.keys(baCangLoSums).length;
 
-  const layoffDeCount = getLayoffCount(deSums);
-  const layoffLoCount = getLayoffCount(loSums);
-  const layoffXienCount = xienBets.filter(bet => {
-    let modifiedSum = retainType === "money" ? bet.amount - retainNumber : bet.amount - (bet.amount * (retainNumber / 100));
-    return Math.trunc(modifiedSum) >= 1;
+  const layoffDeCount = getLayoffCount(deSums, 'de');
+  const layoffLoCount = getLayoffCount(loSums, 'lo');
+  const layoffXienCount = xienBets.filter((bet, idx) => {
+    let modifiedSum = xienTransferMap[idx] || 0;
+    return modifiedSum >= 0.1;
   }).length;
-  const layoff3CCount = getLayoffCount(baCangSums);
-  const layoff3CLCount = getLayoffCount(baCangLoSums);
+  const layoff3CCount = getLayoffCount(baCangSums, 'bacang');
+  const layoff3CLCount = getLayoffCount(baCangLoSums, 'bacang_lo');
 
   const inpDeCount = parsedBets.de.length;
   const inpLoCount = parsedBets.lo.length;
@@ -2519,6 +2622,27 @@ function calculateSum() {
     const totalText = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
     const breakdown = formatBreakdown(false);
     inputTotalSumEl.innerHTML = breakdown ? `${totalText}<div class="mt-1.5 pt-1 border-t border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 font-normal space-y-0.5 text-[11px] text-left">${breakdown}</div>` : totalText;
+  }
+  updateCopyButtonLabel();
+}
+
+function updateCopyButtonLabel() {
+  const copyButton = document.getElementById('copyButton');
+  if (!copyButton) return;
+  const retainType = document.querySelector('input[name="retainType"]:checked')?.value || "money";
+  const displayStep = balanceState.step === 0 ? "" : " " + (balanceState.step + 1);
+  if (retainType === "percentage") {
+    copyButton.textContent = `% Chuyển${displayStep}`;
+  } else {
+    copyButton.textContent = `Chuyển${displayStep}`;
+  }
+}
+
+function handleCopyButtonClick() {
+  const retainType = document.querySelector('input[name="retainType"]:checked')?.value || "money";
+  const success = runBalancingStep(retainType === "percentage");
+  if (success) {
+    copyText();
   }
 }
 
@@ -2770,6 +2894,7 @@ function setupEventListeners() {
     let highlightTimeout = null;
     combinedBetInput.addEventListener('input', function() {
       saveAppState();
+      updateCopyButtonLabel();
       if (highlightTimeout) clearTimeout(highlightTimeout);
       highlightTimeout = setTimeout(() => {
         const caretOffset = getCaretOffset(combinedBetInput);
@@ -2824,9 +2949,22 @@ function setupEventListeners() {
     normBtn.addEventListener('click', normalizeTwentySevenNumbers);
   }
 
+  const btnClearBetInput = document.getElementById('btnClearBetInput');
+  if (btnClearBetInput) {
+    btnClearBetInput.addEventListener('click', () => {
+      const combinedBetInput = document.getElementById('combinedBetInput');
+      if (combinedBetInput) {
+        combinedBetInput.innerText = "";
+        combinedBetInput.innerHTML = "";
+        localStorage.removeItem('z8_combined_bet');
+        calculateSum();
+      }
+    });
+  }
+
   const cpBtn = document.getElementById('copyButton');
   if (cpBtn) {
-    cpBtn.addEventListener('click', copyText);
+    cpBtn.addEventListener('click', handleCopyButtonClick);
   }
 
   const cpInputBtn = document.getElementById('copyInputListButton');
@@ -2957,14 +3095,24 @@ function setupEventListeners() {
   const btnSourceMKetqua = document.getElementById('btnSourceMKetqua');
   if (btnSourceMKetqua) btnSourceMKetqua.addEventListener('click', () => updateSourceButtons("mketqua.net"));
 
-  // Retain number & type listeners
-  const retainNumber = document.getElementById('retainNumber');
-  if (retainNumber) {
-    retainNumber.addEventListener('focus', () => clearDefaultValue(retainNumber));
-    retainNumber.addEventListener('blur', () => {
-      if (retainNumber.value === "") retainNumber.value = "0";
-    });
-    retainNumber.addEventListener('input', calculateSum);
+  // Retain inputs & type listeners
+  const retainInputs = ['retainDe', 'retainLo', 'retain3c', 'retainX', 'retain3cL'];
+  retainInputs.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      input.addEventListener('focus', () => clearDefaultValue(input));
+      input.addEventListener('blur', () => {
+        if (input.value === "") input.value = "0";
+      });
+      input.addEventListener('input', calculateSum);
+    }
+  });
+
+
+
+  const btnResetBalance = document.getElementById('btnResetBalance');
+  if (btnResetBalance) {
+    btnResetBalance.addEventListener('click', resetBalancing);
   }
 
   document.querySelectorAll('input[name="retainType"]').forEach(radio => {
@@ -3086,6 +3234,168 @@ function setupEventListeners() {
       });
     });
   }
+}
+
+function runBalancingStep(isPercent) {
+  const combinedBetInput = document.getElementById('combinedBetInput');
+  const inputString = combinedBetInput ? (combinedBetInput.tagName.toLowerCase() === "textarea" ? combinedBetInput.value : combinedBetInput.innerText) : '';
+  const parsedBets = parseCombinedInput(inputString);
+
+  // Compute totals for current editor content
+  const deSums = {};
+  parsedBets.de.forEach(bet => {
+    bet.numbers.forEach(num => {
+      deSums[num] = (deSums[num] || 0) + bet.amount;
+    });
+  });
+
+  const loSums = {};
+  parsedBets.lo.forEach(bet => {
+    bet.numbers.forEach(num => {
+      loSums[num] = (loSums[num] || 0) + bet.amount;
+    });
+  });
+
+  const baCangSums = {};
+  parsedBets.bacang.forEach(bet => {
+    const num = bet.numbers[0];
+    baCangSums[num] = (baCangSums[num] || 0) + bet.amount;
+  });
+
+  const baCangLoSums = {};
+  parsedBets.bacang_lo.forEach(bet => {
+    const num = bet.numbers[0];
+    baCangLoSums[num] = (baCangLoSums[num] || 0) + bet.amount;
+  });
+
+  const xienBets = [...parsedBets.xien2, ...parsedBets.xien3, ...parsedBets.xien4];
+
+  // Read retain limits
+  const retainDe = parseFloat(document.getElementById("retainDe")?.value) || 0;
+  const retainLo = parseFloat(document.getElementById("retainLo")?.value) || 0;
+  const retain3c = parseFloat(document.getElementById("retain3c")?.value) || 0;
+  const retainX = parseFloat(document.getElementById("retainX")?.value) || 0;
+  const retain3cL = parseFloat(document.getElementById("retain3cL")?.value) || 0;
+
+  // Temporary step transfer maps to check if we have new layoff values
+  const stepDeTransfers = {};
+  const stepLoTransfers = {};
+  const stepBaCangTransfers = {};
+  const stepBaCangLoTransfers = {};
+  const stepXienTransfers = {};
+
+  const processCategory = (totals, transfersMap, stepTransfersMap, limit, isPct) => {
+    Object.entries(totals).forEach(([key, total]) => {
+      const prevTransfer = transfersMap[key] || 0;
+      let excess = isPct ? (total * ((100 - limit) / 100)) - prevTransfer : total - prevTransfer - limit;
+      excess = Math.round(excess * 10) / 10;
+      if (excess >= 0.1) {
+        stepTransfersMap[key] = excess;
+      }
+    });
+  };
+
+  processCategory(deSums, balanceState.deTransfers, stepDeTransfers, retainDe, isPercent);
+  processCategory(loSums, balanceState.loTransfers, stepLoTransfers, retainLo, isPercent);
+  processCategory(baCangSums, balanceState.baCangTransfers, stepBaCangTransfers, retain3c, isPercent);
+  processCategory(baCangLoSums, balanceState.baCangLoTransfers, stepBaCangLoTransfers, retain3cL, isPercent);
+
+  // For Xiên:
+  xienBets.forEach((bet, idx) => {
+    const prevTransfer = balanceState.xienTransfers[idx] || 0;
+    let excess = isPercent ? (bet.amount * ((100 - retainX) / 100)) - prevTransfer : bet.amount - prevTransfer - retainX;
+    excess = Math.round(excess * 10) / 10;
+    if (excess >= 0.1) {
+      stepXienTransfers[idx] = excess;
+    }
+  });
+
+  // Check if there are any new transfers in this step
+  const hasNewTransfers = 
+    Object.keys(stepDeTransfers).length > 0 ||
+    Object.keys(stepLoTransfers).length > 0 ||
+    Object.keys(stepBaCangTransfers).length > 0 ||
+    Object.keys(stepBaCangLoTransfers).length > 0 ||
+    Object.keys(stepXienTransfers).length > 0;
+
+  if (!hasNewTransfers) {
+    const copyButton = document.getElementById('copyButton');
+    if (copyButton) {
+      const displayStep = balanceState.step === 0 ? "" : " " + (balanceState.step + 1);
+      const retainType = document.querySelector('input[name="retainType"]:checked')?.value || "money";
+      const prefix = retainType === "percentage" ? "% " : "";
+      copyButton.innerHTML = `${prefix}Chuyển${displayStep} <span class="text-red-500 font-bold ml-1">Null</span>`;
+    }
+    return false;
+  }
+
+  // Initialize step maps if not existing
+  if (!balanceState.lastDeTransfers) balanceState.lastDeTransfers = {};
+  if (!balanceState.lastLoTransfers) balanceState.lastLoTransfers = {};
+  if (!balanceState.lastBaCangTransfers) balanceState.lastBaCangTransfers = {};
+  if (!balanceState.lastXienTransfers) balanceState.lastXienTransfers = {};
+  if (!balanceState.lastBaCangLoTransfers) balanceState.lastBaCangLoTransfers = {};
+
+  // Copy step transfers to balanceState and update cumulative maps
+  const applyTransfers = (stepMap, lastMap, cumulativeMap) => {
+    for (let key in lastMap) delete lastMap[key];
+    Object.entries(stepMap).forEach(([key, val]) => {
+      lastMap[key] = val;
+      cumulativeMap[key] = (cumulativeMap[key] || 0) + val;
+    });
+  };
+
+  applyTransfers(stepDeTransfers, balanceState.lastDeTransfers, balanceState.deTransfers);
+  applyTransfers(stepLoTransfers, balanceState.lastLoTransfers, balanceState.loTransfers);
+  applyTransfers(stepBaCangTransfers, balanceState.lastBaCangTransfers, balanceState.baCangTransfers);
+  applyTransfers(stepBaCangLoTransfers, balanceState.lastBaCangLoTransfers, balanceState.baCangLoTransfers);
+  
+  for (let key in balanceState.lastXienTransfers) delete balanceState.lastXienTransfers[key];
+  Object.entries(stepXienTransfers).forEach(([idx, val]) => {
+    balanceState.lastXienTransfers[idx] = val;
+    balanceState.xienTransfers[idx] = (balanceState.xienTransfers[idx] || 0) + val;
+  });
+
+  // Increment step
+  if (balanceState.step === 0) {
+    balanceState.step = 1;
+  } else {
+    balanceState.step++;
+  }
+
+  // Update UI counter label
+  const currentStep = balanceState.step;
+  const counterLabel = document.getElementById('balanceCounterLabel');
+  if (counterLabel) counterLabel.textContent = `Số Lần Đã Cân Chuyển = ${currentStep}`;
+
+  // Re-calculate and update Chuyển column
+  calculateSum();
+  return true;
+}
+
+function resetBalancing() {
+  balanceState.step = 0;
+  balanceState.deTransfers = {};
+  balanceState.loTransfers = {};
+  balanceState.baCangTransfers = {};
+  balanceState.xienTransfers = {};
+  balanceState.baCangLoTransfers = {};
+  balanceState.lastDeTransfers = {};
+  balanceState.lastLoTransfers = {};
+  balanceState.lastBaCangTransfers = {};
+  balanceState.lastXienTransfers = {};
+  balanceState.lastBaCangLoTransfers = {};
+
+  balanceState.deSums = {};
+  balanceState.loSums = {};
+  balanceState.baCangSums = {};
+  balanceState.baCangLoSums = {};
+  balanceState.xienBets = [];
+
+  const counterLabel = document.getElementById('balanceCounterLabel');
+  if (counterLabel) counterLabel.textContent = 'Số Lần Đã Cân Chuyển = 0';
+
+  calculateSum();
 }
 
 // DOM loaded hooks
@@ -3255,7 +3565,7 @@ function resetTable() {
             shortcutsArea.placeholder = "Không thể tải dữ liệu mặc định. Vui lòng kiểm tra kết nối.";
           });
       }
-
+    });
   </script>
 
   <!-- Modal Cấu hình giá (Ported from thau_lode.html) -->
