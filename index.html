@@ -258,6 +258,7 @@
             <h3 class="font-medium flex items-center gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">
               <span class="animate-bounce-slow">📊</span>
               <span>Kết quả:</span>
+              <button id="toggleBtn-result" onclick="toggleCardDetail('result')" class="ml-auto text-xs bg-gray-100 hover:bg-gray-200 dark:bg-dark-700 dark:hover:bg-dark-600 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
             </h3>
             <div class="flex flex-col gap-2 mb-2">
               <div class="border border-gray-200 dark:border-gray-700 rounded p-2">
@@ -269,7 +270,7 @@
                 <div id="totalSum" class="text-xs font-bold text-danger mt-0.5">0</div>
               </div>
             </div>
-            <div class="h-[calc(100%-12rem)]">
+            <div id="wrapper-result" class="h-[calc(100%-12rem)]">
               <div id="result" class="space-y-1 h-full overflow-y-auto p-2"></div>
             </div>
           </div>
@@ -278,6 +279,7 @@
             <h3 class="font-medium flex items-center gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">
               <span class="animate-bounce-slow">🔄</span>
               <span>Chuyển:</span>
+              <button id="toggleBtn-modifiedResult" onclick="toggleCardDetail('modifiedResult')" class="ml-auto text-xs bg-gray-100 hover:bg-gray-200 dark:bg-dark-700 dark:hover:bg-dark-600 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
             </h3>
             <div class="flex flex-col gap-2 mb-2">
               <div class="border border-gray-200 dark:border-gray-700 rounded p-2">
@@ -289,7 +291,7 @@
                 <div id="modifiedTotalSum" class="text-xs font-bold text-danger mt-0.5">0</div>
               </div>
             </div>
-            <div class="h-[calc(100%-12rem)]">
+            <div id="wrapper-modifiedResult" class="h-[calc(100%-12rem)]">
               <div id="modifiedResult" class="space-y-1 h-full overflow-y-auto p-2"></div>
             </div>
           </div>
@@ -298,6 +300,7 @@
             <h3 class="font-medium flex items-center gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">
               <span class="animate-bounce-slow">🔍</span>
               <span>Chi tiết:</span>
+              <button id="toggleBtn-inputList" onclick="toggleCardDetail('inputList')" class="ml-auto text-xs bg-gray-100 hover:bg-gray-200 dark:bg-dark-700 dark:hover:bg-dark-600 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
             </h3>
             <div class="flex flex-col gap-2 mb-2">
               <div class="border border-gray-200 dark:border-gray-700 rounded p-2">
@@ -309,7 +312,7 @@
                 <div id="inputTotalSum" class="text-xs font-bold text-danger mt-0.5">0</div>
               </div>
             </div>
-            <div class="h-[calc(100%-12rem)]">
+            <div id="wrapper-inputList" class="h-[calc(100%-12rem)]">
               <ul id="inputList" class="space-y-1 h-full overflow-y-auto p-2"></ul>
             </div>
           </div>
@@ -635,7 +638,13 @@ function resolveShorthands(numbersString) {
     const shortcutName = shortcutParts[0]?.trim().toLowerCase();
     const shortcutValue = shortcutParts[1]?.trim();
     if (shortcutName && shortcutValue) {
-      customShortcuts[shortcutName] = shortcutValue;
+      const keys = shortcutName.split(",");
+      keys.forEach(k => {
+        const cleanedKey = k.trim();
+        if (cleanedKey) {
+          customShortcuts[cleanedKey] = shortcutValue;
+        }
+      });
     }
   }
 
@@ -3396,6 +3405,20 @@ function resetBalancing() {
   if (counterLabel) counterLabel.textContent = 'Số Lần Đã Cân Chuyển = 0';
 
   calculateSum();
+}
+
+function toggleCardDetail(id) {
+  const wrapper = document.getElementById('wrapper-' + id);
+  const btn = document.getElementById('toggleBtn-' + id);
+  if (!wrapper || !btn) return;
+  
+  if (wrapper.classList.contains('hidden')) {
+    wrapper.classList.remove('hidden');
+    btn.textContent = 'Ẩn';
+  } else {
+    wrapper.classList.add('hidden');
+    btn.textContent = 'Hiện';
+  }
 }
 
 // DOM loaded hooks
