@@ -144,7 +144,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
                             </svg>
-                            Copy input
+                            Input
                         </button>
                     </div>
                 </div>
@@ -156,7 +156,10 @@
                     <!-- Results -->
                     <div>
                         <div class="flex justify-between items-start mb-4">
-                            <h2 class="text-lg font-semibold text-gray-900">Kết quả:</h2>
+                            <div onclick="toggleCardDetail('result')" class="flex items-center gap-2 cursor-pointer select-none hover:opacity-80">
+                                <h2 class="text-lg font-semibold text-gray-900">Kết quả:</h2>
+                                <button id="toggleBtn-result" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
+                            </div>
                             <div class="flex flex-col items-end gap-2">
                                 <div class="text-lg font-bold text-gray-900">Tổng: <span id="totalSum" class="text-blue-600">0</span></div>
                                 <div class="flex gap-2 bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
@@ -165,13 +168,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="result" class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-h-[200px]"></div>
+                        <div id="wrapper-result">
+                            <div id="result" class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-h-[200px]"></div>
+                        </div>
                     </div>
 
                     <!-- Modified Results -->
                     <div>
                         <div class="flex justify-between items-start mb-4">
-                            <h2 class="text-lg font-semibold text-gray-900">Chuyển:</h2>
+                            <div onclick="toggleCardDetail('modifiedResult')" class="flex items-center gap-2 cursor-pointer select-none hover:opacity-80">
+                                <h2 class="text-lg font-semibold text-gray-900">Chuyển:</h2>
+                                <button id="toggleBtn-modifiedResult" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
+                            </div>
                             <div class="flex flex-col items-end gap-2">
                                 <div class="text-lg font-bold text-gray-900">Tổng: <span id="modifiedTotalSum" class="text-green-600">0</span></div>
                                 <div class="flex gap-2 bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
@@ -180,14 +188,21 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="modifiedResult" class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-h-[200px]"></div>
+                        <div id="wrapper-modifiedResult">
+                            <div id="modifiedResult" class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-h-[200px]"></div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Input List -->
                 <div class="mt-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Chi tiết input</h2>
-                    <div id="inputList" class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-h-[100px]"></div>
+                    <div onclick="toggleCardDetail('inputList')" class="flex items-center gap-2 mb-4 cursor-pointer select-none hover:opacity-80">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-0">Chi tiết input</h2>
+                        <button id="toggleBtn-inputList" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
+                    </div>
+                    <div id="wrapper-inputList">
+                        <div id="inputList" class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-h-[100px]"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -380,7 +395,8 @@ function stripAccents(str) {
 
 function normalizeBetLine(line) {
   let normalized = stripAccents(line.trim());
-  normalized = normalized.replace(/[’‘ʼ＇`]/g, "'");
+  normalized = normalized.replace(/([dđ])`/gi, '$1');
+  normalized = normalized.replace(/[’‘ʼ＇]/g, "'");
   normalized = normalized.replace(/(\d)\s*,\s*(\d)/g, '$1.$2');
   normalized = normalized.replace(/(\d)\s*\.\s*(\d)/g, '$1.$2');
   normalized = normalized.replace(/\b(?:dau\s+dit|dau\s+duoi)\s*(\d)(?![0-9])/gi, 'dau$1, dit$1');
@@ -443,7 +459,13 @@ function resolveShorthands(numbersString) {
     const shortcutName = shortcutParts[0]?.trim().toLowerCase();
     const shortcutValue = shortcutParts[1]?.trim();
     if (shortcutName && shortcutValue) {
-      customShortcuts[shortcutName] = shortcutValue;
+      const keys = shortcutName.split(",");
+      keys.forEach(k => {
+        const cleanedKey = k.trim();
+        if (cleanedKey) {
+          customShortcuts[cleanedKey] = shortcutValue;
+        }
+      });
     }
   }
 
@@ -557,7 +579,7 @@ function parseCombinedInput(inputString) {
         activeCategory = lineType;
         trimmed = spaceMatch[2] ? spaceMatch[2].trim() : '';
         if (trimmed === '') {
-          return; // Standalone category header line - do not treat as error
+          return;
         }
       }
     }
@@ -566,7 +588,7 @@ function parseCombinedInput(inputString) {
 
     let parsedCountBefore = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length + parsedBets.bacang_lo.length;
 
-    const groupRegex = /([a-wy-z0-9'.,\-\s]+)([x+*])(\d+(?:\.\d+)?)/gi;
+    const groupRegex = /([a-wy-z0-9'’‘＇`.,\-\s]+)([x+*])(\d+(?:\.\d+)?)/gi;
     let groupMatch;
     while ((groupMatch = groupRegex.exec(trimmed)) !== null) {
       const rawNumString = groupMatch[1].trim();
@@ -1249,14 +1271,29 @@ function calculateSum() {
   });
 
   // Render Kết quả column
-  const renderGroupResult = (title, sumsMap, isLoto = false) => {
+  const renderGroupResult = (title, sumsMap, isLoto = false, categoryKey) => {
     if (!resultDiv) return;
     const sorted = Object.entries(sumsMap).sort((a, b) => b[1] - a[1]);
     if (sorted.length === 0) return;
 
+    const stateKey = `res_${categoryKey}`;
+    const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
     const header = document.createElement("div");
     header.innerHTML = `<strong>${title}</strong>`;
-    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
+    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
+    
+    const content = document.createElement("div");
+    if (isCollapsed) {
+      content.classList.add('hidden');
+    }
+    
+    header.onclick = () => {
+      content.classList.toggle('hidden');
+      if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+      window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+    };
+
     resultDiv.appendChild(header);
 
     sorted.forEach(([key, value]) => {
@@ -1297,8 +1334,9 @@ function calculateSum() {
         div.className = "matching-number";
         div.textContent += hitText;
       }
-      resultDiv.appendChild(div);
+      content.appendChild(div);
     });
+    resultDiv.appendChild(content);
   };
 
   // 1. Calculations for Kết quả column
@@ -1402,13 +1440,28 @@ function calculateSum() {
     return `(${Math.round(von).toLocaleString('vi-VN')} / ${Math.round(trung).toLocaleString('vi-VN')})`;
   };
 
-  renderGroupResult(`🔴 Đề ${formatHeaderMoney(deVon, deTrung)}`, deSums, false);
-  renderGroupResult(`🔵 Lô(đ) ${formatHeaderMoney(loVon, loTrung)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loBetSum)}đ / ${Math.round(loWinSum)}đ]</span>`, loSums, true);
+  renderGroupResult(`🔴 Đề ${formatHeaderMoney(deVon, deTrung)}`, deSums, false, "de");
+  renderGroupResult(`🔵 Lô(đ) ${formatHeaderMoney(loVon, loTrung)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loBetSum)}đ / ${Math.round(loWinSum)}đ]</span>`, loSums, true, "lo");
 
   if (xienBets.length > 0 && resultDiv) {
+    const stateKey = "res_xien";
+    const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
     const header = document.createElement("div");
     header.innerHTML = `<strong>🟢 Xiên ${formatHeaderMoney(xienVon, xienTrung)}</strong>`;
-    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
+    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
+    
+    const content = document.createElement("div");
+    if (isCollapsed) {
+      content.classList.add('hidden');
+    }
+    
+    header.onclick = () => {
+      content.classList.toggle('hidden');
+      if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+      window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+    };
+
     resultDiv.appendChild(header);
     xienBets.forEach(bet => {
       const div = document.createElement("div");
@@ -1418,14 +1471,30 @@ function calculateSum() {
         div.className = "matching-number";
         div.textContent += " (Trúng)";
       }
-      resultDiv.appendChild(div);
+      content.appendChild(div);
     });
+    resultDiv.appendChild(content);
   }
 
   if (Object.keys(baCangSums).length > 0 && resultDiv) {
+    const stateKey = "res_bacang";
+    const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
     const header = document.createElement("div");
     header.innerHTML = `<strong>🟣 3C ${formatHeaderMoney(baCangVon, baCangTrung)}</strong>`;
-    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
+    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
+    
+    const content = document.createElement("div");
+    if (isCollapsed) {
+      content.classList.add('hidden');
+    }
+    
+    header.onclick = () => {
+      content.classList.toggle('hidden');
+      if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+      window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+    };
+
     resultDiv.appendChild(header);
     Object.entries(baCangSums).sort((a,b) => b[1]-a[1]).forEach(([key, value]) => {
       const div = document.createElement("div");
@@ -1439,16 +1508,17 @@ function calculateSum() {
         div.className = "matching-number";
         div.textContent += " (Áp Má)";
       }
-      resultDiv.appendChild(div);
+      content.appendChild(div);
     });
+    resultDiv.appendChild(content);
   }
 
   if (Object.keys(baCangLoSums).length > 0 && resultDiv) {
-    renderGroupResult(`🟤 3cLô ${formatHeaderMoney(baCangLoVon, baCangLoTrung)}`, baCangLoSums, false);
+    renderGroupResult(`🟤 3cLô ${formatHeaderMoney(baCangLoVon, baCangLoTrung)}`, baCangLoSums, false, "bacanglo");
   }
 
   // 4. Render Chuyển (Layoff) lists
-  const renderGroupLayoff = (title, sumsMap, isLoto = false) => {
+  const renderGroupLayoff = (title, sumsMap, isLoto = false, categoryKey) => {
     if (!modifiedResultDiv) return;
     const sorted = Object.entries(sumsMap);
     let groupHtml = "";
@@ -1501,22 +1571,35 @@ function calculateSum() {
     });
 
     if (groupHtml) {
+      const stateKey = `chuyen_${categoryKey}`;
+      const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
       const header = document.createElement("div");
       header.innerHTML = `<strong>${title}</strong>`;
-      header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
-      modifiedResultDiv.appendChild(header);
+      header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
       
-      const listContainer = document.createElement("div");
-      listContainer.innerHTML = groupHtml;
-      modifiedResultDiv.appendChild(listContainer);
+      const content = document.createElement("div");
+      content.innerHTML = groupHtml;
+      if (isCollapsed) {
+        content.classList.add('hidden');
+      }
+      
+      header.onclick = () => {
+        content.classList.toggle('hidden');
+        if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+        window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+      };
+
+      modifiedResultDiv.appendChild(header);
+      modifiedResultDiv.appendChild(content);
     }
   };
 
   const loLayoffPointsWin = loPayoutFactor > 0 ? Math.round(loLayoff.winSum / loPayoutFactor) : 0;
   
-  renderGroupLayoff(`🔴 Đề ${formatHeaderMoney(deVonChuyen, deTrungChuyen)}`, deSums, false);
-  renderGroupLayoff(`🔵 Lô(đ) ${formatHeaderMoney(loVonChuyen, loTrungChuyen)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loLayoff.costSum)}đ / ${loLayoffPointsWin}đ]</span>`, loSums, true);
-  renderGroupLayoff(`🟤 3cLô ${formatHeaderMoney(baCangLoVonChuyen, baCangLoTrungChuyen)}`, baCangLoSums, false);
+  renderGroupLayoff(`🔴 Đề ${formatHeaderMoney(deVonChuyen, deTrungChuyen)}`, deSums, false, 'de');
+  renderGroupLayoff(`🔵 Lô(đ) ${formatHeaderMoney(loVonChuyen, loTrungChuyen)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loLayoff.costSum)}đ / ${loLayoffPointsWin}đ]</span>`, loSums, true, 'lo');
+  renderGroupLayoff(`🟤 3cLô ${formatHeaderMoney(baCangLoVonChuyen, baCangLoTrungChuyen)}`, baCangLoSums, false, 'bacang_lo');
 
   let xienLayoffHtml = "";
   xienBets.forEach(bet => {
@@ -1532,13 +1615,27 @@ function calculateSum() {
     }
   });
   if (xienLayoffHtml && modifiedResultDiv) {
+    const stateKey = "chuyen_xien";
+    const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
     const header = document.createElement("div");
     header.innerHTML = `<strong>🟢 Xiên ${formatHeaderMoney(xienVonChuyen, xienTrungChuyen)}</strong>`;
-    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
+    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
+    
+    const content = document.createElement("div");
+    content.innerHTML = xienLayoffHtml;
+    if (isCollapsed) {
+      content.classList.add('hidden');
+    }
+    
+    header.onclick = () => {
+      content.classList.toggle('hidden');
+      if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+      window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+    };
+
     modifiedResultDiv.appendChild(header);
-    const listContainer = document.createElement("div");
-    listContainer.innerHTML = xienLayoffHtml;
-    modifiedResultDiv.appendChild(listContainer);
+    modifiedResultDiv.appendChild(content);
   }
 
   let baCangLayoffHtml = "";
@@ -1558,13 +1655,27 @@ function calculateSum() {
     }
   });
   if (baCangLayoffHtml && modifiedResultDiv) {
+    const stateKey = "chuyen_bacang";
+    const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
     const header = document.createElement("div");
     header.innerHTML = `<strong>🟣 3C ${formatHeaderMoney(baCangVonChuyen, baCangTrungChuyen)}</strong>`;
-    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
+    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
+    
+    const content = document.createElement("div");
+    content.innerHTML = baCangLayoffHtml;
+    if (isCollapsed) {
+      content.classList.add('hidden');
+    }
+    
+    header.onclick = () => {
+      content.classList.toggle('hidden');
+      if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+      window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+    };
+
     modifiedResultDiv.appendChild(header);
-    const listContainer = document.createElement("div");
-    listContainer.innerHTML = baCangLayoffHtml;
-    modifiedResultDiv.appendChild(listContainer);
+    modifiedResultDiv.appendChild(content);
   }
 
   // Update top header labels
@@ -1981,6 +2092,14 @@ function setupEventListeners() {
       } else {
         if (btnFetchResults) btnFetchResults.classList.add('hidden');
         if (autoResultStatus) autoResultStatus.classList.add('hidden');
+        
+        const specialPrizeInput = document.getElementById('specialPrizeInput');
+        const allPrizesInput = document.getElementById('allPrizesInput');
+        if (specialPrizeInput) specialPrizeInput.value = "";
+        if (allPrizesInput) allPrizesInput.value = "";
+        fetchedPrizesData = null;
+        updateTwoDigitBoard();
+        calculateSum();
       }
     });
   }
@@ -2127,6 +2246,20 @@ function setupEventListeners() {
         window.prompt("Copy báo cáo tại đây:", reportText);
       });
     });
+  }
+}
+
+function toggleCardDetail(id) {
+  const wrapper = document.getElementById('wrapper-' + id);
+  const btn = document.getElementById('toggleBtn-' + id);
+  if (!wrapper || !btn) return;
+  
+  if (wrapper.classList.contains('hidden')) {
+    wrapper.classList.remove('hidden');
+    btn.textContent = 'Ẩn';
+  } else {
+    wrapper.classList.add('hidden');
+    btn.textContent = 'Hiện';
   }
 }
 
