@@ -255,10 +255,10 @@
       <div id="column2" class="flex-1 space-y-4">
         <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 transition-all hover:shadow-lg border border-gray-200 dark:border-gray-700">
-            <h3 class="font-medium flex items-center gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h3 onclick="toggleCardDetail('result')" class="font-medium flex items-center gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-2 cursor-pointer select-none">
               <span class="animate-bounce-slow">📊</span>
               <span>Kết quả:</span>
-              <button id="toggleBtn-result" onclick="toggleCardDetail('result')" class="ml-auto text-xs bg-gray-100 hover:bg-gray-200 dark:bg-dark-700 dark:hover:bg-dark-600 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
+              <button id="toggleBtn-result" class="ml-auto text-xs bg-gray-100 hover:bg-gray-200 dark:bg-dark-700 dark:hover:bg-dark-600 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
             </h3>
             <div class="flex flex-col gap-2 mb-2">
               <div class="border border-gray-200 dark:border-gray-700 rounded p-2">
@@ -276,10 +276,10 @@
           </div>
  
           <div class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 transition-all hover:shadow-lg border border-gray-200 dark:border-gray-700">
-            <h3 class="font-medium flex items-center gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h3 onclick="toggleCardDetail('modifiedResult')" class="font-medium flex items-center gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-2 cursor-pointer select-none">
               <span class="animate-bounce-slow">🔄</span>
               <span>Chuyển:</span>
-              <button id="toggleBtn-modifiedResult" onclick="toggleCardDetail('modifiedResult')" class="ml-auto text-xs bg-gray-100 hover:bg-gray-200 dark:bg-dark-700 dark:hover:bg-dark-600 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
+              <button id="toggleBtn-modifiedResult" class="ml-auto text-xs bg-gray-100 hover:bg-gray-200 dark:bg-dark-700 dark:hover:bg-dark-600 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
             </h3>
             <div class="flex flex-col gap-2 mb-2">
               <div class="border border-gray-200 dark:border-gray-700 rounded p-2">
@@ -297,10 +297,10 @@
           </div>
  
           <div class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 transition-all hover:shadow-lg border border-gray-200 dark:border-gray-700">
-            <h3 class="font-medium flex items-center gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h3 onclick="toggleCardDetail('inputList')" class="font-medium flex items-center gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-2 cursor-pointer select-none">
               <span class="animate-bounce-slow">🔍</span>
               <span>Chi tiết:</span>
-              <button id="toggleBtn-inputList" onclick="toggleCardDetail('inputList')" class="ml-auto text-xs bg-gray-100 hover:bg-gray-200 dark:bg-dark-700 dark:hover:bg-dark-600 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
+              <button id="toggleBtn-inputList" class="ml-auto text-xs bg-gray-100 hover:bg-gray-200 dark:bg-dark-700 dark:hover:bg-dark-600 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded transition-all active:scale-95">Ẩn</button>
             </h3>
             <div class="flex flex-col gap-2 mb-2">
               <div class="border border-gray-200 dark:border-gray-700 rounded p-2">
@@ -322,26 +322,70 @@
         <div id="baoCaoThauCard" class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 transition-all hover:shadow-lg space-y-4">
           <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2">
             <h2 class="text-sm font-semibold uppercase tracking-wider flex items-center gap-2">
-              📊 Báo Cáo Thầu
+              📊 Báo Cáo
             </h2>
             <button type="button" id="btnPriceConfig" class="px-2.5 py-1 bg-gray-100 dark:bg-dark-700 hover:bg-gray-200 dark:hover:bg-dark-600 rounded text-xs font-bold transition-all flex items-center gap-1.5 border border-gray-300 dark:border-gray-600">
               ⚙️ Cấu hình giá
             </button>
           </div>
 
-          <!-- Financial Figures -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
-            <div class="bg-gray-50 dark:bg-dark-900 p-2.5 rounded-lg border border-gray-200 dark:border-gray-800">
-              <span class="text-xs text-gray-500 block mb-0.5">Tiền Gốc</span>
-              <span id="summaryTotalCost" class="text-lg font-bold text-gray-800 dark:text-gray-200">0</span>
+          <!-- Tab Selector / Summary Figures Grid -->
+          <div id="baoCaoTabsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-center select-none">
+            <!-- Tab Thầu -->
+            <div id="tabThau" class="cursor-pointer bg-indigo-50/50 dark:bg-indigo-950/10 p-3 rounded-lg border-2 border-indigo-600 dark:border-indigo-500 transition-all hover:scale-[1.01] active:scale-95 space-y-2">
+              <div class="text-xs font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">📊 Báo cáo Thầu</div>
+              <div class="grid grid-cols-3 gap-1 divide-x divide-gray-200 dark:divide-gray-700 text-[11px]">
+                <div>
+                  <span class="text-gray-500 block">Vốn</span>
+                  <span id="thauVon" class="font-bold text-gray-800 dark:text-gray-200 text-sm">0</span>
+                </div>
+                <div>
+                  <span class="text-gray-500 block">Trúng</span>
+                  <span id="thauTrung" class="font-bold text-emerald-600 dark:text-emerald-400 text-sm">0</span>
+                </div>
+                <div>
+                  <span id="thauNetLabel" class="text-gray-500 block">Thầu bù</span>
+                  <span id="thauNet" class="font-extrabold text-sm">0</span>
+                </div>
+              </div>
             </div>
-            <div class="bg-gray-50 dark:bg-dark-900 p-2.5 rounded-lg border border-gray-200 dark:border-gray-800">
-              <span class="text-xs text-gray-500 block mb-0.5">Tiền Trúng</span>
-              <span id="summaryTotalWinnings" class="text-lg font-bold text-emerald-600 dark:text-emerald-400">0</span>
+            
+            <!-- Tab Chuyển -->
+            <div id="tabChuyen" class="cursor-pointer bg-gray-50 dark:bg-dark-900 p-3 rounded-lg border-2 border-transparent transition-all hover:scale-[1.01] active:scale-95 space-y-2">
+              <div class="text-xs font-bold text-gray-500 uppercase tracking-wider">🔄 Báo cáo Chuyển</div>
+              <div class="grid grid-cols-3 gap-1 divide-x divide-gray-200 dark:divide-gray-700 text-[11px]">
+                <div>
+                  <span class="text-gray-500 block">Vốn</span>
+                  <span id="chuyenVon" class="font-bold text-gray-800 dark:text-gray-200 text-sm">0</span>
+                </div>
+                <div>
+                  <span class="text-gray-500 block">Trúng</span>
+                  <span id="chuyenTrung" class="font-bold text-emerald-600 dark:text-emerald-400 text-sm">0</span>
+                </div>
+                <div>
+                  <span id="chuyenNetLabel" class="text-gray-500 block">Lời/Lỗ</span>
+                  <span id="chuyenNet" class="font-extrabold text-sm">0</span>
+                </div>
+              </div>
             </div>
-            <div class="bg-gray-50 dark:bg-dark-900 p-2.5 rounded-lg border border-gray-200 dark:border-gray-800">
-              <span id="summaryNetLabel" class="text-xs text-gray-500 block mb-0.5">Kết quả thầu</span>
-              <span id="summaryNetValue" class="text-lg font-extrabold text-gray-800 dark:text-gray-200">0</span>
+
+            <!-- Tab Giữ lại -->
+            <div id="tabGiulai" class="hidden cursor-pointer bg-gray-50 dark:bg-dark-900 p-3 rounded-lg border-2 border-transparent transition-all hover:scale-[1.01] active:scale-95 space-y-2">
+              <div class="text-xs font-bold text-gray-500 uppercase tracking-wider">🔒 Giữ lại</div>
+              <div class="grid grid-cols-3 gap-1 divide-x divide-gray-200 dark:divide-gray-700 text-[11px]">
+                <div>
+                  <span class="text-gray-500 block">Vốn</span>
+                  <span id="giulaiVon" class="font-bold text-gray-800 dark:text-gray-200 text-sm">0</span>
+                </div>
+                <div>
+                  <span class="text-gray-500 block">Trúng</span>
+                  <span id="giulaiTrung" class="font-bold text-emerald-600 dark:text-emerald-400 text-sm">0</span>
+                </div>
+                <div>
+                  <span id="giulaiNetLabel" class="text-gray-500 block">Lời</span>
+                  <span id="giulaiNet" class="font-extrabold text-sm">0</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -405,8 +449,11 @@
           </div>
 
           <div class="flex gap-2">
-            <button type="button" id="btnCopyTextReport" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-xs font-bold transition-all flex-1 flex items-center justify-center gap-1.5 active:scale-95">
-              📋 Copy Báo Cáo
+            <button type="button" id="btnCopyTextReport" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-xs font-bold transition-all flex-1 flex items-center justify-center gap-1 active:scale-95" title="Copy báo cáo">
+              📋 Copy
+            </button>
+            <button type="button" id="btnSummaryReport" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-xs font-bold transition-all flex-1 flex items-center justify-center gap-1 active:scale-95" title="Tổng kết Giữ lại">
+              📊 Tổng kết
             </button>
           </div>
         </div>
@@ -1535,12 +1582,6 @@ function saveAppState() {
   if (combinedBetInput) {
     localStorage.setItem('z8_combined_bet', combinedBetInput.innerText || '');
   }
-  if (allPrizesInput) {
-    localStorage.setItem('z8_all_prizes', allPrizesInput.value || '');
-  }
-  if (specialPrizeInput) {
-    localStorage.setItem('z8_special_prize', specialPrizeInput.value || '');
-  }
   if (autoFetchToggle) {
     localStorage.setItem('z8_auto_fetch', autoFetchToggle.checked ? '1' : '0');
   }
@@ -1567,12 +1608,6 @@ function loadAppState() {
   if (savedBet !== null && combinedBetInput) {
     combinedBetInput.innerText = savedBet;
     if (savedBet.trim() !== '') hasData = true;
-  }
-  if (savedPrizes !== null && allPrizesInput) {
-    allPrizesInput.value = savedPrizes;
-  }
-  if (savedSpecial !== null && specialPrizeInput) {
-    specialPrizeInput.value = savedSpecial;
   }
   if (savedAutoFetch !== null && autoFetchToggle) {
     autoFetchToggle.checked = (savedAutoFetch === '1');
@@ -1686,19 +1721,40 @@ function calculateSum() {
     return isNaN(parsed) ? fallback : parsed;
   };
 
-  const deComm = parseVal('rateDeComm', 82);
-  const dePayout = parseVal('rateDePayout', 80);
-  const loCost = parseVal('rateLoCost', 23000);
-  const loPayout = parseVal('rateLoPayout', 80000);
-  const xienComm = parseVal('rateXienComm', 65);
-  const x2Payout = parseVal('rateXien2Payout', 15);
-  const x3Payout = parseVal('rateXien3Payout', 50);
-  const x4Payout = parseVal('rateXien4Payout', 120);
-  const baCangComm = parseVal('rate3CComm', 75);
-  const baCangPayout = parseVal('rate3CPayout', 400);
-  const baCangApMa = parseVal('rate3CApMa', 5);
-  const baCangLoCost = parseVal('rate3CLoCost', 75);
-  const baCangLoPayout = parseVal('rate3CLoPayout', 960);
+  const getRateVal = (type, key, fallback) => {
+    if (window.priceConfigData && window.priceConfigData[type] && window.priceConfigData[type][key] !== undefined) {
+      return window.priceConfigData[type][key];
+    }
+    return fallback;
+  };
+
+  const deComm = getRateVal('thau', 'rateDeComm', 82);
+  const dePayout = getRateVal('thau', 'rateDePayout', 80);
+  const loCost = getRateVal('thau', 'rateLoCost', 2165);
+  const loPayout = getRateVal('thau', 'rateLoPayout', 80);
+  const xienComm = getRateVal('thau', 'rateXienComm', 65);
+  const x2Payout = getRateVal('thau', 'rateXien2Payout', 11);
+  const x3Payout = getRateVal('thau', 'rateXien3Payout', 45);
+  const x4Payout = getRateVal('thau', 'rateXien4Payout', 140);
+  const baCangComm = getRateVal('thau', 'rate3CComm', 75);
+  const baCangPayout = getRateVal('thau', 'rate3CPayout', 400);
+  const baCangApMa = getRateVal('thau', 'rate3CApMa', 5);
+  const baCangLoCost = getRateVal('thau', 'rate3CLoCost', 75);
+  const baCangLoPayout = getRateVal('thau', 'rate3CLoPayout', 20);
+
+  const deComm_chuyen = getRateVal('chuyen', 'rateDeComm', 82);
+  const dePayout_chuyen = getRateVal('chuyen', 'rateDePayout', 80);
+  const loCost_chuyen = getRateVal('chuyen', 'rateLoCost', 2165);
+  const loPayout_chuyen = getRateVal('chuyen', 'rateLoPayout', 80);
+  const xienComm_chuyen = getRateVal('chuyen', 'rateXienComm', 65);
+  const x2Payout_chuyen = getRateVal('chuyen', 'rateXien2Payout', 11);
+  const x3Payout_chuyen = getRateVal('chuyen', 'rateXien3Payout', 45);
+  const x4Payout_chuyen = getRateVal('chuyen', 'rateXien4Payout', 140);
+  const baCangComm_chuyen = getRateVal('chuyen', 'rate3CComm', 75);
+  const baCangPayout_chuyen = getRateVal('chuyen', 'rate3CPayout', 400);
+  const baCangApMa_chuyen = getRateVal('chuyen', 'rate3CApMa', 5);
+  const baCangLoCost_chuyen = getRateVal('chuyen', 'rate3CLoCost', 75);
+  const baCangLoPayout_chuyen = getRateVal('chuyen', 'rate3CLoPayout', 20);
 
   const getLoCostFactor = (val) => {
     if (val < 100) return val;
@@ -1712,6 +1768,8 @@ function calculateSum() {
 
   const loCostFactor = getLoCostFactor(loCost);
   const loPayoutFactor = getLoPayoutFactor(loPayout);
+  const loCostFactor_chuyen = getLoCostFactor(loCost_chuyen);
+  const loPayoutFactor_chuyen = getLoPayoutFactor(loPayout_chuyen);
 
   function checkLineValidity(lineText) {
     const trimmed = lineText.trim();
@@ -1908,14 +1966,29 @@ function calculateSum() {
   });
 
   // Render Kết quả column
-  const renderGroupResult = (title, sumsMap, isLoto = false) => {
+  const renderGroupResult = (title, sumsMap, isLoto = false, categoryKey) => {
     if (!resultDiv) return;
     const sorted = Object.entries(sumsMap).sort((a, b) => b[1] - a[1]);
     if (sorted.length === 0) return;
 
+    const stateKey = `res_${categoryKey}`;
+    const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
     const header = document.createElement("div");
     header.innerHTML = `<strong>${title}</strong>`;
-    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
+    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
+    
+    const content = document.createElement("div");
+    if (isCollapsed) {
+      content.classList.add('hidden');
+    }
+    
+    header.onclick = () => {
+      content.classList.toggle('hidden');
+      if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+      window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+    };
+
     resultDiv.appendChild(header);
 
     sorted.forEach(([key, value]) => {
@@ -1956,8 +2029,9 @@ function calculateSum() {
         div.className = "matching-number";
         div.textContent += hitText;
       }
-      resultDiv.appendChild(div);
+      content.appendChild(div);
     });
+    resultDiv.appendChild(content);
   };
 
   // 1. Calculations for Kết quả column
@@ -2060,15 +2134,15 @@ function calculateSum() {
     return { costSum, winSum };
   };
 
-  const deLayoff = getLayoffValues(deSums, (key, amt) => (key === specialPrizeLast2 ? amt * dePayout : 0), 'de');
-  const deVonChuyen = deLayoff.costSum * (deComm / 100);
+  const deLayoff = getLayoffValues(deSums, (key, amt) => (key === specialPrizeLast2 ? amt * dePayout_chuyen : 0), 'de');
+  const deVonChuyen = deLayoff.costSum * (deComm_chuyen / 100);
   const deTrungChuyen = deLayoff.winSum;
 
   const loLayoff = getLayoffValues(loSums, (key, amt) => {
     const occurrences = allPrizesLast2.filter(p => p === key).length;
-    return occurrences * amt * loPayoutFactor;
+    return occurrences * amt * loPayoutFactor_chuyen;
   }, 'lo');
-  const loVonChuyen = loLayoff.costSum * loCostFactor;
+  const loVonChuyen = loLayoff.costSum * loCostFactor_chuyen;
   const loTrungChuyen = loLayoff.winSum;
 
   let xienVonChuyen = 0;
@@ -2080,11 +2154,11 @@ function calculateSum() {
     let modifiedSum = xienTransferMap[idx] || 0;
     if (modifiedSum >= 0.1) {
       xienXacChuyen += modifiedSum;
-      xienVonChuyen += modifiedSum * (xienComm / 100);
+      xienVonChuyen += modifiedSum * (xienComm_chuyen / 100);
       const allHit = bet.numbers.every(num => allPrizesLast2.includes(num));
       if (allHit) {
         const size = bet.numbers.length;
-        const winRate = size === 2 ? x2Payout : (size === 3 ? x3Payout : x4Payout);
+        const winRate = size === 2 ? x2Payout_chuyen : (size === 3 ? x3Payout_chuyen : x4Payout_chuyen);
         xienTrungChuyen += modifiedSum * winRate;
         xienWinXacChuyen += modifiedSum;
       }
@@ -2094,18 +2168,18 @@ function calculateSum() {
   const baCangLayoff = getLayoffValues(baCangSums, (key, amt) => {
     const match3 = key === specialPrizeLast3;
     const match2 = key.slice(-2) === specialPrizeLast2;
-    if (match3) return amt * baCangPayout;
-    if (match2) return amt * baCangApMa;
+    if (match3) return amt * baCangPayout_chuyen;
+    if (match2) return amt * baCangApMa_chuyen;
     return 0;
   }, 'bacang');
-  const baCangVonChuyen = baCangLayoff.costSum * (baCangComm / 100);
+  const baCangVonChuyen = baCangLayoff.costSum * (baCangComm_chuyen / 100);
   const baCangTrungChuyen = baCangLayoff.winSum;
 
   const baCangLoLayoff = getLayoffValues(baCangLoSums, (key, amt) => {
     const occurrences = allPrizesLast3.filter(p => p === key).length;
-    return occurrences * amt * baCangLoPayout;
+    return occurrences * amt * baCangLoPayout_chuyen;
   }, 'bacang_lo');
-  const baCangLoVonChuyen = baCangLoLayoff.costSum * (baCangLoCost / 100);
+  const baCangLoVonChuyen = baCangLoLayoff.costSum * (baCangLoCost_chuyen / 100);
   const baCangLoTrungChuyen = baCangLoLayoff.winSum;
 
   const totalVonChuyen = deVonChuyen + loVonChuyen + xienVonChuyen + baCangVonChuyen + baCangLoVonChuyen;
@@ -2203,13 +2277,28 @@ function calculateSum() {
     return `(${Math.round(von).toLocaleString('vi-VN')} / ${Math.round(trung).toLocaleString('vi-VN')})`;
   };
 
-  renderGroupResult(`🔴 Đề ${formatHeaderMoney(deVon, deTrung)}`, deSums, false);
-  renderGroupResult(`🔵 Lô(đ) ${formatHeaderMoney(loVon, loTrung)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loBetSum)}đ / ${Math.round(loWinSum)}đ]</span>`, loSums, true);
+  renderGroupResult(`🔴 Đề ${formatHeaderMoney(deVon, deTrung)}`, deSums, false, "de");
+  renderGroupResult(`🔵 Lô(đ) ${formatHeaderMoney(loVon, loTrung)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loBetSum)}đ / ${Math.round(loWinSum)}đ]</span>`, loSums, true, "lo");
 
   if (xienBets.length > 0 && resultDiv) {
+    const stateKey = "res_xien";
+    const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
     const header = document.createElement("div");
     header.innerHTML = `<strong>🟢 Xiên ${formatHeaderMoney(xienVon, xienTrung)}</strong>`;
-    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
+    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
+    
+    const content = document.createElement("div");
+    if (isCollapsed) {
+      content.classList.add('hidden');
+    }
+    
+    header.onclick = () => {
+      content.classList.toggle('hidden');
+      if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+      window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+    };
+
     resultDiv.appendChild(header);
     xienBets.forEach(bet => {
       const div = document.createElement("div");
@@ -2219,14 +2308,30 @@ function calculateSum() {
         div.className = "matching-number";
         div.textContent += " (Trúng)";
       }
-      resultDiv.appendChild(div);
+      content.appendChild(div);
     });
+    resultDiv.appendChild(content);
   }
 
   if (Object.keys(baCangSums).length > 0 && resultDiv) {
+    const stateKey = "res_bacang";
+    const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
     const header = document.createElement("div");
     header.innerHTML = `<strong>🟣 3C ${formatHeaderMoney(baCangVon, baCangTrung)}</strong>`;
-    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
+    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
+    
+    const content = document.createElement("div");
+    if (isCollapsed) {
+      content.classList.add('hidden');
+    }
+    
+    header.onclick = () => {
+      content.classList.toggle('hidden');
+      if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+      window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+    };
+
     resultDiv.appendChild(header);
     Object.entries(baCangSums).sort((a,b) => b[1]-a[1]).forEach(([key, value]) => {
       const div = document.createElement("div");
@@ -2240,12 +2345,13 @@ function calculateSum() {
         div.className = "matching-number";
         div.textContent += " (Áp Má)";
       }
-      resultDiv.appendChild(div);
+      content.appendChild(div);
     });
+    resultDiv.appendChild(content);
   }
 
   if (Object.keys(baCangLoSums).length > 0 && resultDiv) {
-    renderGroupResult(`🟤 3cLô ${formatHeaderMoney(baCangLoVon, baCangLoTrung)}`, baCangLoSums, false);
+    renderGroupResult(`🟤 3cLô ${formatHeaderMoney(baCangLoVon, baCangLoTrung)}`, baCangLoSums, false, "bacanglo");
   }
 
   // 4. Render Chuyển (Layoff) lists
@@ -2297,14 +2403,27 @@ function calculateSum() {
     });
 
     if (groupHtml) {
+      const stateKey = `chuyen_${categoryKey}`;
+      const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
       const header = document.createElement("div");
       header.innerHTML = `<strong>${title}</strong>`;
-      header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
-      modifiedResultDiv.appendChild(header);
+      header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
       
-      const listContainer = document.createElement("div");
-      listContainer.innerHTML = groupHtml;
-      modifiedResultDiv.appendChild(listContainer);
+      const content = document.createElement("div");
+      content.innerHTML = groupHtml;
+      if (isCollapsed) {
+        content.classList.add('hidden');
+      }
+      
+      header.onclick = () => {
+        content.classList.toggle('hidden');
+        if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+        window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+      };
+
+      modifiedResultDiv.appendChild(header);
+      modifiedResultDiv.appendChild(content);
     }
   };
 
@@ -2329,13 +2448,27 @@ function calculateSum() {
     }
   });
   if (xienLayoffHtml && modifiedResultDiv) {
+    const stateKey = "chuyen_xien";
+    const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
     const header = document.createElement("div");
     header.innerHTML = `<strong>🟢 Xiên ${formatHeaderMoney(xienVonChuyen, xienTrungChuyen)}</strong>`;
-    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
+    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
+    
+    const content = document.createElement("div");
+    content.innerHTML = xienLayoffHtml;
+    if (isCollapsed) {
+      content.classList.add('hidden');
+    }
+    
+    header.onclick = () => {
+      content.classList.toggle('hidden');
+      if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+      window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+    };
+
     modifiedResultDiv.appendChild(header);
-    const listContainer = document.createElement("div");
-    listContainer.innerHTML = xienLayoffHtml;
-    modifiedResultDiv.appendChild(listContainer);
+    modifiedResultDiv.appendChild(content);
   }
 
   let baCangLayoffHtml = "";
@@ -2356,13 +2489,27 @@ function calculateSum() {
     }
   });
   if (baCangLayoffHtml && modifiedResultDiv) {
+    const stateKey = "chuyen_bacang";
+    const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
+
     const header = document.createElement("div");
     header.innerHTML = `<strong>🟣 Bc ${formatHeaderMoney(baCangVonChuyen, baCangTrungChuyen)}</strong>`;
-    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs";
+    header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
+    
+    const content = document.createElement("div");
+    content.innerHTML = baCangLayoffHtml;
+    if (isCollapsed) {
+      content.classList.add('hidden');
+    }
+    
+    header.onclick = () => {
+      content.classList.toggle('hidden');
+      if (!window.collapsedCategoriesState) window.collapsedCategoriesState = {};
+      window.collapsedCategoriesState[stateKey] = content.classList.contains('hidden');
+    };
+
     modifiedResultDiv.appendChild(header);
-    const listContainer = document.createElement("div");
-    listContainer.innerHTML = baCangLayoffHtml;
-    modifiedResultDiv.appendChild(listContainer);
+    modifiedResultDiv.appendChild(content);
   }
 
   const isNewLayout = document.getElementById("tblDeXac") !== null;
@@ -2375,7 +2522,62 @@ function calculateSum() {
     const baCangXac = baCangDeBetSum;
     const baCangLoXac = baCangLoBetSum;
 
-    // 3. Update Table Cells
+    // Save calculation data in window.lastReportData
+    const totalNetChuyen = totalVonChuyen - totalTrungChuyen;
+    const thauData = {
+      deXac, deVon, deTrung: deTrung, deWinXac: deWinSum, deNet,
+      loXac, loVon, loTrung: loTrung, loWinXac: loWinSum, loNet,
+      xienXac, xienVon, xienTrung: xienTrung, xienWinXac: xienWinXac, xienNet,
+      baCangXac, baCangVon, baCangTrung: baCangTrung, baCangWinXac: (baCangDeWinSum + baCangDeApMaWinSum), baCangNet,
+      baCangLoXac, baCangLoVon, baCangLoTrung: baCangLoTrung, baCangLoWinXac: baCangLoWinSum, baCangLoNet,
+      totalVon, totalTrung, totalNet
+    };
+    const chuyenData = {
+      deXac: deLayoff.costSum, deVon: deVonChuyen, deTrung: deTrungChuyen, deNet: (deVonChuyen - deTrungChuyen),
+      loXac: loLayoff.costSum, loVon: loVonChuyen, loTrung: loTrungChuyen, loNet: (loVonChuyen - loTrungChuyen),
+      xienXac: xienXacChuyen, xienVon: xienVonChuyen, xienTrung: xienTrungChuyen, xienNet: (xienVonChuyen - xienTrungChuyen),
+      baCangXac: baCangLayoff.costSum, baCangVon: baCangVonChuyen, baCangTrung: baCangTrungChuyen, baCangNet: (baCangVonChuyen - baCangTrungChuyen),
+      baCangLoXac: baCangLoLayoff.costSum, baCangLoVon: baCangLoVonChuyen, baCangLoTrung: baCangLoTrungChuyen, baCangLoNet: (baCangLoVonChuyen - baCangLoTrungChuyen),
+      totalVon: totalVonChuyen, totalTrung: totalTrungChuyen, totalNet: totalNetChuyen
+    };
+    const giulaiData = {
+      deXac: Math.max(0, thauData.deXac - chuyenData.deXac),
+      deVon: thauData.deVon - chuyenData.deVon,
+      deTrung: thauData.deTrung - chuyenData.deTrung,
+      deNet: thauData.deNet - chuyenData.deNet,
+
+      loXac: Math.max(0, thauData.loXac - chuyenData.loXac),
+      loVon: thauData.loVon - chuyenData.loVon,
+      loTrung: thauData.loTrung - chuyenData.loTrung,
+      loNet: thauData.loNet - chuyenData.loNet,
+
+      xienXac: Math.max(0, thauData.xienXac - chuyenData.xienXac),
+      xienVon: thauData.xienVon - chuyenData.xienVon,
+      xienTrung: thauData.xienTrung - chuyenData.xienTrung,
+      xienNet: thauData.xienNet - chuyenData.xienNet,
+
+      baCangXac: Math.max(0, thauData.baCangXac - chuyenData.baCangXac),
+      baCangVon: thauData.baCangVon - chuyenData.baCangVon,
+      baCangTrung: thauData.baCangTrung - chuyenData.baCangTrung,
+      baCangNet: thauData.baCangNet - chuyenData.baCangNet,
+
+      baCangLoXac: Math.max(0, thauData.baCangLoXac - chuyenData.baCangLoXac),
+      baCangLoVon: thauData.baCangLoVon - chuyenData.baCangLoVon,
+      baCangLoTrung: thauData.baCangLoTrung - chuyenData.baCangLoTrung,
+      baCangLoNet: thauData.baCangLoNet - chuyenData.baCangLoNet,
+
+      totalVon: thauData.totalVon - chuyenData.totalVon,
+      totalTrung: thauData.totalTrung - chuyenData.totalTrung,
+      totalNet: thauData.totalNet - chuyenData.totalNet
+    };
+
+    window.lastReportData = {
+      thau: thauData,
+      chuyen: chuyenData,
+      giulai: giulaiData
+    };
+
+    // Helper to format/set cells
     const setCell = (id, val, isFormat = true) => {
       const el = document.getElementById(id);
       if (el) {
@@ -2387,93 +2589,65 @@ function calculateSum() {
       }
     };
 
-    setCell("tblDeXac", deXac, false);
-    setCell("tblDeVon", deVon);
-    const tblDeTrungEl = document.getElementById("tblDeTrung");
-    if (tblDeTrungEl) {
-      tblDeTrungEl.textContent = deWinSum > 0 ? `(${Math.round(deWinSum).toLocaleString('vi-VN')})${Math.round(deTrung).toLocaleString('vi-VN')}` : "0";
-    }
-    setCell("tblDeNet", deNet);
-    if (document.getElementById("tblDeNet")) {
-      document.getElementById("tblDeNet").className = deNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
-    }
-
-    setCell("tblLoXac", loXac, false);
-    setCell("tblLoVon", loVon);
-    const tblLoTrungEl = document.getElementById("tblLoTrung");
-    if (tblLoTrungEl) {
-      tblLoTrungEl.textContent = loWinSum > 0 ? `(${Math.round(loWinSum).toLocaleString('vi-VN')})${Math.round(loTrung).toLocaleString('vi-VN')}` : "0";
-    }
-    setCell("tblLoNet", loNet);
-    if (document.getElementById("tblLoNet")) {
-      document.getElementById("tblLoNet").className = loNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
-    }
-
-    setCell("tblXienXac", xienXac, false);
-    setCell("tblXienVon", xienVon);
-    const tblXienTrungEl = document.getElementById("tblXienTrung");
-    if (tblXienTrungEl) {
-      tblXienTrungEl.textContent = xienWinXac > 0 ? `(${Math.round(xienWinXac).toLocaleString('vi-VN')})${Math.round(xienTrung).toLocaleString('vi-VN')}` : "0";
-    }
-    setCell("tblXienNet", xienNet);
-    if (document.getElementById("tblXienNet")) {
-      document.getElementById("tblXienNet").className = xienNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
-    }
-
-    setCell("tbl3CXac", baCangXac, false);
-    setCell("tbl3CVon", baCangVon);
-    const tbl3CTrungEl = document.getElementById("tbl3CTrung");
-    if (tbl3CTrungEl) {
-      const baCangWinXac = baCangDeWinSum + baCangDeApMaWinSum;
-      tbl3CTrungEl.textContent = baCangWinXac > 0 ? `(${Math.round(baCangWinXac).toLocaleString('vi-VN')})${Math.round(baCangTrung).toLocaleString('vi-VN')}` : "0";
-    }
-    setCell("tbl3CNet", baCangNet);
-    if (document.getElementById("tbl3CNet")) {
-      document.getElementById("tbl3CNet").className = baCangNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
-    }
-
-    setCell("tbl3CLXac", baCangLoXac, false);
-    setCell("tbl3CLVon", baCangLoVon);
-    const tbl3CLTrungEl = document.getElementById("tbl3CLTrung");
-    if (tbl3CLTrungEl) {
-      tbl3CLTrungEl.textContent = baCangLoWinSum > 0 ? `(${Math.round(baCangLoWinSum).toLocaleString('vi-VN')})${Math.round(baCangLoTrung).toLocaleString('vi-VN')}` : "0";
-    }
-    setCell("tbl3CLNet", baCangLoNet);
-    if (document.getElementById("tbl3CLNet")) {
-      document.getElementById("tbl3CLNet").className = baCangLoNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
-    }
-
-    setCell("tblTotalVon", totalVon);
-    setCell("tblTotalTrung", totalTrung);
-    setCell("tblTotalNet", totalNet);
-    if (document.getElementById("tblTotalNet")) {
-      document.getElementById("tblTotalNet").className = totalNet < 0 ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-black text-emerald-600 dark:text-emerald-400" : "p-2 border border-gray-200 dark:border-gray-700 text-right font-black text-red-500 dark:text-red-400";
-    }
-
-    // 4. Update Financial Figures card
-    setCell("summaryTotalCost", totalVon);
-    setCell("summaryTotalWinnings", totalTrung);
-    setCell("summaryNetValue", Math.abs(totalNet));
-
-    const summaryNetLabel = document.getElementById("summaryNetLabel");
-    const summaryNetValue = document.getElementById("summaryNetValue");
-    if (summaryNetLabel && summaryNetValue) {
+    // 3. Update Split Tab figures
+    // Thầu
+    setCell("thauVon", totalVon);
+    setCell("thauTrung", totalTrung);
+    const thauNetEl = document.getElementById("thauNet");
+    const thauNetLabel = document.getElementById("thauNetLabel");
+    if (thauNetEl && thauNetLabel) {
+      thauNetEl.textContent = Math.round(Math.abs(totalNet)).toLocaleString('vi-VN');
       if (totalNet < 0) {
-        summaryNetLabel.innerText = "Chủ thầu bù";
-        summaryNetLabel.className = "text-xs font-bold text-emerald-600 dark:text-emerald-400 block mb-0.5 uppercase tracking-wider";
-        summaryNetValue.className = "text-lg font-extrabold text-emerald-600 dark:text-emerald-400";
-      } else if (totalNet > 0) {
-        summaryNetLabel.innerText = "Đại lý Nộp";
-        summaryNetLabel.className = "text-xs font-bold text-red-500 dark:text-red-400 block mb-0.5 uppercase tracking-wider";
-        summaryNetValue.className = "text-lg font-extrabold text-red-500 dark:text-red-400";
+        thauNetLabel.textContent = "Thầu bù";
+        thauNetLabel.className = "text-gray-500 block font-bold text-emerald-600 dark:text-emerald-400";
+        thauNetEl.className = "font-extrabold text-emerald-600 dark:text-emerald-400 text-sm";
       } else {
-        summaryNetLabel.innerText = "Hòa vốn";
-        summaryNetLabel.className = "text-xs font-bold text-gray-500 block mb-0.5 uppercase tracking-wider";
-        summaryNetValue.className = "text-lg font-extrabold text-gray-500";
+        thauNetLabel.textContent = "Lời";
+        thauNetLabel.className = "text-gray-500 block font-bold text-red-500 dark:text-red-400";
+        thauNetEl.className = "font-extrabold text-red-500 dark:text-red-400 text-sm";
       }
     }
 
-    // Save calculation result for report copy
+    // Chuyển
+    setCell("chuyenVon", totalVonChuyen);
+    setCell("chuyenTrung", totalTrungChuyen);
+    const chuyenNetEl = document.getElementById("chuyenNet");
+    const chuyenNetLabel = document.getElementById("chuyenNetLabel");
+    if (chuyenNetEl && chuyenNetLabel) {
+      chuyenNetEl.textContent = Math.round(Math.abs(totalNetChuyen)).toLocaleString('vi-VN');
+      if (totalNetChuyen < 0) {
+        chuyenNetLabel.textContent = "Lời";
+        chuyenNetLabel.className = "text-gray-500 block font-bold text-emerald-600 dark:text-emerald-400";
+        chuyenNetEl.className = "font-extrabold text-emerald-600 dark:text-emerald-400 text-sm";
+      } else {
+        chuyenNetLabel.textContent = "Lỗ";
+        chuyenNetLabel.className = "text-gray-500 block font-bold text-red-500 dark:text-red-400";
+        chuyenNetEl.className = "font-extrabold text-red-500 dark:text-red-400 text-sm";
+      }
+    }
+
+    // Giữ lại
+    setCell("giulaiVon", giulaiData.totalVon);
+    setCell("giulaiTrung", giulaiData.totalTrung);
+    const giulaiNetEl = document.getElementById("giulaiNet");
+    const giulaiNetLabel = document.getElementById("giulaiNetLabel");
+    if (giulaiNetEl && giulaiNetLabel) {
+      giulaiNetEl.textContent = Math.round(Math.abs(giulaiData.totalNet)).toLocaleString('vi-VN');
+      if (giulaiData.totalNet < 0) {
+        giulaiNetLabel.textContent = "Thua";
+        giulaiNetLabel.className = "text-gray-500 block font-bold text-emerald-600 dark:text-emerald-400";
+        giulaiNetEl.className = "font-extrabold text-emerald-600 dark:text-emerald-400 text-sm";
+      } else {
+        giulaiNetLabel.textContent = "Lời";
+        giulaiNetLabel.className = "text-gray-500 block font-bold text-red-500 dark:text-red-400";
+        giulaiNetEl.className = "font-extrabold text-red-500 dark:text-red-400 text-sm";
+      }
+    }
+
+    // Populate active tab detailed cells
+    renderReportTable();
+
+    // Save legacy report copying format if needed
     window.lastCalculatedReport = {
       date: fetchedPrizesData ? fetchedPrizesData.dateText : (new Date()).toLocaleDateString('vi-VN'),
       deXac, deTrung,
@@ -2644,6 +2818,214 @@ function updateCopyButtonLabel() {
     copyButton.textContent = `% Chuyển${displayStep}`;
   } else {
     copyButton.textContent = `Chuyển${displayStep}`;
+  }
+}
+
+window.activeReportTab = 'thau';
+window.lastReportData = null;
+
+function updateReportTabUI() {
+  const tabs = {
+    thau: document.getElementById('tabThau'),
+    chuyen: document.getElementById('tabChuyen'),
+    giulai: document.getElementById('tabGiulai')
+  };
+
+  Object.entries(tabs).forEach(([key, el]) => {
+    if (!el) return;
+    const header = el.firstElementChild;
+    const isHidden = el.classList.contains('hidden');
+    
+    if (window.activeReportTab === key) {
+      el.className = "cursor-pointer bg-indigo-50/50 dark:bg-indigo-950/10 p-3 rounded-lg border-2 border-indigo-600 dark:border-indigo-500 transition-all hover:scale-[1.01] active:scale-95 space-y-2" + (isHidden ? " hidden" : "");
+      if (header) header.className = "text-xs font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-wider";
+    } else {
+      el.className = "cursor-pointer bg-gray-50 dark:bg-dark-900 p-3 rounded-lg border-2 border-transparent transition-all hover:scale-[1.01] active:scale-95 space-y-2" + (isHidden ? " hidden" : "");
+      if (header) header.className = "text-xs font-bold text-gray-500 uppercase tracking-wider";
+    }
+  });
+}
+
+function renderReportTable() {
+  const isChuyen = window.activeReportTab === "chuyen";
+  const isGiulai = window.activeReportTab === "giulai";
+  const setCell = (id, val, isFormat = true) => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (isFormat) {
+        el.textContent = Math.round(val).toLocaleString('vi-VN');
+      } else {
+        el.textContent = val;
+      }
+    }
+  };
+
+  const setNetCell = (id, netVal) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = Math.round(netVal).toLocaleString('vi-VN');
+      el.className = netVal < 0 
+        ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-emerald-600 dark:text-emerald-400" 
+        : "p-2 border border-gray-200 dark:border-gray-700 text-right font-bold text-red-500 dark:text-red-400";
+    }
+  };
+
+  const data = window.lastReportData;
+  if (!data) return;
+
+  if (isChuyen) {
+    setCell("tblDeXac", data.chuyen.deXac, false);
+    setCell("tblDeVon", data.chuyen.deVon);
+    const tblDeTrungEl = document.getElementById("tblDeTrung");
+    if (tblDeTrungEl) {
+      tblDeTrungEl.textContent = data.chuyen.deTrung > 0 ? Math.round(data.chuyen.deTrung).toLocaleString('vi-VN') : "0";
+    }
+    setNetCell("tblDeNet", data.chuyen.deNet);
+
+    setCell("tblLoXac", data.chuyen.loXac, false);
+    setCell("tblLoVon", data.chuyen.loVon);
+    const tblLoTrungEl = document.getElementById("tblLoTrung");
+    if (tblLoTrungEl) {
+      tblLoTrungEl.textContent = data.chuyen.loTrung > 0 ? Math.round(data.chuyen.loTrung).toLocaleString('vi-VN') : "0";
+    }
+    setNetCell("tblLoNet", data.chuyen.loNet);
+
+    setCell("tblXienXac", data.chuyen.xienXac, false);
+    setCell("tblXienVon", data.chuyen.xienVon);
+    const tblXienTrungEl = document.getElementById("tblXienTrung");
+    if (tblXienTrungEl) {
+      tblXienTrungEl.textContent = data.chuyen.xienTrung > 0 ? Math.round(data.chuyen.xienTrung).toLocaleString('vi-VN') : "0";
+    }
+    setNetCell("tblXienNet", data.chuyen.xienNet);
+
+    setCell("tbl3CXac", data.chuyen.baCangXac, false);
+    setCell("tbl3CVon", data.chuyen.baCangVon);
+    const tbl3CTrungEl = document.getElementById("tbl3CTrung");
+    if (tbl3CTrungEl) {
+      tbl3CTrungEl.textContent = data.chuyen.baCangTrung > 0 ? Math.round(data.chuyen.baCangTrung).toLocaleString('vi-VN') : "0";
+    }
+    setNetCell("tbl3CNet", data.chuyen.baCangNet);
+
+    setCell("tbl3CLXac", data.chuyen.baCangLoXac, false);
+    setCell("tbl3CLVon", data.chuyen.baCangLoVon);
+    const tbl3CLTrungEl = document.getElementById("tbl3CLTrung");
+    if (tbl3CLTrungEl) {
+      tbl3CLTrungEl.textContent = data.chuyen.baCangLoTrung > 0 ? Math.round(data.chuyen.baCangLoTrung).toLocaleString('vi-VN') : "0";
+    }
+    setNetCell("tbl3CLNet", data.chuyen.baCangLoNet);
+
+    setCell("tblTotalVon", data.chuyen.totalVon);
+    setCell("tblTotalTrung", data.chuyen.totalTrung);
+    
+    const tblTotalNetEl = document.getElementById("tblTotalNet");
+    if (tblTotalNetEl) {
+      tblTotalNetEl.textContent = Math.round(data.chuyen.totalNet).toLocaleString('vi-VN');
+      tblTotalNetEl.className = data.chuyen.totalNet < 0 
+        ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-black text-emerald-600 dark:text-emerald-400" 
+        : "p-2 border border-gray-200 dark:border-gray-700 text-right font-black text-red-500 dark:text-red-400";
+    }
+  } else if (isGiulai) {
+    setCell("tblDeXac", data.giulai.deXac, false);
+    setCell("tblDeVon", data.giulai.deVon);
+    const tblDeTrungEl = document.getElementById("tblDeTrung");
+    if (tblDeTrungEl) {
+      tblDeTrungEl.textContent = data.giulai.deTrung > 0 ? Math.round(data.giulai.deTrung).toLocaleString('vi-VN') : "0";
+    }
+    setNetCell("tblDeNet", data.giulai.deNet);
+
+    setCell("tblLoXac", data.giulai.loXac, false);
+    setCell("tblLoVon", data.giulai.loVon);
+    const tblLoTrungEl = document.getElementById("tblLoTrung");
+    if (tblLoTrungEl) {
+      tblLoTrungEl.textContent = data.giulai.loTrung > 0 ? Math.round(data.giulai.loTrung).toLocaleString('vi-VN') : "0";
+    }
+    setNetCell("tblLoNet", data.giulai.loNet);
+
+    setCell("tblXienXac", data.giulai.xienXac, false);
+    setCell("tblXienVon", data.giulai.xienVon);
+    const tblXienTrungEl = document.getElementById("tblXienTrung");
+    if (tblXienTrungEl) {
+      tblXienTrungEl.textContent = data.giulai.xienTrung > 0 ? Math.round(data.giulai.xienTrung).toLocaleString('vi-VN') : "0";
+    }
+    setNetCell("tblXienNet", data.giulai.xienNet);
+
+    setCell("tbl3CXac", data.giulai.baCangXac, false);
+    setCell("tbl3CVon", data.giulai.baCangVon);
+    const tbl3CTrungEl = document.getElementById("tbl3CTrung");
+    if (tbl3CTrungEl) {
+      tbl3CTrungEl.textContent = data.giulai.baCangTrung > 0 ? Math.round(data.giulai.baCangTrung).toLocaleString('vi-VN') : "0";
+    }
+    setNetCell("tbl3CNet", data.giulai.baCangNet);
+
+    setCell("tbl3CLXac", data.giulai.baCangLoXac, false);
+    setCell("tbl3CLVon", data.giulai.baCangLoVon);
+    const tbl3CLTrungEl = document.getElementById("tbl3CLTrung");
+    if (tbl3CLTrungEl) {
+      tbl3CLTrungEl.textContent = data.giulai.baCangLoTrung > 0 ? Math.round(data.giulai.baCangLoTrung).toLocaleString('vi-VN') : "0";
+    }
+    setNetCell("tbl3CLNet", data.giulai.baCangLoNet);
+
+    setCell("tblTotalVon", data.giulai.totalVon);
+    setCell("tblTotalTrung", data.giulai.totalTrung);
+    
+    const tblTotalNetEl = document.getElementById("tblTotalNet");
+    if (tblTotalNetEl) {
+      tblTotalNetEl.textContent = Math.round(data.giulai.totalNet).toLocaleString('vi-VN');
+      tblTotalNetEl.className = data.giulai.totalNet < 0 
+        ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-black text-emerald-600 dark:text-emerald-400" 
+        : "p-2 border border-gray-200 dark:border-gray-700 text-right font-black text-red-500 dark:text-red-400";
+    }
+  } else {
+    setCell("tblDeXac", data.thau.deXac, false);
+    setCell("tblDeVon", data.thau.deVon);
+    const tblDeTrungEl = document.getElementById("tblDeTrung");
+    if (tblDeTrungEl) {
+      tblDeTrungEl.textContent = data.thau.deWinXac > 0 ? `(${Math.round(data.thau.deWinXac).toLocaleString('vi-VN')})${Math.round(data.thau.deTrung).toLocaleString('vi-VN')}` : "0";
+    }
+    setNetCell("tblDeNet", data.thau.deNet);
+
+    setCell("tblLoXac", data.thau.loXac, false);
+    setCell("tblLoVon", data.thau.loVon);
+    const tblLoTrungEl = document.getElementById("tblLoTrung");
+    if (tblLoTrungEl) {
+      tblLoTrungEl.textContent = data.thau.loWinXac > 0 ? `(${Math.round(data.thau.loWinXac).toLocaleString('vi-VN')})${Math.round(data.thau.loTrung).toLocaleString('vi-VN')}` : "0";
+    }
+    setNetCell("tblLoNet", data.thau.loNet);
+
+    setCell("tblXienXac", data.thau.xienXac, false);
+    setCell("tblXienVon", data.thau.xienVon);
+    const tblXienTrungEl = document.getElementById("tblXienTrung");
+    if (tblXienTrungEl) {
+      tblXienTrungEl.textContent = data.thau.xienWinXac > 0 ? `(${Math.round(data.thau.xienWinXac).toLocaleString('vi-VN')})${Math.round(data.thau.xienTrung).toLocaleString('vi-VN')}` : "0";
+    }
+    setNetCell("tblXienNet", data.thau.xienNet);
+
+    setCell("tbl3CXac", data.thau.baCangXac, false);
+    setCell("tbl3CVon", data.thau.baCangVon);
+    const tbl3CTrungEl = document.getElementById("tbl3CTrung");
+    if (tbl3CTrungEl) {
+      tbl3CTrungEl.textContent = data.thau.baCangWinXac > 0 ? `(${Math.round(data.thau.baCangWinXac).toLocaleString('vi-VN')})${Math.round(data.thau.baCangTrung).toLocaleString('vi-VN')}` : "0";
+    }
+    setNetCell("tbl3CNet", data.thau.baCangNet);
+
+    setCell("tbl3CLXac", data.thau.baCangLoXac, false);
+    setCell("tbl3CLVon", data.thau.baCangLoVon);
+    const tbl3CLTrungEl = document.getElementById("tbl3CLTrung");
+    if (tbl3CLTrungEl) {
+      tbl3CLTrungEl.textContent = data.thau.baCangLoWinXac > 0 ? `(${Math.round(data.thau.baCangLoWinXac).toLocaleString('vi-VN')})${Math.round(data.thau.baCangLoTrung).toLocaleString('vi-VN')}` : "0";
+    }
+    setNetCell("tbl3CLNet", data.thau.baCangLoNet);
+
+    setCell("tblTotalVon", data.thau.totalVon);
+    setCell("tblTotalTrung", data.thau.totalTrung);
+    
+    const tblTotalNetEl = document.getElementById("tblTotalNet");
+    if (tblTotalNetEl) {
+      tblTotalNetEl.textContent = Math.round(data.thau.totalNet).toLocaleString('vi-VN');
+      tblTotalNetEl.className = data.thau.totalNet < 0 
+        ? "p-2 border border-gray-200 dark:border-gray-700 text-right font-black text-emerald-600 dark:text-emerald-400" 
+        : "p-2 border border-gray-200 dark:border-gray-700 text-right font-black text-red-500 dark:text-red-400";
+    }
   }
 }
 
@@ -2833,61 +3215,95 @@ const DEFAULT_RATES = {
   rate3CLoPayout: 20
 };
 
-function loadRates() {
-  const saved = localStorage.getItem(RATES_STORAGE_KEY);
-  let rates = DEFAULT_RATES;
-  if (saved) {
-    try {
-      let parsed = JSON.parse(saved);
-      // Migrate old Lô point rates to new defaults
-      if (parsed.rateLoCost > 10000) {
-        parsed.rateLoCost = 2165; // migrate to 2165
-      }
-      if (parsed.rateLoPayout > 1000) {
-        parsed.rateLoPayout = 80; // migrate to 80
-      }
-      // Migrate old Xiên rates to new defaults
-      if (parsed.rateXien2Payout === 15) {
-        parsed.rateXien2Payout = 11;
-      }
-      if (parsed.rateXien3Payout === 50) {
-        parsed.rateXien3Payout = 45;
-      }
-      if (parsed.rateXien4Payout === 120) {
-        parsed.rateXien4Payout = 140;
-      }
-      // Migrate old 3C Lô point rates to percentage rates
-      if (parsed.rate3CLoCost > 100) {
-        parsed.rate3CLoCost = 75; // migrate to 75%
-      }
-      if (parsed.rate3CLoPayout > 100) {
-        parsed.rate3CLoPayout = 20; // migrate to 1 ăn 20
-      }
-      rates = Object.assign({}, DEFAULT_RATES, parsed);
-    } catch (e) {
-      console.error("Error parsing saved rates", e);
-    }
+window.activeConfigTab = 'thau';
+window.priceConfigData = {
+  thau: Object.assign({}, DEFAULT_RATES),
+  chuyen: Object.assign({}, DEFAULT_RATES)
+};
+
+function updateConfigTabUI() {
+  const btnThau = document.getElementById('configTabThau');
+  const btnChuyen = document.getElementById('configTabChuyen');
+  if (!btnThau || !btnChuyen) return;
+
+  if (window.activeConfigTab === 'chuyen') {
+    btnChuyen.className = "flex-1 py-2 text-center text-xs font-bold border-b-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 focus:outline-none";
+    btnThau.className = "flex-1 py-2 text-center text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none";
+  } else {
+    btnThau.className = "flex-1 py-2 text-center text-xs font-bold border-b-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 focus:outline-none";
+    btnChuyen.className = "flex-1 py-2 text-center text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none";
   }
-  Object.entries(rates).forEach(([id, val]) => {
+}
+
+function fillConfigInputs() {
+  const currentRates = window.priceConfigData[window.activeConfigTab] || DEFAULT_RATES;
+  Object.keys(DEFAULT_RATES).forEach(id => {
     const el = document.getElementById(id);
     if (el) {
+      const val = currentRates[id];
       el.value = (val !== undefined && val !== null) ? val.toString() : '';
     }
   });
 }
 
-function saveRates() {
-  const rates = {};
+function saveCurrentConfigInputs() {
+  const currentRates = window.priceConfigData[window.activeConfigTab];
+  if (!currentRates) return;
   Object.keys(DEFAULT_RATES).forEach(id => {
     const el = document.getElementById(id);
     if (el) {
       const valStr = el.value || '';
       const valCleaned = valStr.toString().replace(/,/g, '.').trim();
       const valParsed = parseFloat(valCleaned);
-      rates[id] = isNaN(valParsed) ? DEFAULT_RATES[id] : valParsed;
+      currentRates[id] = isNaN(valParsed) ? DEFAULT_RATES[id] : valParsed;
     }
   });
-  localStorage.setItem(RATES_STORAGE_KEY, JSON.stringify(rates));
+}
+
+function loadRates() {
+  const saved = localStorage.getItem(RATES_STORAGE_KEY);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.thau && parsed.chuyen) {
+        window.priceConfigData = parsed;
+      } else {
+        // Migrate old format (flat object) to new format
+        // Migrate old Lô/Xiên/3C point rates if they exist in the old format
+        if (parsed.rateLoCost > 10000) parsed.rateLoCost = 2165;
+        if (parsed.rateLoPayout > 1000) parsed.rateLoPayout = 80;
+        if (parsed.rateXien2Payout === 15) parsed.rateXien2Payout = 11;
+        if (parsed.rateXien3Payout === 50) parsed.rateXien3Payout = 45;
+        if (parsed.rateXien4Payout === 120) parsed.rateXien4Payout = 140;
+        if (parsed.rate3CLoCost > 100) parsed.rate3CLoCost = 75;
+        if (parsed.rate3CLoPayout > 100) parsed.rate3CLoPayout = 20;
+
+        window.priceConfigData = {
+          thau: Object.assign({}, DEFAULT_RATES, parsed),
+          chuyen: Object.assign({}, DEFAULT_RATES, parsed)
+        };
+      }
+    } catch (e) {
+      console.error("Error parsing saved rates", e);
+    }
+  } else {
+    window.priceConfigData = {
+      thau: Object.assign({}, DEFAULT_RATES),
+      chuyen: Object.assign({}, DEFAULT_RATES)
+    };
+  }
+
+  // Set default active tab and fill fields
+  window.activeConfigTab = 'thau';
+  updateConfigTabUI();
+  fillConfigInputs();
+}
+
+function saveRates() {
+  // First save the currently open inputs to active config tab
+  saveCurrentConfigInputs();
+  // Then write the complete object to local storage
+  localStorage.setItem(RATES_STORAGE_KEY, JSON.stringify(window.priceConfigData));
 }
 
 // Setup Event Listeners
@@ -2906,9 +3322,34 @@ function setupEventListeners() {
       updateCopyButtonLabel();
       if (highlightTimeout) clearTimeout(highlightTimeout);
       highlightTimeout = setTimeout(() => {
-        const caretOffset = getCaretOffset(combinedBetInput);
-        const inputString = combinedBetInput.innerText;
+        // 1. Get selection and insert placeholder
+        const sel = window.getSelection();
+        let range = null;
+        let hasMarker = false;
+        let markerTextNode = null;
         
+        if (sel && sel.rangeCount > 0 && document.activeElement === combinedBetInput) {
+          range = sel.getRangeAt(0);
+          if (combinedBetInput.contains(range.startContainer)) {
+            markerTextNode = document.createTextNode("__CARET_MARKER__");
+            try {
+              range.insertNode(markerTextNode);
+              hasMarker = true;
+            } catch (e) {
+              console.warn("Could not insert caret marker node", e);
+            }
+          }
+        }
+
+        // 2. Read innerText (which now contains the placeholder)
+        const inputString = combinedBetInput.innerText;
+
+        // 3. Remove the temporary placeholder text node from the DOM immediately
+        if (hasMarker && markerTextNode && markerTextNode.parentNode) {
+          markerTextNode.parentNode.removeChild(markerTextNode);
+        }
+
+        // 4. Generate highlighted HTML
         const originalLines = inputString.split('\n');
         let currentCat = 'de';
         let editorHtml = originalLines.map(line => {
@@ -2919,10 +3360,39 @@ function setupEventListeners() {
           currentCat = res.newCategory;
           return res.html;
         }).join('\n');
-        
-        if (combinedBetInput.innerHTML !== editorHtml) {
-          combinedBetInput.innerHTML = editorHtml;
-          setCaretOffset(combinedBetInput, caretOffset);
+
+        // 5. Replace __CARET_MARKER__ in editorHtml with a temporary span element
+        let editorHtmlWithMarker = editorHtml;
+        if (hasMarker) {
+          editorHtmlWithMarker = editorHtml.replace(/__CARET_MARKER__/g, '<span id="caret-marker"></span>');
+        }
+
+        // 6. Compare clean HTML
+        const currentHtmlClean = combinedBetInput.innerHTML.replace(/<span id="caret-marker"><\/span>/g, '').replace(/__CARET_MARKER__/g, '');
+        const editorHtmlClean = editorHtml.replace(/__CARET_MARKER__/g, '');
+
+        if (currentHtmlClean !== editorHtmlClean) {
+          combinedBetInput.innerHTML = editorHtmlWithMarker;
+
+          // 7. Restore Selection
+          if (hasMarker) {
+            const markerNode = document.getElementById('caret-marker');
+            if (markerNode) {
+              const newRange = document.createRange();
+              const textNode = document.createTextNode("");
+              markerNode.parentNode.replaceChild(textNode, markerNode);
+              newRange.setStart(textNode, 0);
+              newRange.collapse(true);
+              sel.removeAllRanges();
+              sel.addRange(newRange);
+            }
+          }
+        } else if (hasMarker) {
+          // If HTML didn't change, clean up any leftover marker
+          const markerNode = document.getElementById('caret-marker');
+          if (markerNode) {
+            markerNode.parentNode.removeChild(markerNode);
+          }
         }
       }, 800);
     });
@@ -3083,6 +3553,14 @@ function setupEventListeners() {
       saveAppState();
       if (e.target.checked) {
         triggerAutoFetch();
+      } else {
+        const specialPrizeInput = document.getElementById('specialPrizeInput');
+        const allPrizesInput = document.getElementById('allPrizesInput');
+        if (specialPrizeInput) specialPrizeInput.value = "";
+        if (allPrizesInput) allPrizesInput.value = "";
+        fetchedPrizesData = null;
+        updateTwoDigitBoard();
+        calculateSum();
       }
     });
     
@@ -3172,6 +3650,24 @@ function setupEventListeners() {
       modalPriceConfig.classList.remove('hidden');
     });
 
+    // Config Tab event listeners
+    const configTabThau = document.getElementById('configTabThau');
+    const configTabChuyen = document.getElementById('configTabChuyen');
+    if (configTabThau && configTabChuyen) {
+      configTabThau.addEventListener('click', () => {
+        saveCurrentConfigInputs();
+        window.activeConfigTab = 'thau';
+        updateConfigTabUI();
+        fillConfigInputs();
+      });
+      configTabChuyen.addEventListener('click', () => {
+        saveCurrentConfigInputs();
+        window.activeConfigTab = 'chuyen';
+        updateConfigTabUI();
+        fillConfigInputs();
+      });
+    }
+
     const closeModal = () => {
       saveRates();
       modalPriceConfig.classList.add('hidden');
@@ -3198,11 +3694,68 @@ function setupEventListeners() {
     });
   }
 
+  // Register Báo Cáo Tab click listeners
+  const tabThau = document.getElementById('tabThau');
+  const tabChuyen = document.getElementById('tabChuyen');
+  const tabGiulai = document.getElementById('tabGiulai');
+  const baoCaoTabsContainer = document.getElementById('baoCaoTabsContainer');
+  
+  if (tabThau && tabChuyen && tabGiulai) {
+    tabThau.addEventListener('click', () => {
+      window.activeReportTab = 'thau';
+      updateReportTabUI();
+      renderReportTable();
+    });
+    tabChuyen.addEventListener('click', () => {
+      window.activeReportTab = 'chuyen';
+      updateReportTabUI();
+      renderReportTable();
+    });
+    tabGiulai.addEventListener('click', () => {
+      window.activeReportTab = 'giulai';
+      updateReportTabUI();
+      renderReportTable();
+    });
+  }
+
+  // Register btnSummaryReport listener
+  const btnSummaryReport = document.getElementById('btnSummaryReport');
+  if (btnSummaryReport && tabGiulai && baoCaoTabsContainer) {
+    btnSummaryReport.addEventListener('click', () => {
+      const isHidden = tabGiulai.classList.contains('hidden');
+      if (isHidden) {
+        // Reveal the tab Giữ lại
+        tabGiulai.classList.remove('hidden');
+        
+        // Update grid columns from 2 to 3
+        baoCaoTabsContainer.classList.remove('md:grid-cols-2');
+        baoCaoTabsContainer.classList.add('md:grid-cols-3');
+        
+        // Active the Giữ lại tab
+        window.activeReportTab = 'giulai';
+      } else {
+        // Hide the tab Giữ lại
+        tabGiulai.classList.add('hidden');
+        
+        // Update grid columns from 3 to 2
+        baoCaoTabsContainer.classList.remove('md:grid-cols-3');
+        baoCaoTabsContainer.classList.add('md:grid-cols-2');
+        
+        // If the active tab was giulai, switch back to thau
+        if (window.activeReportTab === 'giulai') {
+          window.activeReportTab = 'thau';
+        }
+      }
+      updateReportTabUI();
+      renderReportTable();
+    });
+  }
+
   // Copy report listener
   const btnCopyTextReport = document.getElementById("btnCopyTextReport");
   if (btnCopyTextReport) {
     btnCopyTextReport.addEventListener("click", () => {
-      const data = window.lastCalculatedReport;
+      const data = window.lastReportData;
       if (!data) {
         alert("Vui lòng thực hiện tính toán báo cáo trước!");
         return;
@@ -3212,27 +3765,65 @@ function setupEventListeners() {
         return Math.round(val).toLocaleString('vi-VN');
       };
 
-      const rawDate = data.date;
+      const rawDate = window.lastCalculatedReport ? window.lastCalculatedReport.date : (new Date()).toLocaleDateString('vi-VN');
       const dayMonthText = rawDate.split('/').slice(0, 2).join('/'); // "29/06"
 
-      const headerText = `BÁO CÁO - ${dayMonthText}`;
+      let reportText = "";
+      if (window.activeReportTab === 'chuyen') {
+        const headerText = `BÁO CÁO CHUYỂN - ${dayMonthText}`;
+        const deStr = `Đề: ${formatMoneyK(data.chuyen.deXac)} / ${formatMoneyK(data.chuyen.deTrung)}`;
+        const loStr = `Lô: ${data.chuyen.loXac} / ${data.chuyen.loTrung}`;
+        const xienStr = `Xiên: ${formatMoneyK(data.chuyen.xienXac)} / ${formatMoneyK(data.chuyen.xienTrung)}`;
+        const baCangStr = `3c: ${formatMoneyK(data.chuyen.baCangXac)} / ${formatMoneyK(data.chuyen.baCangTrung)}`;
+        const baCangLoStr = `3c Lô: ${formatMoneyK(data.chuyen.baCangLoXac)} / ${formatMoneyK(data.chuyen.baCangLoTrung)}`;
+        
+        const netLabelText = data.chuyen.totalNet < 0 ? "LẤY VỀ" : "NỘP";
+        const netValK = formatMoneyK(Math.abs(data.chuyen.totalNet));
 
-      const deStr = `Đề: ${formatMoneyK(data.deXac)} / ${formatMoneyK(data.deTrung)}`;
-      const loStr = `Lô: ${data.loXac} / ${data.loTrung}`;
-      const xienStr = `Xiên: ${formatMoneyK(data.xienXac)} / ${formatMoneyK(data.xienTrung)}`;
-      const baCangStr = `3c: ${formatMoneyK(data.baCangXac)} / ${formatMoneyK(data.baCangTrung)}`;
-      const baCangLoStr = `3c Lô: ${formatMoneyK(data.baCangLoXac)} / ${formatMoneyK(data.baCangLoTrung)}`;
-      
-      const netLabelText = data.totalNet < 0 ? "LẤY VỀ" : "NỘP";
-      const netValK = formatMoneyK(Math.abs(data.totalNet));
+        reportText = `${headerText}\n` +
+          `${deStr}\n` +
+          `${loStr}\n` +
+          `${xienStr}\n` +
+          `${baCangStr}\n` +
+          `${baCangLoStr}\n` +
+          `${netLabelText}: ${netValK}`;
+      } else if (window.activeReportTab === 'giulai') {
+        const headerText = `BÁO CÁO GIỮ LẠI - ${dayMonthText}`;
+        const deStr = `Đề: ${formatMoneyK(data.giulai.deXac)} / ${formatMoneyK(data.giulai.deTrung)}`;
+        const loStr = `Lô: ${data.giulai.loXac} / ${data.giulai.loTrung}`;
+        const xienStr = `Xiên: ${formatMoneyK(data.giulai.xienXac)} / ${formatMoneyK(data.giulai.xienTrung)}`;
+        const baCangStr = `3c: ${formatMoneyK(data.giulai.baCangXac)} / ${formatMoneyK(data.giulai.baCangTrung)}`;
+        const baCangLoStr = `3c Lô: ${formatMoneyK(data.giulai.baCangLoXac)} / ${formatMoneyK(data.giulai.baCangLoTrung)}`;
+        
+        const netLabelText = data.giulai.totalNet < 0 ? "LỖ" : "LỜI";
+        const netValK = formatMoneyK(Math.abs(data.giulai.totalNet));
 
-      const reportText = `${headerText}\n` +
-        `${deStr}\n` +
-        `${loStr}\n` +
-        `${xienStr}\n` +
-        `${baCangStr}\n` +
-        `${baCangLoStr}\n` +
-        `${netLabelText}: ${netValK}`;
+        reportText = `${headerText}\n` +
+          `${deStr}\n` +
+          `${loStr}\n` +
+          `${xienStr}\n` +
+          `${baCangStr}\n` +
+          `${baCangLoStr}\n` +
+          `${netLabelText}: ${netValK}`;
+      } else {
+        const headerText = `BÁO CÁO THẦU - ${dayMonthText}`;
+        const deStr = `Đề: ${formatMoneyK(data.thau.deXac)} / ${formatMoneyK(data.thau.deTrung)}`;
+        const loStr = `Lô: ${data.thau.loXac} / ${data.thau.loTrung}`;
+        const xienStr = `Xiên: ${formatMoneyK(data.thau.xienXac)} / ${formatMoneyK(data.thau.xienTrung)}`;
+        const baCangStr = `3c: ${formatMoneyK(data.thau.baCangXac)} / ${formatMoneyK(data.thau.baCangTrung)}`;
+        const baCangLoStr = `3c Lô: ${formatMoneyK(data.thau.baCangLoXac)} / ${formatMoneyK(data.thau.baCangLoTrung)}`;
+        
+        const netLabelText = data.thau.totalNet < 0 ? "LẤY VỀ" : "NỘP";
+        const netValK = formatMoneyK(Math.abs(data.thau.totalNet));
+
+        reportText = `${headerText}\n` +
+          `${deStr}\n` +
+          `${loStr}\n` +
+          `${xienStr}\n` +
+          `${baCangStr}\n` +
+          `${baCangLoStr}\n` +
+          `${netLabelText}: ${netValK}`;
+      }
 
       navigator.clipboard.writeText(reportText).then(() => {
         alert("Đã copy báo cáo vào clipboard!");
@@ -3606,6 +4197,16 @@ function resetTable() {
       
       <!-- Modal Body -->
       <div class="p-5 overflow-y-auto space-y-4">
+        <!-- Config Tab Switcher -->
+        <div class="flex border-b border-gray-200 dark:border-gray-700 mb-2 select-none">
+          <button id="configTabThau" type="button" class="flex-1 py-2 text-center text-xs font-bold border-b-2 border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 focus:outline-none">
+            📊 Cấu hình Thầu
+          </button>
+          <button id="configTabChuyen" type="button" class="flex-1 py-2 text-center text-xs font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none">
+            🔄 Cấu hình Chuyển
+          </button>
+        </div>
+
         <div class="flex justify-end mb-1">
           <button id="btnResetRates" class="text-xs text-primary dark:text-indigo-400 hover:underline">
             Khôi phục mặc định
