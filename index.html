@@ -131,7 +131,7 @@
           </div>
           
           <!-- Category Specific Inputs -->
-          <div class="grid grid-cols-5 gap-2">
+          <div class="grid grid-cols-4 gap-2">
             <div class="flex flex-col items-center">
               <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Đ</span>
               <input type="text" id="retainDe" value="0" 
@@ -150,11 +150,6 @@
             <div class="flex flex-col items-center">
               <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">X</span>
               <input type="text" id="retainX" value="0" 
-                     class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-1 text-center bg-white dark:bg-dark-700 focus:ring-2 focus:ring-primary text-sm">
-            </div>
-            <div class="flex flex-col items-center">
-              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">3cL</span>
-              <input type="text" id="retain3cL" value="0" 
                      class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-1 text-center bg-white dark:bg-dark-700 focus:ring-2 focus:ring-primary text-sm">
             </div>
           </div>
@@ -430,13 +425,7 @@
                   <td class="p-2 border border-gray-200 dark:border-gray-700 text-right" id="tbl3CTrung">0</td>
                   <td class="p-2 border border-gray-200 dark:border-gray-700 text-right font-bold" id="tbl3CNet">0</td>
                 </tr>
-                <tr>
-                  <td class="p-2 border border-gray-200 dark:border-gray-700 font-bold">🟤 3C Lô</td>
-                  <td class="p-2 border border-gray-200 dark:border-gray-700 text-center" id="tbl3CLXac">0</td>
-                  <td class="p-2 border border-gray-200 dark:border-gray-700 text-right" id="tbl3CLVon">0</td>
-                  <td class="p-2 border border-gray-200 dark:border-gray-700 text-right" id="tbl3CLTrung">0</td>
-                  <td class="p-2 border border-gray-200 dark:border-gray-700 text-right font-bold" id="tbl3CLNet">0</td>
-                </tr>
+
                 <tr class="bg-gray-50 dark:bg-dark-900 font-bold text-gray-800 dark:text-gray-200">
                   <td class="p-2 border border-gray-200 dark:border-gray-700">Tổng cộng</td>
                   <td class="p-2 border border-gray-200 dark:border-gray-700 text-center">-</td>
@@ -636,11 +625,9 @@ let balanceState = {
   loTransfers: {},
   baCangTransfers: {},
   xienTransfers: {},
-  baCangLoTransfers: {},
   deSums: {},
   loSums: {},
   baCangSums: {},
-  baCangLoSums: {},
   xienBets: []
 };
 
@@ -750,7 +737,7 @@ function parseNumbersFromBetString(numbersString, betType) {
           numbers.push(seg.substring(1, 3));
         }
       }
-    } else if (betType === 'bacang' || betType === 'bacang_lo') {
+    } else if (betType === 'bacang') {
       if (seg.length === 3) {
         numbers.push(seg);
       }
@@ -773,7 +760,7 @@ function verifyNonGroupText(text, currentCat) {
     }
     
     const norm = normalizeBetLine(trimmed);
-    const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c|bc|cang|3\s*cang)$/i);
+    const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|d|l|c|bc|cang|3\s*cang)$/i);
     if (spaceMatch) {
       const rawType = spaceMatch[1].toLowerCase();
       const typeRegex = {
@@ -781,8 +768,7 @@ function verifyNonGroupText(text, currentCat) {
         lo: /^(lo|l)$/i,
         xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
         xien: /^(lo\s*xien|xien|x|x2|x3|x4)$/i,
-        bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i,
-        bacang_lo: /^(3clo|3cl)$/i
+        bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
       };
       let newCat = '';
       if (typeRegex.de.test(rawType)) newCat = 'de';
@@ -790,7 +776,6 @@ function verifyNonGroupText(text, currentCat) {
       else if (typeRegex.xienquay.test(rawType)) newCat = 'xienquay';
       else if (typeRegex.xien.test(rawType)) newCat = 'xien';
       else if (typeRegex.bacang.test(rawType)) newCat = 'bacang';
-      else if (typeRegex.bacang_lo.test(rawType)) newCat = 'bacang_lo';
       
       if (newCat) {
         activeCat = newCat;
@@ -841,8 +826,7 @@ function verifyGroupText(groupText, currentCat) {
     lo: /^(lo|lô|l)$/i,
     xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
     xien: /^(xien|xiên|x)$/i,
-    bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i,
-    bacang_lo: /^(3clo|3cl)$/i
+    bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
   };
 
   function isTokenValid(seg, cat, prefix) {
@@ -885,7 +869,6 @@ function verifyGroupText(groupText, currentCat) {
       else if (typeRegex.xienquay.test(normTokenForCat)) newCat = 'xienquay';
       else if (typeRegex.xien.test(normTokenForCat)) newCat = 'xien';
       else if (typeRegex.bacang.test(normTokenForCat)) newCat = 'bacang';
-      else if (typeRegex.bacang_lo.test(normTokenForCat)) newCat = 'bacang_lo';
 
       if (newCat) {
         activeCat = newCat;
@@ -1044,9 +1027,9 @@ function normalizeBetLine(line) {
 
 function parseCombinedInput(inputString) {
   let processedInput = inputString.replace(/[’‘ʼ＇`]/g, "'");
-  const keywordRegex = /(^|[\s,;])(xienquay|xquay|xienq|3cang|3càng|3\s*càng|3\s*cang|quay|xien|xiên|3cl|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|bc|càng|cang|d|đ|l|c|q|x)(\d)/gi;
+  const keywordRegex = /(^|[\s,;])(xienquay|xquay|xienq|3cang|3càng|3\s*càng|3\s*cang|quay|xien|xiên|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|bc|càng|cang|d|đ|l|c|q|x)(\d)/gi;
   processedInput = processedInput.replace(keywordRegex, "$1$2 $3");
-  const sameLinePattern = /[\s,;]+(xienquay|xq|xienq|quay|q|xquay|lô\s*xiên|lo\s*xien|đề|de|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lô|lo|l|xiên|xien|x2|x3|x4)(?=[\s.,;\-\d]|$)|[\s,;]+(3càng|3cang|3\s*càng|3\s*cang|3c|3clô|3clo|3cl|bc|càng|cang)(?=[\s.,;\-\d]|$)|[\s,;]+(d|đ|l|c)(?=[\s.,;\-\d]|$)(?=\s+[a-z0-9'’‘＇`])/gi;
+  const sameLinePattern = /[\s,;]+(xienquay|xq|xienq|quay|q|xquay|lô\s*xiên|lo\s*xien|đề|de|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lô|lo|l|xiên|xien|x2|x3|x4)(?=[\s.,;\-\d]|$)|[\s,;]+(3càng|3cang|3\s*càng|3\s*cang|3c|bc|càng|cang)(?=[\s.,;\-\d]|$)|[\s,;]+(d|đ|l|c)(?=[\s.,;\-\d]|$)(?=\s+[a-z0-9'’‘＇`])/gi;
   processedInput = processedInput.replace(sameLinePattern, (match) => {
     return "\n" + match.replace(/^[\s,;]+/g, '').trim();
   });
@@ -1062,7 +1045,6 @@ function parseCombinedInput(inputString) {
     xien3: [],
     xien4: [],
     bacang: [],
-    bacang_lo: [],
     rawOrder: []
   };
 
@@ -1071,8 +1053,7 @@ function parseCombinedInput(inputString) {
     lo: /^(lo|l)$/i,
     xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
     xien: /^(lo\s*xien|xien|x|x2|x3|x4)$/i,
-    bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i,
-    bacang_lo: /^(3clo|3cl)$/i
+    bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
   };
 
   let activeCategory = '';
@@ -1084,7 +1065,7 @@ function parseCombinedInput(inputString) {
     let trimmed = normalizeBetLine(originalLine);
 
     let lineType = '';
-    const spaceMatch = trimmed.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c|bc|cang|3\s*cang)(?:\s+(.*))?$/i);
+    const spaceMatch = trimmed.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|d|l|c|bc|cang|3\s*cang)(?:\s+(.*))?$/i);
     if (spaceMatch) {
       const rawType = spaceMatch[1].toLowerCase();
       if (typeRegex.de.test(rawType)) lineType = 'de';
@@ -1092,7 +1073,6 @@ function parseCombinedInput(inputString) {
       else if (typeRegex.xienquay.test(rawType)) lineType = 'xienquay';
       else if (typeRegex.xien.test(rawType)) lineType = 'xien';
       else if (typeRegex.bacang.test(rawType)) lineType = 'bacang';
-      else if (typeRegex.bacang_lo.test(rawType)) lineType = 'bacang_lo';
 
       if (lineType) {
         activeCategory = lineType;
@@ -1105,7 +1085,7 @@ function parseCombinedInput(inputString) {
 
     if (!lineType) lineType = activeCategory;
 
-    let parsedCountBefore = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length + parsedBets.bacang_lo.length;
+    let parsedCountBefore = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length;
 
     const groupRegex = /([a-wy-z0-9'’‘＇`.,\-\s]+)([x+*])(\d+(?:\.\d+)?)/gi;
     let groupMatch;
@@ -1159,7 +1139,7 @@ function parseCombinedInput(inputString) {
             } else {
               isValidGroup = false;
             }
-          } else if (lineType === 'bacang' || lineType === 'bacang_lo') {
+          } else if (lineType === 'bacang') {
             if (seg.length === 3) {
               parsedNumbersCount += 1;
             } else {
@@ -1250,7 +1230,7 @@ function parseCombinedInput(inputString) {
       }
     }
 
-    let parsedCountAfter = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length + parsedBets.bacang_lo.length;
+    let parsedCountAfter = parsedBets.de.length + parsedBets.lo.length + parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length + parsedBets.bacang.length;
     if (parsedCountAfter === parsedCountBefore) {
       parsedBets.rawOrder.push({
         type: 'invalid',
@@ -1637,12 +1617,24 @@ function loadAppState() {
   if (savedAutoFetch !== null && autoFetchToggle) {
     autoFetchToggle.checked = (savedAutoFetch === '1');
   }
-  if (savedDate !== null && resultDateInput) {
-    resultDateInput.value = savedDate;
+  
+  if (autoFetchToggle && autoFetchToggle.checked) {
+    if (resultDateInput) {
+      const localDate = new Date(Date.now() - (new Date().getTimezoneOffset()*60*1000)).toISOString().split('T')[0];
+      resultDateInput.value = localDate;
+    }
+  } else {
+    if (savedDate !== null && resultDateInput) {
+      resultDateInput.value = savedDate;
+    }
   }
 
   if (hasData) {
     calculateSum();
+  }
+
+  if (autoFetchToggle && autoFetchToggle.checked) {
+    triggerAutoFetch();
   }
 }
 
@@ -1764,8 +1756,6 @@ function calculateSum() {
   const baCangComm = getRateVal('thau', 'rate3CComm', 75);
   const baCangPayout = getRateVal('thau', 'rate3CPayout', 400);
   const baCangApMa = getRateVal('thau', 'rate3CApMa', 5);
-  const baCangLoCost = getRateVal('thau', 'rate3CLoCost', 75);
-  const baCangLoPayout = getRateVal('thau', 'rate3CLoPayout', 20);
 
   const deComm_chuyen = getRateVal('chuyen', 'rateDeComm', 82);
   const dePayout_chuyen = getRateVal('chuyen', 'rateDePayout', 80);
@@ -1778,8 +1768,6 @@ function calculateSum() {
   const baCangComm_chuyen = getRateVal('chuyen', 'rate3CComm', 75);
   const baCangPayout_chuyen = getRateVal('chuyen', 'rate3CPayout', 400);
   const baCangApMa_chuyen = getRateVal('chuyen', 'rate3CApMa', 5);
-  const baCangLoCost_chuyen = getRateVal('chuyen', 'rate3CLoCost', 75);
-  const baCangLoPayout_chuyen = getRateVal('chuyen', 'rate3CLoPayout', 20);
 
   const getLoCostFactor = (val) => {
     if (val < 100) return val;
@@ -1802,11 +1790,11 @@ function calculateSum() {
     
     // Check if it's a category transition line (like Đề, Lô, d, l, etc.)
     const normalized = normalizeBetLine(trimmed);
-    const catMatch = normalized.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x2|x3|x4|3cang|3c|3clo|3cl|d|l|c)$/i);
+    const catMatch = normalized.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x2|x3|x4|3cang|3c|d|l|c)$/i);
     if (catMatch) return true;
 
     const res = parseCombinedInput(lineText);
-    const totalCount = res.de.length + res.lo.length + res.xien2.length + res.xien3.length + res.xien4.length + res.bacang.length + res.bacang_lo.length;
+    const totalCount = res.de.length + res.lo.length + res.xien2.length + res.xien3.length + res.xien4.length + res.bacang.length;
     return totalCount > 0;
   }
 
@@ -1847,8 +1835,7 @@ function calculateSum() {
   let baCangDeBetSum = 0;
   let baCangDeWinSum = 0;
   let baCangDeApMaWinSum = 0;
-  let baCangLoBetSum = 0;
-  let baCangLoWinSum = 0;
+
 
   let totalUniquePairs = 0;
   let totalBetCount = 0;
@@ -1939,19 +1926,7 @@ function calculateSum() {
     }
   });
 
-  // 3 Càng Lô
-  parsedBets.bacang_lo.forEach(bet => {
-    const num = bet.numbers[0];
-    const costInThousands = bet.amount * (baCangLoCost / 100);
-    baCangBetSum += costInThousands;
-    baCangLoBetSum += bet.amount;
 
-    const occurrences = allPrizesLast3.filter(p => p === num).length;
-    if (occurrences > 0) {
-      baCangWinSum += occurrences * bet.amount * baCangLoPayout;
-      baCangLoWinSum += occurrences * bet.amount;
-    }
-  });
 
   // Render detail in original entry order
   if (inputListDiv) inputListDiv.innerHTML = "";
@@ -1969,7 +1944,7 @@ function calculateSum() {
 
     let occurrences = 0;
     const num = bet.numbers[0];
-    const typeLabel = bet.type === "de" ? "Đề" : (bet.type === "lo" ? "Lô" : (bet.type.startsWith("xien") ? `Xiên${bet.numbers.length}` : (bet.type === "bacang" ? "3C" : "3CLô")));
+    const typeLabel = bet.type === "de" ? "Đề" : (bet.type === "lo" ? "Lô" : (bet.type.startsWith("xien") ? `Xiên${bet.numbers.length}` : "3C"));
     
     if (bet.type === "de") {
       occurrences = num === specialPrizeLast2 ? 1 : 0;
@@ -1982,8 +1957,6 @@ function calculateSum() {
       const match3 = num === specialPrizeLast3;
       const match2 = num.slice(-2) === specialPrizeLast2;
       occurrences = match3 ? 1 : (match2 ? 0.5 : 0);
-    } else if (bet.type === "bacang_lo") {
-      occurrences = allPrizesLast3.filter(p => p === num).length;
     }
 
     const numStr = bet.type.startsWith("xien") ? bet.numbers.join('-') : num;
@@ -2025,7 +1998,7 @@ function calculateSum() {
       let isWin = false;
       let hitText = "";
       
-      const isLotoType = title.includes("Lô") || title.includes("3cLô");
+      const isLotoType = title.includes("Lô");
       if (isLotoType) {
         const targetList = key.length === 3 ? allPrizesLast3 : allPrizesLast2;
         const occurrences = targetList.filter(p => p === key).length;
@@ -2076,18 +2049,8 @@ function calculateSum() {
   const baCangTrung = baCangDeWinSum * baCangPayout + baCangDeApMaWinSum * baCangApMa;
   const baCangNet = baCangVon - baCangTrung;
 
-  // 3 Càng Lô sums map
-  const baCangLoSums = {};
-  parsedBets.bacang_lo.forEach(bet => {
-    const num = bet.numbers[0];
-    baCangLoSums[num] = (baCangLoSums[num] || 0) + bet.amount;
-  });
-  const baCangLoVon = baCangLoBetSum * (baCangLoCost / 100);
-  const baCangLoTrung = baCangLoWinSum * baCangLoPayout;
-  const baCangLoNet = baCangLoVon - baCangLoTrung;
-
-  const totalVon = deVon + loVon + xienVon + baCangVon + baCangLoVon;
-  const totalTrung = deTrung + loTrung + xienTrung + baCangTrung + baCangLoTrung;
+  const totalVon = deVon + loVon + xienVon + baCangVon;
+  const totalTrung = deTrung + loTrung + xienTrung + baCangTrung;
   const totalNet = totalVon - totalTrung;
 
   // 2. Calculations for Chuyển column
@@ -2095,7 +2058,6 @@ function calculateSum() {
   const retainLo = parseFloat(document.getElementById("retainLo")?.value) || 0;
   const retain3c = parseFloat(document.getElementById("retain3c")?.value) || 0;
   const retainX = parseFloat(document.getElementById("retainX")?.value) || 0;
-  const retain3cL = parseFloat(document.getElementById("retain3cL")?.value) || 0;
   const retainType = document.querySelector('input[name="retainType"]:checked')?.value || "money";
 
   const getCategoryRetainValue = (categoryKey) => {
@@ -2103,7 +2065,6 @@ function calculateSum() {
     if (categoryKey === 'lo') return retainLo;
     if (categoryKey === 'bacang') return retain3c;
     if (categoryKey === 'xien') return retainX;
-    if (categoryKey === 'bacang_lo') return retain3cL;
     return 0;
   };
 
@@ -2111,7 +2072,6 @@ function calculateSum() {
     if (categoryKey === 'de') return deSums;
     if (categoryKey === 'lo') return loSums;
     if (categoryKey === 'bacang') return baCangSums;
-    if (categoryKey === 'bacang_lo') return baCangLoSums;
     if (categoryKey === 'xien') {
       const map = {};
       xienBets.forEach((bet, idx) => {
@@ -2140,7 +2100,6 @@ function calculateSum() {
       if (categoryKey === 'lo') return balanceState.lastLoTransfers || {};
       if (categoryKey === 'bacang') return balanceState.lastBaCangTransfers || {};
       if (categoryKey === 'xien') return balanceState.lastXienTransfers || {};
-      if (categoryKey === 'bacang_lo') return balanceState.lastBaCangLoTransfers || {};
       return {};
     }
   };
@@ -2200,15 +2159,8 @@ function calculateSum() {
   const baCangVonChuyen = baCangLayoff.costSum * (baCangComm_chuyen / 100);
   const baCangTrungChuyen = baCangLayoff.winSum;
 
-  const baCangLoLayoff = getLayoffValues(baCangLoSums, (key, amt) => {
-    const occurrences = allPrizesLast3.filter(p => p === key).length;
-    return occurrences * amt * baCangLoPayout_chuyen;
-  }, 'bacang_lo');
-  const baCangLoVonChuyen = baCangLoLayoff.costSum * (baCangLoCost_chuyen / 100);
-  const baCangLoTrungChuyen = baCangLoLayoff.winSum;
-
-  const totalVonChuyen = deVonChuyen + loVonChuyen + xienVonChuyen + baCangVonChuyen + baCangLoVonChuyen;
-  const totalTrungChuyen = deTrungChuyen + loTrungChuyen + xienTrungChuyen + baCangTrungChuyen + baCangLoTrungChuyen;
+  const totalVonChuyen = deVonChuyen + loVonChuyen + xienVonChuyen + baCangVonChuyen;
+  const totalTrungChuyen = deTrungChuyen + loTrungChuyen + xienTrungChuyen + baCangTrungChuyen;
 
   const deTransferMap = getCategoryTransferMap('de');
   const deWinSumChuyen = deSums[specialPrizeLast2] ? deTransferMap[specialPrizeLast2] || 0 : 0;
@@ -2233,15 +2185,6 @@ function calculateSum() {
       baCangDeWinSumChuyen += modVal;
     } else if (match2) {
       baCangDeApMaWinSumChuyen += modVal;
-    }
-  });
-
-  let baCangLoWinSumChuyen = 0;
-  const baCangLoTransferMap = getCategoryTransferMap('bacang_lo');
-  Object.entries(baCangLoSums).forEach(([num, val]) => {
-    const occurrences = allPrizesLast3.filter(p => p === num).length;
-    if (occurrences > 0) {
-      baCangLoWinSumChuyen += occurrences * (baCangLoTransferMap[num] || 0);
     }
   });
 
@@ -2285,13 +2228,6 @@ function calculateSum() {
     const xienWinVal = isChuyen ? xienWinXacChuyen : xienWinXac;
     if (xienXacValToUse > 0) {
       list.push(`<div class="flex justify-between"><span>🟢 Xiên:</span><span class="font-bold text-gray-700 dark:text-gray-300">${Math.round(xienXacValToUse).toLocaleString('vi-VN')} / ${Math.round(xienWinVal).toLocaleString('vi-VN')}</span></div>`);
-    }
-
-    // 5. 3C Lô
-    const baCangLoXacVal = isChuyen ? baCangLoLayoff.costSum : baCangLoBetSum;
-    const baCangLoWinVal = isChuyen ? baCangLoWinSumChuyen : baCangLoWinSum;
-    if (baCangLoXacVal > 0) {
-      list.push(`<div class="flex justify-between"><span>🟤 3cLo:</span><span class="font-bold text-gray-700 dark:text-gray-300">${Math.round(baCangLoXacVal).toLocaleString('vi-VN')} / ${Math.round(baCangLoWinVal).toLocaleString('vi-VN')}</span></div>`);
     }
 
     return list.join('');
@@ -2375,9 +2311,7 @@ function calculateSum() {
     resultDiv.appendChild(content);
   }
 
-  if (Object.keys(baCangLoSums).length > 0 && resultDiv) {
-    renderGroupResult(`🟤 3cLô ${formatHeaderMoney(baCangLoVon, baCangLoTrung)}`, baCangLoSums, false, "bacanglo");
-  }
+
 
   // 4. Render Chuyển (Layoff) lists
   const renderGroupLayoff = (title, sumsMap, isLoto = false, categoryKey) => {
@@ -2393,7 +2327,7 @@ function calculateSum() {
         let isWin = false;
         let hitText = "";
         
-        const isLotoType = title.includes("Lô") || title.includes("3cLô");
+        const isLotoType = title.includes("Lô");
         if (isLotoType) {
           const targetList = key.length === 3 ? allPrizesLast3 : allPrizesLast2;
           const occurrences = targetList.filter(p => p === key).length;
@@ -2456,7 +2390,6 @@ function calculateSum() {
   
   renderGroupLayoff(`🔴 Đề ${formatHeaderMoney(deVonChuyen, deTrungChuyen)}`, deSums, false, 'de');
   renderGroupLayoff(`🔵 Lô(đ) ${formatHeaderMoney(loVonChuyen, loTrungChuyen)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loLayoff.costSum)}đ / ${loLayoffPointsWin}đ]</span>`, loSums, true, 'lo');
-  renderGroupLayoff(`🟤 3cLô ${formatHeaderMoney(baCangLoVonChuyen, baCangLoTrungChuyen)}`, baCangLoSums, false, 'bacang_lo');
 
   let xienLayoffHtml = "";
   // xienTransferMap is already defined above
@@ -2545,7 +2478,6 @@ function calculateSum() {
     const loXac = loBetSum;
     const xienXac = xienBetSum;
     const baCangXac = baCangDeBetSum;
-    const baCangLoXac = baCangLoBetSum;
 
     // Save calculation data in window.lastReportData
     const totalNetChuyen = totalVonChuyen - totalTrungChuyen;
@@ -2554,7 +2486,6 @@ function calculateSum() {
       loXac, loVon, loTrung: loTrung, loWinXac: loWinSum, loNet,
       xienXac, xienVon, xienTrung: xienTrung, xienWinXac: xienWinXac, xienNet,
       baCangXac, baCangVon, baCangTrung: baCangTrung, baCangWinXac: (baCangDeWinSum + baCangDeApMaWinSum), baCangNet,
-      baCangLoXac, baCangLoVon, baCangLoTrung: baCangLoTrung, baCangLoWinXac: baCangLoWinSum, baCangLoNet,
       totalVon, totalTrung, totalNet
     };
     const chuyenData = {
@@ -2562,7 +2493,6 @@ function calculateSum() {
       loXac: loLayoff.costSum, loVon: loVonChuyen, loTrung: loTrungChuyen, loNet: (loVonChuyen - loTrungChuyen),
       xienXac: xienXacChuyen, xienVon: xienVonChuyen, xienTrung: xienTrungChuyen, xienNet: (xienVonChuyen - xienTrungChuyen),
       baCangXac: baCangLayoff.costSum, baCangVon: baCangVonChuyen, baCangTrung: baCangTrungChuyen, baCangNet: (baCangVonChuyen - baCangTrungChuyen),
-      baCangLoXac: baCangLoLayoff.costSum, baCangLoVon: baCangLoVonChuyen, baCangLoTrung: baCangLoTrungChuyen, baCangLoNet: (baCangLoVonChuyen - baCangLoTrungChuyen),
       totalVon: totalVonChuyen, totalTrung: totalTrungChuyen, totalNet: totalNetChuyen
     };
     const giulaiData = {
@@ -2585,11 +2515,6 @@ function calculateSum() {
       baCangVon: thauData.baCangVon - chuyenData.baCangVon,
       baCangTrung: thauData.baCangTrung - chuyenData.baCangTrung,
       baCangNet: thauData.baCangNet - chuyenData.baCangNet,
-
-      baCangLoXac: Math.max(0, thauData.baCangLoXac - chuyenData.baCangLoXac),
-      baCangLoVon: thauData.baCangLoVon - chuyenData.baCangLoVon,
-      baCangLoTrung: thauData.baCangLoTrung - chuyenData.baCangLoTrung,
-      baCangLoNet: thauData.baCangLoNet - chuyenData.baCangLoNet,
 
       totalVon: thauData.totalVon - chuyenData.totalVon,
       totalTrung: thauData.totalTrung - chuyenData.totalTrung,
@@ -2679,7 +2604,6 @@ function calculateSum() {
       loXac, loTrung,
       xienXac, xienTrung,
       baCangXac, baCangTrung,
-      baCangLoXac, baCangLoTrung,
       totalVon, totalTrung, totalNet
     };
 
@@ -2712,12 +2636,12 @@ function calculateSum() {
     if (input1) input1.value = deBetSum || "0";
     if (input2) input2.value = loBetSum || "0";
     if (input3) input3.value = xienBetSum || "0";
-    if (input4) input4.value = Math.round(baCangDeBetSum + baCangLoBetSum * 23) || "0"; // using old logic fallback
+    if (input4) input4.value = Math.round(baCangDeBetSum) || "0"; // using old logic fallback
 
     if (bonus1) bonus1.value = deWinSum || "0";
     if (bonus2) bonus2.value = loWinSum || "0";
     if (bonus3) bonus3.value = Math.round(xienWinSum) || "0";
-    if (bonus4) bonus4.value = Math.round(baCangDeWinSum * 400 + baCangDeApMaWinSum * 5 + baCangLoWinSum * 960) || "0";
+    if (bonus4) bonus4.value = Math.round(baCangDeWinSum * 400 + baCangDeApMaWinSum * 5) || "0";
 
     for (let i = 1; i <= 4; i++) {
       calculateResult(i);
@@ -2738,7 +2662,7 @@ function calculateSum() {
     }
   }
 
-  const getBreakdownHtml = (de, lo, xien, bacang, bacang_lo, wins = null) => {
+  const getBreakdownHtml = (de, lo, xien, bacang, wins = null) => {
     const formatWin = (winStr) => wins ? ` / <span class="text-emerald-600 dark:text-emerald-400">${winStr}</span>` : "";
     return `
       <div class="grid grid-cols-[45px_1fr] gap-x-2 text-[11px] text-gray-500 dark:text-gray-400 font-mono leading-relaxed">
@@ -2750,8 +2674,6 @@ function calculateSum() {
         <span class="font-bold text-gray-700 dark:text-gray-300 text-left whitespace-nowrap">${xien} con${formatWin(wins?.xien)}</span>
         <span class="text-left">3c:</span>
         <span class="font-bold text-gray-700 dark:text-gray-300 text-left whitespace-nowrap">${bacang} con${formatWin(wins?.bacang)}</span>
-        <span class="text-left">3cLô:</span>
-        <span class="font-bold text-gray-700 dark:text-gray-300 text-left whitespace-nowrap">${bacang_lo} con${formatWin(wins?.bacang_lo)}</span>
       </div>
     `;
   };
@@ -2768,7 +2690,6 @@ function calculateSum() {
   const resLoCount = Object.keys(loSums).length;
   const resXienCount = xienBets.length;
   const res3CCount = Object.keys(baCangSums).length;
-  const res3CLCount = Object.keys(baCangLoSums).length;
 
   const layoffDeCount = getLayoffCount(deSums, 'de');
   const layoffLoCount = getLayoffCount(loSums, 'lo');
@@ -2777,18 +2698,16 @@ function calculateSum() {
     return modifiedSum >= 0.1;
   }).length;
   const layoff3CCount = getLayoffCount(baCangSums, 'bacang');
-  const layoff3CLCount = getLayoffCount(baCangLoSums, 'bacang_lo');
 
   const inpDeCount = parsedBets.de.length;
   const inpLoCount = parsedBets.lo.length;
   const inpXienCount = parsedBets.xien2.length + parsedBets.xien3.length + parsedBets.xien4.length;
   const inp3CCount = parsedBets.bacang.length;
-  const inp3CLCount = parsedBets.bacang_lo.length;
 
   const numResultsDiv = document.getElementById("numResults");
   if (numResultsDiv) {
     if (numResultsDiv.tagName.toLowerCase() === "div") {
-      numResultsDiv.innerHTML = getBreakdownHtml(resDeCount, resLoCount, resXienCount, res3CCount, res3CLCount);
+      numResultsDiv.innerHTML = getBreakdownHtml(resDeCount, resLoCount, resXienCount, res3CCount);
     } else {
       numResultsDiv.textContent = `${totalUniquePairs} con`;
     }
@@ -2797,9 +2716,9 @@ function calculateSum() {
   const modifiedNumResultsDiv = document.getElementById("modifiedNumResults");
   if (modifiedNumResultsDiv) {
     if (modifiedNumResultsDiv.tagName.toLowerCase() === "div") {
-      modifiedNumResultsDiv.innerHTML = getBreakdownHtml(layoffDeCount, layoffLoCount, layoffXienCount, layoff3CCount, layoff3CLCount);
+      modifiedNumResultsDiv.innerHTML = getBreakdownHtml(layoffDeCount, layoffLoCount, layoffXienCount, layoff3CCount);
     } else {
-      let layoffTotal = layoffDeCount + layoffLoCount + layoffXienCount + layoff3CCount + layoff3CLCount;
+      let layoffTotal = layoffDeCount + layoffLoCount + layoffXienCount + layoff3CCount;
       modifiedNumResultsDiv.textContent = `${layoffTotal} con`;
     }
   }
@@ -2815,11 +2734,10 @@ function calculateSum() {
           de: Math.round(deTrung).toLocaleString('vi-VN'),
           lo: Math.round(loWinSum).toLocaleString('vi-VN') + "đ",
           xien: Math.round(xienTrung).toLocaleString('vi-VN'),
-          bacang: Math.round(baCangTrung).toLocaleString('vi-VN'),
-          bacang_lo: Math.round(baCangLoTrung).toLocaleString('vi-VN')
+          bacang: Math.round(baCangTrung).toLocaleString('vi-VN')
         };
       }
-      inputListCountSpan.innerHTML = getBreakdownHtml(inpDeCount, inpLoCount, inpXienCount, inp3CCount, inp3CLCount, winsStr);
+      inputListCountSpan.innerHTML = getBreakdownHtml(inpDeCount, inpLoCount, inpXienCount, inp3CCount, winsStr);
     } else {
       inputListCountSpan.textContent = `${totalBetCount} con`;
     }
@@ -2931,13 +2849,7 @@ function renderReportTable() {
     }
     setNetCell("tbl3CNet", data.chuyen.baCangNet);
 
-    setCell("tbl3CLXac", data.chuyen.baCangLoXac, false);
-    setCell("tbl3CLVon", data.chuyen.baCangLoVon);
-    const tbl3CLTrungEl = document.getElementById("tbl3CLTrung");
-    if (tbl3CLTrungEl) {
-      tbl3CLTrungEl.textContent = data.chuyen.baCangLoTrung > 0 ? Math.round(data.chuyen.baCangLoTrung).toLocaleString('vi-VN') : "0";
-    }
-    setNetCell("tbl3CLNet", data.chuyen.baCangLoNet);
+
 
     setCell("tblTotalVon", data.chuyen.totalVon);
     setCell("tblTotalTrung", data.chuyen.totalTrung);
@@ -2982,13 +2894,7 @@ function renderReportTable() {
     }
     setNetCell("tbl3CNet", data.giulai.baCangNet);
 
-    setCell("tbl3CLXac", data.giulai.baCangLoXac, false);
-    setCell("tbl3CLVon", data.giulai.baCangLoVon);
-    const tbl3CLTrungEl = document.getElementById("tbl3CLTrung");
-    if (tbl3CLTrungEl) {
-      tbl3CLTrungEl.textContent = data.giulai.baCangLoTrung > 0 ? Math.round(data.giulai.baCangLoTrung).toLocaleString('vi-VN') : "0";
-    }
-    setNetCell("tbl3CLNet", data.giulai.baCangLoNet);
+
 
     setCell("tblTotalVon", data.giulai.totalVon);
     setCell("tblTotalTrung", data.giulai.totalTrung);
@@ -3033,13 +2939,7 @@ function renderReportTable() {
     }
     setNetCell("tbl3CNet", data.thau.baCangNet);
 
-    setCell("tbl3CLXac", data.thau.baCangLoXac, false);
-    setCell("tbl3CLVon", data.thau.baCangLoVon);
-    const tbl3CLTrungEl = document.getElementById("tbl3CLTrung");
-    if (tbl3CLTrungEl) {
-      tbl3CLTrungEl.textContent = data.thau.baCangLoWinXac > 0 ? `(${Math.round(data.thau.baCangLoWinXac).toLocaleString('vi-VN')})${Math.round(data.thau.baCangLoTrung).toLocaleString('vi-VN')}` : "0";
-    }
-    setNetCell("tbl3CLNet", data.thau.baCangLoNet);
+
 
     setCell("tblTotalVon", data.thau.totalVon);
     setCell("tblTotalTrung", data.thau.totalTrung);
@@ -3152,7 +3052,7 @@ function normalizeTwentySevenNumbers() {
 
 function copyText() {
   let textToCopy = document.getElementById("modifiedResult").innerText;
-  textToCopy = textToCopy.replace(/^(?:🔴|🔵|🟤|🟢|🟣)\s*(Đề|Lô\(đ\)|3cLô|Xiên|3C|Bc)\s*\(.*?$/gm, "$1");
+  textToCopy = textToCopy.replace(/^(?:🔴|🔵|🟤|🟢|🟣)\s*(Đề|Lô\(đ\)|Xiên|3C|Bc)\s*\(.*?$/gm, "$1");
   textToCopy = textToCopy.replace(/^Lô\(đ\)$/gm, "Lô");
   textToCopy = textToCopy.replace(/^3C$/gm, "Bc");
   copyToClipboard(textToCopy, "Đã sao chép kết quả thành công!");
@@ -3235,9 +3135,7 @@ const DEFAULT_RATES = {
   rateXien4Payout: 140,
   rate3CComm: 75,
   rate3CPayout: 400,
-  rate3CApMa: 5,
-  rate3CLoCost: 75,
-  rate3CLoPayout: 20
+  rate3CApMa: 5
 };
 
 window.activeConfigTab = 'thau';
@@ -3300,8 +3198,7 @@ function loadRates() {
         if (parsed.rateXien2Payout === 15) parsed.rateXien2Payout = 11;
         if (parsed.rateXien3Payout === 50) parsed.rateXien3Payout = 45;
         if (parsed.rateXien4Payout === 120) parsed.rateXien4Payout = 140;
-        if (parsed.rate3CLoCost > 100) parsed.rate3CLoCost = 75;
-        if (parsed.rate3CLoPayout > 100) parsed.rate3CLoPayout = 20;
+
 
         window.priceConfigData = {
           thau: Object.assign({}, DEFAULT_RATES, parsed),
@@ -3575,6 +3472,13 @@ function setupEventListeners() {
 
     autoFetchToggle.addEventListener('change', (e) => {
       updateManualFieldsVisibility();
+      if (e.target.checked) {
+        const resultDateInput = document.getElementById('resultDateInput');
+        if (resultDateInput) {
+          const localDate = new Date(Date.now() - (new Date().getTimezoneOffset()*60*1000)).toISOString().split('T')[0];
+          resultDateInput.value = localDate;
+        }
+      }
       saveAppState();
       if (e.target.checked) {
         triggerAutoFetch();
@@ -3608,7 +3512,7 @@ function setupEventListeners() {
   if (btnSourceMKetqua) btnSourceMKetqua.addEventListener('click', () => updateSourceButtons("mketqua.net"));
 
   // Retain inputs & type listeners
-  const retainInputs = ['retainDe', 'retainLo', 'retain3c', 'retainX', 'retain3cL'];
+  const retainInputs = ['retainDe', 'retainLo', 'retain3c', 'retainX'];
   retainInputs.forEach(id => {
     const input = document.getElementById(id);
     if (input) {
@@ -3800,7 +3704,6 @@ function setupEventListeners() {
         const loStr = `Lô: ${data.chuyen.loXac} / ${data.chuyen.loTrung}`;
         const xienStr = `Xiên: ${formatMoneyK(data.chuyen.xienXac)} / ${formatMoneyK(data.chuyen.xienTrung)}`;
         const baCangStr = `3c: ${formatMoneyK(data.chuyen.baCangXac)} / ${formatMoneyK(data.chuyen.baCangTrung)}`;
-        const baCangLoStr = `3c Lô: ${formatMoneyK(data.chuyen.baCangLoXac)} / ${formatMoneyK(data.chuyen.baCangLoTrung)}`;
         
         const netLabelText = data.chuyen.totalNet < 0 ? "LẤY VỀ" : "NỘP";
         const netValK = formatMoneyK(Math.abs(data.chuyen.totalNet));
@@ -3810,7 +3713,6 @@ function setupEventListeners() {
           `${loStr}\n` +
           `${xienStr}\n` +
           `${baCangStr}\n` +
-          `${baCangLoStr}\n` +
           `${netLabelText}: ${netValK}`;
       } else if (window.activeReportTab === 'giulai') {
         const headerText = `BÁO CÁO GIỮ LẠI - ${dayMonthText}`;
@@ -3818,7 +3720,6 @@ function setupEventListeners() {
         const loStr = `Lô: ${data.giulai.loXac} / ${data.giulai.loTrung}`;
         const xienStr = `Xiên: ${formatMoneyK(data.giulai.xienXac)} / ${formatMoneyK(data.giulai.xienTrung)}`;
         const baCangStr = `3c: ${formatMoneyK(data.giulai.baCangXac)} / ${formatMoneyK(data.giulai.baCangTrung)}`;
-        const baCangLoStr = `3c Lô: ${formatMoneyK(data.giulai.baCangLoXac)} / ${formatMoneyK(data.giulai.baCangLoTrung)}`;
         
         const netLabelText = data.giulai.totalNet < 0 ? "LỖ" : "LỜI";
         const netValK = formatMoneyK(Math.abs(data.giulai.totalNet));
@@ -3828,7 +3729,6 @@ function setupEventListeners() {
           `${loStr}\n` +
           `${xienStr}\n` +
           `${baCangStr}\n` +
-          `${baCangLoStr}\n` +
           `${netLabelText}: ${netValK}`;
       } else {
         const headerText = `BÁO CÁO THẦU - ${dayMonthText}`;
@@ -3836,7 +3736,6 @@ function setupEventListeners() {
         const loStr = `Lô: ${data.thau.loXac} / ${data.thau.loTrung}`;
         const xienStr = `Xiên: ${formatMoneyK(data.thau.xienXac)} / ${formatMoneyK(data.thau.xienTrung)}`;
         const baCangStr = `3c: ${formatMoneyK(data.thau.baCangXac)} / ${formatMoneyK(data.thau.baCangTrung)}`;
-        const baCangLoStr = `3c Lô: ${formatMoneyK(data.thau.baCangLoXac)} / ${formatMoneyK(data.thau.baCangLoTrung)}`;
         
         const netLabelText = data.thau.totalNet < 0 ? "LẤY VỀ" : "NỘP";
         const netValK = formatMoneyK(Math.abs(data.thau.totalNet));
@@ -3846,7 +3745,6 @@ function setupEventListeners() {
           `${loStr}\n` +
           `${xienStr}\n` +
           `${baCangStr}\n` +
-          `${baCangLoStr}\n` +
           `${netLabelText}: ${netValK}`;
       }
 
@@ -3887,12 +3785,6 @@ function runBalancingStep(isPercent) {
     baCangSums[num] = (baCangSums[num] || 0) + bet.amount;
   });
 
-  const baCangLoSums = {};
-  parsedBets.bacang_lo.forEach(bet => {
-    const num = bet.numbers[0];
-    baCangLoSums[num] = (baCangLoSums[num] || 0) + bet.amount;
-  });
-
   const xienBets = [...parsedBets.xien2, ...parsedBets.xien3, ...parsedBets.xien4];
 
   // Read retain limits
@@ -3900,13 +3792,11 @@ function runBalancingStep(isPercent) {
   const retainLo = parseFloat(document.getElementById("retainLo")?.value) || 0;
   const retain3c = parseFloat(document.getElementById("retain3c")?.value) || 0;
   const retainX = parseFloat(document.getElementById("retainX")?.value) || 0;
-  const retain3cL = parseFloat(document.getElementById("retain3cL")?.value) || 0;
 
   // Temporary step transfer maps to check if we have new layoff values
   const stepDeTransfers = {};
   const stepLoTransfers = {};
   const stepBaCangTransfers = {};
-  const stepBaCangLoTransfers = {};
   const stepXienTransfers = {};
 
   const processCategory = (totals, transfersMap, stepTransfersMap, limit, isPct) => {
@@ -3923,7 +3813,7 @@ function runBalancingStep(isPercent) {
   processCategory(deSums, balanceState.deTransfers, stepDeTransfers, retainDe, isPercent);
   processCategory(loSums, balanceState.loTransfers, stepLoTransfers, retainLo, isPercent);
   processCategory(baCangSums, balanceState.baCangTransfers, stepBaCangTransfers, retain3c, isPercent);
-  processCategory(baCangLoSums, balanceState.baCangLoTransfers, stepBaCangLoTransfers, retain3cL, isPercent);
+
 
   // For Xiên:
   xienBets.forEach((bet, idx) => {
@@ -3940,7 +3830,6 @@ function runBalancingStep(isPercent) {
     Object.keys(stepDeTransfers).length > 0 ||
     Object.keys(stepLoTransfers).length > 0 ||
     Object.keys(stepBaCangTransfers).length > 0 ||
-    Object.keys(stepBaCangLoTransfers).length > 0 ||
     Object.keys(stepXienTransfers).length > 0;
 
   if (!hasNewTransfers) {
@@ -3959,7 +3848,6 @@ function runBalancingStep(isPercent) {
   if (!balanceState.lastLoTransfers) balanceState.lastLoTransfers = {};
   if (!balanceState.lastBaCangTransfers) balanceState.lastBaCangTransfers = {};
   if (!balanceState.lastXienTransfers) balanceState.lastXienTransfers = {};
-  if (!balanceState.lastBaCangLoTransfers) balanceState.lastBaCangLoTransfers = {};
 
   // Copy step transfers to balanceState and update cumulative maps
   const applyTransfers = (stepMap, lastMap, cumulativeMap) => {
@@ -3973,8 +3861,6 @@ function runBalancingStep(isPercent) {
   applyTransfers(stepDeTransfers, balanceState.lastDeTransfers, balanceState.deTransfers);
   applyTransfers(stepLoTransfers, balanceState.lastLoTransfers, balanceState.loTransfers);
   applyTransfers(stepBaCangTransfers, balanceState.lastBaCangTransfers, balanceState.baCangTransfers);
-  applyTransfers(stepBaCangLoTransfers, balanceState.lastBaCangLoTransfers, balanceState.baCangLoTransfers);
-  
   for (let key in balanceState.lastXienTransfers) delete balanceState.lastXienTransfers[key];
   Object.entries(stepXienTransfers).forEach(([idx, val]) => {
     balanceState.lastXienTransfers[idx] = val;
@@ -4004,17 +3890,14 @@ function resetBalancing() {
   balanceState.loTransfers = {};
   balanceState.baCangTransfers = {};
   balanceState.xienTransfers = {};
-  balanceState.baCangLoTransfers = {};
   balanceState.lastDeTransfers = {};
   balanceState.lastLoTransfers = {};
   balanceState.lastBaCangTransfers = {};
   balanceState.lastXienTransfers = {};
-  balanceState.lastBaCangLoTransfers = {};
 
   balanceState.deSums = {};
   balanceState.loSums = {};
   balanceState.baCangSums = {};
-  balanceState.baCangLoSums = {};
   balanceState.xienBets = [];
 
   const counterLabel = document.getElementById('balanceCounterLabel');
@@ -4295,8 +4178,8 @@ function resetTable() {
 
           <!-- 3 Càng settings -->
           <div class="bg-gray-50 dark:bg-dark-900 p-3 rounded-lg border border-gray-200 dark:border-gray-800">
-            <h3 class="text-xs font-bold text-primary dark:text-indigo-400 mb-2 uppercase tracking-wider">🟣 Ba Càng Đề & Lô</h3>
-            <div class="grid grid-cols-2 gap-3 mb-2">
+            <h3 class="text-xs font-bold text-primary dark:text-indigo-400 mb-2 uppercase tracking-wider">🟣 Ba Càng</h3>
+            <div class="grid grid-cols-3 gap-2">
               <div>
                 <label class="block text-[11px] text-gray-500 mb-1">3C Đề Giá gốc (%)</label>
                 <input type="text" id="rate3CComm" value="75" class="w-full border border-gray-300 dark:border-gray-600 rounded p-1.5 text-xs text-center bg-white dark:bg-dark-700 font-bold">
@@ -4305,19 +4188,9 @@ function resetTable() {
                 <label class="block text-[11px] text-gray-500 mb-1">3C Đề (1 ăn...)</label>
                 <input type="text" id="rate3CPayout" value="400" class="w-full border border-gray-300 dark:border-gray-600 rounded p-1.5 text-xs text-center bg-white dark:bg-dark-700 font-bold">
               </div>
-            </div>
-            <div class="grid grid-cols-3 gap-2">
               <div>
-                <label class="block text-[9px] text-gray-500 mb-0.5 text-center">Áp Má (1 ăn...)</label>
+                <label class="block text-[11px] text-gray-500 mb-1">Áp Má (1 ăn...)</label>
                 <input type="text" id="rate3CApMa" value="5" class="w-full border border-gray-300 dark:border-gray-600 rounded p-1.5 text-xs text-center bg-white dark:bg-dark-700 font-bold">
-              </div>
-              <div>
-                <label class="block text-[9px] text-gray-500 mb-0.5 text-center">3C Lô Giá gốc (%)</label>
-                <input type="text" id="rate3CLoCost" value="75" class="w-full border border-gray-300 dark:border-gray-600 rounded p-1.5 text-xs text-center bg-white dark:bg-dark-700 font-bold">
-              </div>
-              <div>
-                <label class="block text-[9px] text-gray-500 mb-0.5 text-center">3C Lô (1 ăn...)</label>
-                <input type="text" id="rate3CLoPayout" value="20" class="w-full border border-gray-300 dark:border-gray-600 rounded p-1.5 text-xs text-center bg-white dark:bg-dark-700 font-bold">
               </div>
             </div>
           </div>
