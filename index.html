@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Z8</title>
+  <title>☆ Z8™ ☆</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -41,9 +41,32 @@
         color: #ef4444 !important;
       }
       #combinedBetInput:empty:before {
-        content: "Ví dụ nhập:\AĐề 12.34.56x50\ALô 01-02-03x10\AXiên 12-34-56x100\A3C 123.456x20\A3CL 789.912x5";
+        content: "Hỗ trợ: Đề (de, d), Lô (lo, l), Xiên (x, x2, x3, x4, xien), Xiên Quay (xienquay, xq, xienq, quay, q, xquay), 3 Càng (3c, 3cang). Phân cách bằng dấu cách, phẩy, chấm, gạch ngang; dùng 'x', '+' hoặc '*' trước tiền/điểm cược.\A\AVí dụ nhập:\AĐề 12.34.56x50\ALô 01-02-03x10\AXiên 12-34-56x100\A3C 123.456x20";
         color: #9ca3af;
         white-space: pre-wrap;
+      }
+      #excludeInput:empty:before {
+        content: "Ví dụ nhập loại trừ:\AĐề 56, dau2\ALô 54,12\A3c 564.231";
+        color: #f43f5e;
+        opacity: 0.6;
+        white-space: pre-wrap;
+      }
+      .smile-underline {
+        position: relative;
+        display: inline-block;
+      }
+      .smile-underline::after {
+        content: "";
+        position: absolute;
+        left: 2px;
+        right: 2px;
+        bottom: -2px;
+        height: 6px;
+        border-bottom: 2px solid #22c55e;
+        border-radius: 50%;
+      }
+      .dark .smile-underline::after {
+        border-bottom-color: #4ade80;
       }
     }
   </style>
@@ -60,11 +83,11 @@
       <button id="logoButton" class="group flex items-center justify-center focus:outline-none cursor-pointer">
         <div class="relative w-12 h-12 flex items-center justify-center rounded-full shadow-md overflow-hidden p-0.5">
           <!-- Rotating outer ring -->
-          <div class="absolute inset-0 bg-gradient-to-tr from-emerald-400 via-primary to-secondary rounded-full animate-spin [animation-duration:6s] opacity-90 group-hover:opacity-100 transition-opacity"></div>
+          <div class="absolute inset-0 bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 rounded-full animate-spin [animation-duration:6s] opacity-90 group-hover:opacity-100 transition-opacity"></div>
           <!-- Inner circle to make it look like a ring -->
           <div class="absolute inset-[3px] bg-gray-50 dark:bg-dark-900 rounded-full transition-colors"></div>
           <!-- Stationary Z8 Text Inside Ring -->
-          <span class="relative text-base font-black text-primary dark:text-secondary transform group-hover:scale-110 transition-transform">Z8</span>
+          <span class="relative text-base font-black text-red-600 dark:text-red-500 smile-underline transform group-hover:scale-110 transition-transform">Z8™</span>
         </div>
       </button>
     </div>
@@ -72,13 +95,31 @@
     <div class="flex flex-col lg:flex-row gap-6">
       <div class="flex-1 space-y-4">
         <div class="bg-white dark:bg-dark-800 rounded-lg shadow-md p-4 transition-all hover:shadow-lg">
-          <label class="block text-sm font-medium mb-1">Nhập số liệu (Hỗn hợp):</label>
+          <div class="flex items-center justify-between mb-2 border-b border-gray-200 dark:border-gray-700 pb-1 select-none">
+            <div class="flex gap-2">
+              <button type="button" id="tabInputMain" class="text-sm font-bold border-b-2 border-primary dark:border-secondary px-2 py-1 text-primary dark:text-secondary focus:outline-none">
+                Nhập số liệu (Hỗn hợp)
+              </button>
+              <button type="button" id="tabInputExclude" class="text-sm font-bold border-b-2 border-transparent px-2 py-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none">
+                Loại trừ
+              </button>
+            </div>
+          </div>
           <div 
             id="combinedBetInput" 
             contenteditable="true"
             class="w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 focus:ring-2 focus:ring-primary dark:focus:ring-secondary focus:border-transparent bg-white dark:bg-dark-700 font-mono text-sm leading-relaxed overflow-y-auto whitespace-pre-wrap break-all" 
             style="height: 330px; outline: none;"
-            placeholder="Ví dụ nhập:&#10;Đề 12.34.56x50&#10;Lô 01-02-03x10&#10;Xiên 12-34-56x100&#10;3C 123.456x20&#10;3CL 789.912x5"
+            placeholder="Ví dụ nhập:&#10;Đề 12.34.56x50&#10;Lô 01-02-03x10&#10;Xiên 12-34-56x100&#10;3C 123.456x20"
+            role="textbox"
+            aria-multiline="true"
+          ></div>
+          <div 
+            id="excludeInput" 
+            contenteditable="true"
+            class="hidden w-full border border-rose-300 dark:border-rose-800 rounded-md p-2 focus:ring-2 focus:ring-rose-500 bg-rose-50 dark:bg-rose-950/20 font-mono text-sm leading-relaxed overflow-y-auto whitespace-pre-wrap break-all" 
+            style="height: 330px; outline: none;"
+            placeholder="Ví dụ nhập loại trừ:&#10;Đề 56, dau2&#10;Lô 54,12&#10;3c 564.231"
             role="textbox"
             aria-multiline="true"
           ></div>
@@ -86,9 +127,6 @@
             <button id="btnClearBetInput" class="text-[11px] bg-rose-600/10 hover:bg-rose-600 text-rose-500 hover:text-white border border-rose-500/20 px-1.5 py-0.5 rounded transition-all flex items-center gap-1 active:scale-95 shrink-0" title="Xóa toàn bộ khung nhập cược">
               💡 <span>Xóa cược</span>
             </button>
-            <p class="text-[11px] text-gray-500 leading-tight">
-              Hỗ trợ: Đề (de, d), Lô (lo, l), Xiên (x, x2, x3, x4, xien), Xiên Quay (xienquay, xq, xienq, quay, q, xquay), 3 Càng (3c, 3cang), 3 Càng Lô (3cl, 3clo). Phân cách bằng dấu cách, phẩy, chấm, gạch ngang; dùng 'x', '+' hoặc '*' trước tiền/điểm cược.
-            </p>
           </div>
         </div>
 
@@ -746,6 +784,194 @@ function parseNumbersFromBetString(numbersString, betType) {
   return numbers;
 }
 
+function parseExclusions(excludeString) {
+  const lines = excludeString.split('\n');
+  const excluded = {
+    de: new Set(),
+    lo: new Set(),
+    bacang: new Set(),
+    xien: new Set()
+  };
+
+  const typeRegex = {
+    de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
+    lo: /^(lo|lô|l)$/i,
+    xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
+    xien: /^(xien|xiên|x|x2|x3|x4)$/i,
+    bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
+  };
+
+  let activeCategory = '';
+
+  lines.forEach(line => {
+    let originalLine = line.trim();
+    if (!originalLine) return;
+
+    let trimmed = normalizeBetLine(originalLine);
+
+    let lineType = '';
+    const spaceMatch = trimmed.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|d|l|c|bc|cang|3\s*cang)(?:\s+(.*))?$/i);
+    if (spaceMatch) {
+      const rawType = spaceMatch[1].toLowerCase();
+      if (typeRegex.de.test(rawType)) lineType = 'de';
+      else if (typeRegex.lo.test(rawType)) lineType = 'lo';
+      else if (typeRegex.xienquay.test(rawType)) lineType = 'xienquay';
+      else if (typeRegex.xien.test(rawType)) lineType = 'xien';
+      else if (typeRegex.bacang.test(rawType)) lineType = 'bacang';
+
+      if (lineType) {
+        activeCategory = lineType;
+        trimmed = spaceMatch[2] ? spaceMatch[2].trim() : '';
+      }
+    }
+
+    if (!lineType) lineType = activeCategory;
+    if (!lineType) return;
+
+    const resolved = resolveShorthands(trimmed);
+    const segments = resolved.split(/[.,\-\s]+/).filter(s => s.length > 0);
+    segments.forEach(seg => {
+      if (!/^\d+$/.test(seg)) return;
+      const targetType = (lineType === 'xienquay' || lineType === 'xien') ? 'xien' : lineType;
+      const nums = parseNumbersFromBetString(seg, targetType);
+      nums.forEach(num => {
+        if (targetType === 'xien') {
+          excluded.xien.add(num);
+        } else {
+          excluded[targetType].add(num);
+        }
+      });
+    });
+  });
+
+  return excluded;
+}
+
+function getExclusions() {
+  const excludeInput = document.getElementById('excludeInput');
+  if (!excludeInput) return null;
+  const excludeString = excludeInput.innerText || '';
+  return parseExclusions(excludeString);
+}
+
+function isExcluded(categoryKey, key, betNumbers = null) {
+  const excl = getExclusions();
+  if (!excl) return false;
+
+  if (categoryKey === 'de') {
+    return excl.de.has(key);
+  }
+  if (categoryKey === 'lo') {
+    return excl.lo.has(key);
+  }
+  if (categoryKey === 'bacang') {
+    return excl.bacang.has(key);
+  }
+  if (categoryKey === 'xien') {
+    if (betNumbers) {
+      return betNumbers.some(num => excl.xien.has(num) || excl.lo.has(num));
+    }
+  }
+  return false;
+}
+
+function formatExcludeLineWithHighlights(line, currentCat) {
+  const tokens = line.match(/\s+|[^\s]+/g) || [];
+  let activeCat = currentCat;
+  let html = "";
+
+  const typeRegex = {
+    de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
+    lo: /^(lo|lô|l)$/i,
+    xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
+    xien: /^(xien|xiên|x|x2|x3|x4)$/i,
+    bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
+  };
+
+  const shortcutsInput = document.getElementById("shortcuts")?.value || "";
+  const shortcutsArray = shortcutsInput.split("\n");
+  const customShortcuts = {};
+  for (let i = 0; i < shortcutsArray.length; i++) {
+    const shortcutParts = shortcutsArray[i].split("=");
+    const shortcutName = shortcutParts[0]?.trim().toLowerCase();
+    const shortcutValue = shortcutParts[1]?.trim();
+    if (shortcutName && shortcutValue) {
+      const keys = shortcutName.split(",");
+      keys.forEach(k => {
+        const cleanedKey = k.trim();
+        if (cleanedKey) {
+          customShortcuts[cleanedKey] = shortcutValue;
+        }
+      });
+    }
+  }
+
+  tokens.forEach(token => {
+    const trimmed = token.trim();
+    if (!trimmed) {
+      html += escapeHtml(token);
+      return;
+    }
+
+    // Check if it's a category
+    const norm = normalizeBetLine(trimmed);
+    const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|d|l|c|bc|cang|3\s*cang)$/i);
+    if (spaceMatch) {
+      const rawType = spaceMatch[1].toLowerCase();
+      let newCat = '';
+      if (typeRegex.de.test(rawType)) newCat = 'de';
+      else if (typeRegex.lo.test(rawType)) newCat = 'lo';
+      else if (typeRegex.xienquay.test(rawType)) newCat = 'xienquay';
+      else if (typeRegex.xien.test(rawType)) newCat = 'xien';
+      else if (typeRegex.bacang.test(rawType)) newCat = 'bacang';
+
+      if (newCat) {
+        activeCat = newCat;
+        html += escapeHtml(token);
+        return;
+      }
+    }
+
+    // Split by non-alphanumeric separators to check each sub-token
+    const subTokens = trimmed.split(/[.,\-\s]+/);
+    let allValid = true;
+
+    for (let i = 0; i < subTokens.length; i++) {
+      const sub = subTokens[i].trim();
+      if (!sub) continue;
+
+      const normSub = normalizeShorthandToken(sub);
+
+      if (customShortcuts[sub.toLowerCase()]) continue;
+      if (customShortcuts[normSub]) continue;
+      if (shorthands[normSub]) continue;
+
+      if (!activeCat) {
+        allValid = false;
+        break;
+      }
+      const cat = activeCat;
+      const resolved = resolveShorthands(sub);
+      const parsedNums = parseNumbersFromBetString(resolved, cat);
+      if (parsedNums.length === 0) {
+        allValid = false;
+        break;
+      }
+    }
+
+    if (allValid) {
+      html += escapeHtml(token);
+    } else {
+      html += `<span class="text-green-600 dark:text-green-400 font-bold bg-green-50 dark:bg-green-950/20 px-1 rounded border border-green-300 dark:border-green-900/50">${escapeHtml(token)}</span>`;
+    }
+  });
+
+  return {
+    html: html,
+    newCategory: activeCat
+  };
+}
+
 function verifyNonGroupText(text, currentCat) {
   const tokens = text.match(/\s+|[^\s]+/g) || [];
   let activeCat = currentCat;
@@ -1014,7 +1240,6 @@ function normalizeBetLine(line) {
   normalized = normalized.replace(/\b(?:t)\s*(\d)(?![0-9])/g, 't$1');
   normalized = normalized.replace(/\b(?:bo|he)\s*(\d{1,2})(?![0-9])/g, 'bo$1');
   normalized = normalized.replace(/\b(?:moi\s*con\s*bang|moi\s*con)\b/g, 'mc');
-  normalized = normalized.replace(/\b(?:3c\s*lo|3c\s*l|3\s*cang\s*lo|3\s*cang\s*l)\b/g, '3cl');
   normalized = normalized.replace(/\b(?:3\s*cang|3\s*c)\b/g, '3c');
   normalized = normalized.replace(/\b(?:xien\s*quay|x\s*quay)\b/g, 'xq');
   normalized = normalized.replace(/\b(?:lo\s*xien|l\s*xien)\b/g, 'xien');
@@ -1579,6 +1804,7 @@ function loadShortcuts() {
 
 function saveAppState() {
   const combinedBetInput = document.getElementById('combinedBetInput');
+  const excludeInput = document.getElementById('excludeInput');
   const allPrizesInput = document.getElementById('allPrizesInput');
   const specialPrizeInput = document.getElementById('specialPrizeInput');
   const autoFetchToggle = document.getElementById('autoFetchToggle');
@@ -1586,6 +1812,9 @@ function saveAppState() {
 
   if (combinedBetInput) {
     localStorage.setItem('z8_combined_bet', combinedBetInput.innerText || '');
+  }
+  if (excludeInput) {
+    localStorage.setItem('z8_exclude_input', excludeInput.innerText || '');
   }
   if (autoFetchToggle) {
     localStorage.setItem('z8_auto_fetch', autoFetchToggle.checked ? '1' : '0');
@@ -1597,12 +1826,14 @@ function saveAppState() {
 
 function loadAppState() {
   const combinedBetInput = document.getElementById('combinedBetInput');
+  const excludeInput = document.getElementById('excludeInput');
   const allPrizesInput = document.getElementById('allPrizesInput');
   const specialPrizeInput = document.getElementById('specialPrizeInput');
   const autoFetchToggle = document.getElementById('autoFetchToggle');
   const resultDateInput = document.getElementById('resultDateInput');
 
   const savedBet = localStorage.getItem('z8_combined_bet');
+  const savedExclude = localStorage.getItem('z8_exclude_input');
   const savedPrizes = localStorage.getItem('z8_all_prizes');
   const savedSpecial = localStorage.getItem('z8_special_prize');
   const savedAutoFetch = localStorage.getItem('z8_auto_fetch');
@@ -1614,8 +1845,13 @@ function loadAppState() {
     combinedBetInput.innerText = savedBet;
     if (savedBet.trim() !== '') hasData = true;
   }
+  if (savedExclude !== null && excludeInput) {
+    excludeInput.innerText = savedExclude;
+  }
   if (savedAutoFetch !== null && autoFetchToggle) {
     autoFetchToggle.checked = (savedAutoFetch === '1');
+  } else if (autoFetchToggle) {
+    autoFetchToggle.checked = false;
   }
   
   if (autoFetchToggle && autoFetchToggle.checked) {
@@ -2088,7 +2324,20 @@ function calculateSum() {
       const map = {};
       const sumsMap = getCategorySumsMap(categoryKey);
       Object.entries(sumsMap).forEach(([key, val]) => {
-        let excess = retainType === "money" ? val - retainVal : val - (val * (retainVal / 100));
+        let isExcl = false;
+        if (categoryKey === 'xien') {
+          const bet = xienBets[parseInt(key)];
+          isExcl = isExcluded('xien', key, bet?.numbers);
+        } else {
+          isExcl = isExcluded(categoryKey, key);
+        }
+
+        let excess;
+        if (isExcl) {
+          excess = val;
+        } else {
+          excess = retainType === "money" ? val - retainVal : val - (val * (retainVal / 100));
+        }
         excess = Math.max(0, Math.round(excess * 10) / 10);
         if (excess >= 0.1) {
           map[key] = excess;
@@ -3229,8 +3478,129 @@ function saveRates() {
 }
 
 // Setup Event Listeners
+// Setup Event Listeners
 function setupEventListeners() {
   const combinedBetInput = document.getElementById('combinedBetInput');
+  const excludeInput = document.getElementById('excludeInput');
+  const tabInputMain = document.getElementById('tabInputMain');
+  const tabInputExclude = document.getElementById('tabInputExclude');
+
+  if (tabInputMain && tabInputExclude && combinedBetInput && excludeInput) {
+    tabInputMain.addEventListener('click', () => {
+      tabInputMain.className = "text-sm font-bold border-b-2 border-primary dark:border-secondary px-2 py-1 text-primary dark:text-secondary focus:outline-none";
+      tabInputExclude.className = "text-sm font-bold border-b-2 border-transparent px-2 py-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none";
+      combinedBetInput.classList.remove('hidden');
+      excludeInput.classList.add('hidden');
+    });
+
+    tabInputExclude.addEventListener('click', () => {
+      tabInputExclude.className = "text-sm font-bold border-b-2 border-rose-500 px-2 py-1 text-rose-500 focus:outline-none";
+      tabInputMain.className = "text-sm font-bold border-b-2 border-transparent px-2 py-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none";
+      combinedBetInput.classList.add('hidden');
+      excludeInput.classList.remove('hidden');
+    });
+  }
+
+  if (excludeInput) {
+    Object.defineProperty(excludeInput, 'value', {
+      get: function() {
+        let txt = this.innerText || '';
+        txt = txt.replace(/\r\n$/, '\n').replace(/\n$/, '');
+        return txt;
+      },
+      set: function(val) {
+        this.innerText = val || '';
+        const event = new Event('input', { bubbles: true });
+        this.dispatchEvent(event);
+      },
+      configurable: true
+    });
+
+    excludeInput.addEventListener('paste', function(e) {
+      e.preventDefault();
+      const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+      document.execCommand("insertText", false, text);
+    });
+
+    let excludeHighlightTimeout = null;
+    excludeInput.addEventListener('input', function() {
+      saveAppState();
+      calculateSum();
+      if (excludeHighlightTimeout) clearTimeout(excludeHighlightTimeout);
+      excludeHighlightTimeout = setTimeout(() => {
+        const sel = window.getSelection();
+        let range = null;
+        let hasMarker = false;
+        let markerTextNode = null;
+        
+        if (sel && sel.rangeCount > 0 && document.activeElement === excludeInput) {
+          range = sel.getRangeAt(0);
+          if (excludeInput.contains(range.startContainer)) {
+            markerTextNode = document.createTextNode("__CARET_MARKER__");
+            try {
+              range.insertNode(markerTextNode);
+              hasMarker = true;
+            } catch (e) {
+              console.warn("Could not insert caret marker node", e);
+            }
+          }
+        }
+
+        const inputString = excludeInput.innerText;
+
+        if (hasMarker && markerTextNode && markerTextNode.parentNode) {
+          markerTextNode.parentNode.removeChild(markerTextNode);
+        }
+
+        const originalLines = inputString.split('\n');
+        let currentCat = '';
+        let editorHtml = originalLines.map(line => {
+          if (line.trim() === "") {
+            return "";
+          }
+          const res = formatExcludeLineWithHighlights(line, currentCat);
+          currentCat = res.newCategory;
+          return res.html;
+        }).join('\n');
+
+        let editorHtmlWithMarker = editorHtml;
+        if (hasMarker) {
+          editorHtmlWithMarker = editorHtml.replace(/__CARET_MARKER__/g, '<span id="caret-marker"></span>');
+        }
+
+        const currentHtmlClean = excludeInput.innerHTML.replace(/<span id="caret-marker"><\/span>/g, '').replace(/__CARET_MARKER__/g, '');
+        const editorHtmlClean = editorHtml.replace(/__CARET_MARKER__/g, '');
+
+        if (currentHtmlClean !== editorHtmlClean) {
+          excludeInput.innerHTML = editorHtmlWithMarker;
+
+          if (hasMarker) {
+            const markerNode = document.getElementById('caret-marker');
+            if (markerNode) {
+              const newRange = document.createRange();
+              const textNode = document.createTextNode("");
+              markerNode.parentNode.replaceChild(textNode, markerNode);
+              newRange.setStart(textNode, 0);
+              newRange.collapse(true);
+              sel.removeAllRanges();
+              sel.addRange(newRange);
+            }
+          }
+        } else if (hasMarker) {
+          const markerNode = document.getElementById('caret-marker');
+          if (markerNode) {
+            markerNode.parentNode.removeChild(markerNode);
+          }
+        }
+      }, 50);
+    });
+
+    excludeInput.addEventListener('blur', function() {
+      saveAppState();
+      calculateSum();
+    });
+  }
+
   if (combinedBetInput && combinedBetInput.tagName.toLowerCase() !== "textarea") {
     combinedBetInput.addEventListener('paste', function(e) {
       e.preventDefault();
@@ -3354,12 +3724,17 @@ function setupEventListeners() {
   if (btnClearBetInput) {
     btnClearBetInput.addEventListener('click', () => {
       const combinedBetInput = document.getElementById('combinedBetInput');
-      if (combinedBetInput) {
+      const excludeInput = document.getElementById('excludeInput');
+      if (excludeInput && !excludeInput.classList.contains('hidden')) {
+        excludeInput.innerText = "";
+        excludeInput.innerHTML = "";
+        localStorage.removeItem('z8_exclude_input');
+      } else if (combinedBetInput) {
         combinedBetInput.innerText = "";
         combinedBetInput.innerHTML = "";
         localStorage.removeItem('z8_combined_bet');
-        calculateSum();
       }
+      calculateSum();
     });
   }
 
@@ -3378,6 +3753,7 @@ function setupEventListeners() {
     logoBtn.addEventListener('click', function() {
       if (confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu cược và kết quả hiện tại?")) {
         const combinedBetInput = document.getElementById('combinedBetInput');
+        const excludeInput = document.getElementById('excludeInput');
         const allPrizesInput = document.getElementById('allPrizesInput');
         const specialPrizeInput = document.getElementById('specialPrizeInput');
         
@@ -3385,6 +3761,11 @@ function setupEventListeners() {
           combinedBetInput.innerText = "";
           combinedBetInput.innerHTML = "";
           localStorage.removeItem('z8_combined_bet');
+        }
+        if (excludeInput) {
+          excludeInput.innerText = "";
+          excludeInput.innerHTML = "";
+          localStorage.removeItem('z8_exclude_input');
         }
         if (allPrizesInput) {
           allPrizesInput.value = "";
@@ -3799,10 +4180,16 @@ function runBalancingStep(isPercent) {
   const stepBaCangTransfers = {};
   const stepXienTransfers = {};
 
-  const processCategory = (totals, transfersMap, stepTransfersMap, limit, isPct) => {
+  const processCategory = (totals, transfersMap, stepTransfersMap, limit, isPct, categoryKey) => {
     Object.entries(totals).forEach(([key, total]) => {
       const prevTransfer = transfersMap[key] || 0;
-      let excess = isPct ? (total * ((100 - limit) / 100)) - prevTransfer : total - prevTransfer - limit;
+      const isExcl = isExcluded(categoryKey, key);
+      let excess;
+      if (isExcl) {
+        excess = total - prevTransfer;
+      } else {
+        excess = isPct ? (total * ((100 - limit) / 100)) - prevTransfer : total - prevTransfer - limit;
+      }
       excess = Math.round(excess * 10) / 10;
       if (excess >= 0.1) {
         stepTransfersMap[key] = excess;
@@ -3810,15 +4197,21 @@ function runBalancingStep(isPercent) {
     });
   };
 
-  processCategory(deSums, balanceState.deTransfers, stepDeTransfers, retainDe, isPercent);
-  processCategory(loSums, balanceState.loTransfers, stepLoTransfers, retainLo, isPercent);
-  processCategory(baCangSums, balanceState.baCangTransfers, stepBaCangTransfers, retain3c, isPercent);
+  processCategory(deSums, balanceState.deTransfers, stepDeTransfers, retainDe, isPercent, 'de');
+  processCategory(loSums, balanceState.loTransfers, stepLoTransfers, retainLo, isPercent, 'lo');
+  processCategory(baCangSums, balanceState.baCangTransfers, stepBaCangTransfers, retain3c, isPercent, 'bacang');
 
 
   // For Xiên:
   xienBets.forEach((bet, idx) => {
     const prevTransfer = balanceState.xienTransfers[idx] || 0;
-    let excess = isPercent ? (bet.amount * ((100 - retainX) / 100)) - prevTransfer : bet.amount - prevTransfer - retainX;
+    const isExcl = isExcluded('xien', idx, bet.numbers);
+    let excess;
+    if (isExcl) {
+      excess = bet.amount - prevTransfer;
+    } else {
+      excess = isPercent ? (bet.amount * ((100 - retainX) / 100)) - prevTransfer : bet.amount - prevTransfer - retainX;
+    }
     excess = Math.round(excess * 10) / 10;
     if (excess >= 0.1) {
       stepXienTransfers[idx] = excess;
