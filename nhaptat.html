@@ -69,44 +69,46 @@
 </head>
 <body class="bg-slate-100 dark:bg-dark-900 text-slate-800 dark:text-slate-200 transition-colors duration-300 min-h-screen flex flex-col font-sans select-none">
   
-  <!-- ==================== TOP EXCEL HEADER BAR ==================== -->
-  <header class="bg-excel-800 text-white flex items-center justify-between px-3 py-1.5 shadow-md z-30 flex-shrink-0">
+  <!-- ==================== TOP EXCEL HEADER BAR (MOBILE OPTIMIZED) ==================== -->
+  <header class="bg-excel-800 text-white flex items-center justify-between px-2.5 sm:px-3 py-1.5 shadow-md z-30 flex-shrink-0">
     <div class="flex items-center space-x-2">
       <div class="w-6 h-6 bg-white text-excel-800 rounded flex items-center justify-center font-black text-xs shadow-xs">X</div>
       <div class="flex items-center gap-1.5">
-        <a href="index.html" class="text-base font-black text-white tracking-wide hover:opacity-90">Z8™ Manager</a>
-        <span class="text-[10px] bg-emerald-900/60 text-emerald-200 px-1.5 py-0.5 rounded font-mono border border-emerald-700/50">QUẢN LÝ NHẬP TẮT</span>
+        <a href="index.html" class="text-sm sm:text-base font-black text-white tracking-wide hover:opacity-90">Z8™ Manager</a>
+        <span class="hidden sm:inline-block text-[10px] bg-emerald-900/60 text-emerald-200 px-1.5 py-0.5 rounded font-mono border border-emerald-700/50">QUẢN LÝ NHẬP TẮT</span>
       </div>
     </div>
 
-    <!-- Right Header Actions -->
-    <div class="flex items-center space-x-2 text-xs">
-      <button id="toggleConfigBtn" class="bg-emerald-700 hover:bg-emerald-600 text-white px-2.5 py-1 rounded font-semibold transition-all flex items-center gap-1.5 active:scale-95 shadow-xs">
+    <!-- Right Header Actions (Compact on Mobile) -->
+    <div class="flex items-center space-x-1.5 sm:space-x-2 text-xs">
+      <button id="toggleConfigBtn" class="bg-emerald-700 hover:bg-emerald-600 text-white px-2 sm:px-2.5 py-1 rounded font-semibold transition-all flex items-center gap-1 active:scale-95 shadow-xs text-[11px] sm:text-xs">
         <i class="fa-solid fa-gear"></i>
-        <span>⚙️ Cấu hình GitHub</span>
+        <span class="hidden sm:inline">Cấu hình GitHub</span>
+        <span class="sm:hidden">Cấu hình</span>
       </button>
 
-      <button id="darkModeToggle" class="p-1 sm:px-2 sm:py-0.5 hover:bg-white/20 rounded transition flex items-center gap-1" title="Chuyển chế độ Sáng / Tối">
+      <button id="darkModeToggle" class="p-1 sm:px-2 sm:py-0.5 hover:bg-white/20 rounded transition flex items-center gap-1 text-[11px] sm:text-xs" title="Chuyển chế độ Sáng / Tối">
         <span class="dark:hidden">🌙 Tối</span>
         <span class="hidden dark:inline">☀️ Sáng</span>
       </button>
 
-      <a href="index.html" class="bg-white/10 hover:bg-white/20 text-white px-2.5 py-1 rounded font-semibold transition-all flex items-center gap-1.5 active:scale-95">
+      <a href="index.html" class="bg-white/10 hover:bg-white/20 text-white px-2 sm:px-2.5 py-1 rounded font-semibold transition-all flex items-center gap-1 active:scale-95 text-[11px] sm:text-xs">
         <i class="fa-solid fa-arrow-left"></i>
-        <span>Quay lại Tool Cân Bảng</span>
+        <span class="hidden sm:inline">Quay lại Tool</span>
+        <span class="sm:hidden">Tool</span>
       </a>
     </div>
   </header>
 
   <!-- ==================== MAIN WORKSPACE ==================== -->
-  <main class="flex-1 container max-w-6xl mx-auto px-2 sm:px-4 py-4 space-y-4">
+  <main class="flex-1 container max-w-6xl mx-auto px-2 sm:px-4 py-3 sm:py-4 space-y-3 sm:space-y-4">
     
     <!-- Main Grid Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
       
       <!-- LEFT COLUMN: GITHUB CONFIG PANEL -->
-      <div id="githubConfigColumn" class="space-y-4 lg:col-span-1 transition-all duration-300">
-        <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-4 space-y-4">
+      <div id="githubConfigColumn" class="space-y-3 sm:space-y-4 lg:col-span-1 transition-all duration-300">
+        <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 sm:p-4 space-y-3 sm:space-y-4">
           <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
             <h3 class="font-bold text-xs text-excel-800 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
               <i class="fa-solid fa-sliders"></i>
@@ -171,45 +173,45 @@
       </div>
 
       <!-- RIGHT COLUMN: EXCEL WORKSHEET EDITOR & TABLE -->
-      <div id="editorColumn" class="lg:col-span-2 space-y-4 transition-all duration-300">
+      <div id="editorColumn" class="lg:col-span-2 space-y-3 sm:space-y-4 transition-all duration-300">
         
         <!-- Action Banner Status Logs -->
         <div id="statusBanner" class="hidden p-3 rounded-lg text-xs font-bold border transition-all"></div>
 
         <!-- Excel Worksheet Mode Bar -->
         <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 overflow-hidden">
-          <div class="flex items-center justify-between bg-slate-100 dark:bg-dark-700 border-b border-slate-300 dark:border-slate-700 px-2 pt-1 select-none">
+          <div class="flex items-center justify-between bg-slate-100 dark:bg-dark-700 border-b border-slate-300 dark:border-slate-700 px-2 pt-1 select-none flex-wrap gap-1">
             
             <!-- Worksheet Tabs -->
             <div class="flex gap-1">
-              <button id="tabTableBtn" class="text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5">
+              <button id="tabTableBtn" class="text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-2.5 sm:px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5">
                 <i class="fa-solid fa-table"></i>
                 <span>Bảng viết tắt</span>
               </button>
-              <button id="tabRawBtn" class="text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent">
+              <button id="tabRawBtn" class="text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-2.5 sm:px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent">
                 <i class="fa-solid fa-file-code"></i>
                 <span>Văn bản thô (Raw)</span>
               </button>
             </div>
 
-            <button id="fetchBtn" class="mb-1 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 shadow-xs">
+            <button id="fetchBtn" class="mb-1 px-2.5 sm:px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 shadow-xs">
               <i class="fa-solid fa-arrows-rotate"></i>
-              <span>Đồng bộ từ GitHub</span>
+              <span>Đồng bộ</span>
             </button>
           </div>
 
           <!-- Main Table Mode View -->
-          <div id="tableModeView" class="p-3 space-y-3">
+          <div id="tableModeView" class="p-2.5 sm:p-3 space-y-3">
             
-            <!-- Excel Toolbar: Search & Add Bar -->
-            <div class="flex flex-wrap gap-2 items-center justify-between bg-slate-50 dark:bg-dark-900/40 p-2 rounded border border-slate-200 dark:border-slate-700">
+            <!-- Excel Toolbar: Search & Add Bar (Mobile Full Width Stacked) -->
+            <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between bg-slate-50 dark:bg-dark-900/40 p-2 rounded border border-slate-200 dark:border-slate-700">
               <div class="relative w-full sm:w-72">
-                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-slate-400 text-xs"></i>
+                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
                 <input type="text" id="tableSearch" placeholder="Tìm kiếm từ khóa viết tắt..." 
-                       class="w-full border border-slate-300 dark:border-slate-600 rounded pl-8 pr-3 py-1 text-xs bg-white dark:bg-dark-700 outline-none focus:ring-1 focus:ring-excel-800">
+                       class="w-full border border-slate-300 dark:border-slate-600 rounded pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-dark-700 outline-none focus:ring-1 focus:ring-excel-800">
               </div>
               
-              <button id="showAddFormBtn" class="px-3 py-1.5 bg-excel-800 hover:bg-excel-900 text-white rounded text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 shadow-xs">
+              <button id="showAddFormBtn" class="px-3 py-1.5 bg-excel-800 hover:bg-excel-900 text-white rounded text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-xs">
                 <i class="fa-solid fa-plus"></i>
                 <span>Thêm viết tắt mới</span>
               </button>
@@ -222,22 +224,22 @@
                 <span>Thêm mới định nghĩa viết tắt</span>
               </h4>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <input type="text" id="newKey" placeholder="Từ khóa (ví dụ: dd5)" class="border border-slate-300 dark:border-slate-600 rounded p-1.5 bg-white dark:bg-dark-800 font-mono text-xs outline-none focus:ring-1 focus:ring-excel-800">
-                <input type="text" id="newValue" placeholder="Dãy số (ví dụ: dau5.dit5)" class="border border-slate-300 dark:border-slate-600 rounded p-1.5 bg-white dark:bg-dark-800 font-mono text-xs outline-none focus:ring-1 focus:ring-excel-800 sm:col-span-2">
+                <input type="text" id="newKey" placeholder="Từ khóa (ví dụ: dd5)" class="border border-slate-300 dark:border-slate-600 rounded p-2 bg-white dark:bg-dark-800 font-mono text-xs outline-none focus:ring-1 focus:ring-excel-800">
+                <input type="text" id="newValue" placeholder="Dãy số (ví dụ: dau5.dit5)" class="border border-slate-300 dark:border-slate-600 rounded p-2 bg-white dark:bg-dark-800 font-mono text-xs outline-none focus:ring-1 focus:ring-excel-800 sm:col-span-2">
               </div>
               <div class="flex justify-end gap-2 pt-1">
-                <button id="cancelAddBtn" class="px-3 py-1 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded font-semibold transition-all">Hủy</button>
-                <button id="submitAddBtn" class="px-3 py-1 bg-excel-800 hover:bg-excel-900 text-white rounded font-bold transition-all flex items-center gap-1">
+                <button id="cancelAddBtn" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded font-semibold transition-all">Hủy</button>
+                <button id="submitAddBtn" class="px-3 py-1.5 bg-excel-800 hover:bg-excel-900 text-white rounded font-bold transition-all flex items-center gap-1">
                   <i class="fa-solid fa-check"></i>
                   <span>Lưu nháp</span>
                 </button>
               </div>
             </div>
 
-            <!-- Excel Spreadsheet Table Grid -->
-            <div class="overflow-x-auto rounded border border-slate-300 dark:border-slate-700 shadow-inner">
+            <!-- Excel Spreadsheet Table Grid (Responsive: Card list on Mobile, Table on Desktop) -->
+            <div class="overflow-hidden rounded border border-slate-300 dark:border-slate-700 shadow-inner">
               <table class="w-full text-left text-xs border-collapse excel-table">
-                <thead>
+                <thead class="hidden sm:table-header-group">
                   <tr class="bg-slate-100 dark:bg-dark-700 text-excel-800 dark:text-emerald-400 uppercase font-bold border-b border-slate-300 dark:border-slate-700">
                     <th class="py-2 px-2 w-10 text-center excel-row-num">#</th>
                     <th class="py-2 px-3 w-44">Từ khóa (Key)</th>
@@ -259,8 +261,8 @@
           </div>
 
           <!-- Raw Mode Textarea View -->
-          <div id="rawModeView" class="hidden p-3">
-            <textarea id="rawTextArea" class="w-full h-[420px] border border-slate-300 dark:border-slate-600 rounded-lg p-3 bg-white dark:bg-dark-700 font-mono text-xs leading-relaxed outline-none focus:ring-2 focus:ring-excel-800 shadow-inner" placeholder="key=value"></textarea>
+          <div id="rawModeView" class="hidden p-2.5 sm:p-3">
+            <textarea id="rawTextArea" class="w-full h-[360px] sm:h-[420px] border border-slate-300 dark:border-slate-600 rounded-lg p-3 bg-white dark:bg-dark-700 font-mono text-xs leading-relaxed outline-none focus:ring-2 focus:ring-excel-800 shadow-inner" placeholder="key=value"></textarea>
           </div>
         </div>
 
@@ -270,7 +272,7 @@
             <div class="flex-1 w-full text-xs">
               <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Lời nhắn Commit (Lịch sử cập nhật):</label>
               <input type="text" id="commitMsg" value="Cập nhật nhaptat.txt từ Trình quản lý Z8"
-                     class="w-full border border-slate-300 dark:border-slate-600 rounded px-3 py-1.5 bg-white dark:bg-dark-700 outline-none focus:ring-2 focus:ring-excel-800 font-sans text-xs">
+                     class="w-full border border-slate-300 dark:border-slate-600 rounded px-3 py-2 sm:py-1.5 bg-white dark:bg-dark-700 outline-none focus:ring-2 focus:ring-excel-800 font-sans text-xs">
             </div>
             
             <button id="commitBtn" class="w-full sm:w-auto px-5 py-2.5 bg-excel-800 hover:bg-excel-900 text-white font-bold rounded-lg shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 text-xs">
@@ -319,20 +321,25 @@
       const toggleConfigBtn = document.getElementById('toggleConfigBtn');
       if (!configCol || !editorCol || !toggleConfigBtn) return;
       
+      const span = toggleConfigBtn.querySelector('span');
       if (shouldHide) {
         configCol.classList.add('hidden');
         editorCol.classList.remove('lg:col-span-2');
         editorCol.classList.add('lg:col-span-3');
         toggleConfigBtn.classList.remove('bg-emerald-700', 'text-white');
         toggleConfigBtn.classList.add('bg-white/10', 'text-white');
-        toggleConfigBtn.querySelector('span').innerText = '⚙️ Hiện cấu hình';
+        if (span) {
+          span.innerText = window.innerWidth < 640 ? 'Cấu hình' : '⚙️ Hiện cấu hình';
+        }
       } else {
         configCol.classList.remove('hidden');
         editorCol.classList.remove('lg:col-span-3');
         editorCol.classList.add('lg:col-span-2');
         toggleConfigBtn.classList.add('bg-emerald-700', 'text-white');
         toggleConfigBtn.classList.remove('bg-white/10');
-        toggleConfigBtn.querySelector('span').innerText = '⚙️ Cấu hình GitHub';
+        if (span) {
+          span.innerText = window.innerWidth < 640 ? 'Cấu hình' : '⚙️ Cấu hình GitHub';
+        }
       }
     }
 
@@ -529,7 +536,7 @@
       }
     }
 
-    // Render Shortcuts List to Excel Grid Table
+    // Render Shortcuts List to Excel Grid Table / Responsive Mobile Cards
     function renderTable() {
       const tbody = document.getElementById('shortcutsTableBody');
       const searchVal = document.getElementById('tableSearch').value.toLowerCase().trim();
@@ -553,32 +560,43 @@
 
       filtered.forEach((item, idx) => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors";
+        tr.className = "hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors flex flex-col sm:table-row p-2.5 sm:p-0 border-b border-slate-200 dark:border-slate-700 sm:border-b-0 space-y-1.5 sm:space-y-0";
         
         if (item.isEditing) {
-          // Inline Editing Row
+          // Inline Editing Mode
           tr.innerHTML = `
-            <td class="py-1.5 px-2 text-center excel-row-num">${idx + 1}</td>
-            <td class="py-1.5 px-3">
-              <input type="text" id="editKey-${item.id}" value="${item.key}" class="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-dark-700 font-mono text-xs outline-none focus:ring-1 focus:ring-excel-800">
+            <td class="py-1 px-2 text-center excel-row-num hidden sm:table-cell">${idx + 1}</td>
+            <td class="py-1 sm:py-1.5 px-1 sm:px-3 block sm:table-cell">
+              <label class="block text-[10px] font-bold text-slate-400 sm:hidden mb-0.5 uppercase tracking-wider">Từ khóa (Key):</label>
+              <input type="text" id="editKey-${item.id}" value="${item.key}" class="w-full border border-slate-300 dark:border-slate-600 rounded px-2.5 py-1.5 bg-white dark:bg-dark-700 font-mono text-xs outline-none focus:ring-1 focus:ring-excel-800">
             </td>
-            <td class="py-1.5 px-3">
-              <input type="text" id="editVal-${item.id}" value="${item.value}" class="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-dark-700 font-mono text-xs outline-none focus:ring-1 focus:ring-excel-800">
+            <td class="py-1 sm:py-1.5 px-1 sm:px-3 block sm:table-cell">
+              <label class="block text-[10px] font-bold text-slate-400 sm:hidden mb-0.5 uppercase tracking-wider">Dãy số (Value):</label>
+              <input type="text" id="editVal-${item.id}" value="${item.value}" class="w-full border border-slate-300 dark:border-slate-600 rounded px-2.5 py-1.5 bg-white dark:bg-dark-700 font-mono text-xs outline-none focus:ring-1 focus:ring-excel-800">
             </td>
-            <td class="py-1.5 px-3 text-right space-x-1 flex justify-end">
-              <button onclick="saveEdit(${item.id})" class="px-2 py-1 bg-excel-800 hover:bg-excel-900 text-white rounded text-[11px] font-bold flex items-center gap-1"><i class="fa-solid fa-check"></i> Lưu</button>
-              <button onclick="cancelEdit(${item.id})" class="px-2 py-1 bg-slate-400 hover:bg-slate-500 text-white rounded text-[11px] font-bold">Hủy</button>
+            <td class="py-1 sm:py-1.5 px-1 sm:px-3 text-right space-x-1 flex justify-end items-center block sm:table-cell pt-1 sm:pt-0">
+              <button onclick="saveEdit(${item.id})" class="px-3 py-1.5 sm:py-1 bg-excel-800 hover:bg-excel-900 text-white rounded text-xs sm:text-[11px] font-bold flex items-center gap-1 active:scale-95"><i class="fa-solid fa-check"></i> Lưu</button>
+              <button onclick="cancelEdit(${item.id})" class="px-3 py-1.5 sm:py-1 bg-slate-400 hover:bg-slate-500 text-white rounded text-xs sm:text-[11px] font-bold active:scale-95">Hủy</button>
             </td>
           `;
         } else {
-          // Display Row
+          // Display Mode
           tr.innerHTML = `
-            <td class="py-1.5 px-2 text-center excel-row-num">${idx + 1}</td>
-            <td class="py-1.5 px-3 font-mono font-bold text-excel-800 dark:text-emerald-400">${item.key}</td>
-            <td class="py-1.5 px-3 font-mono break-all text-slate-700 dark:text-slate-300">${item.value}</td>
-            <td class="py-1.5 px-3 text-right space-x-1 flex justify-end">
-              <button onclick="startEdit(${item.id})" class="px-2 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-200 rounded text-[11px] font-bold transition-colors flex items-center gap-1"><i class="fa-solid fa-pen-to-square"></i> Sửa</button>
-              <button onclick="deleteItem(${item.id})" class="px-2 py-1 bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 hover:bg-rose-200 rounded text-[11px] font-bold transition-colors flex items-center gap-1"><i class="fa-solid fa-trash"></i> Xóa</button>
+            <td class="py-1.5 px-2 text-center excel-row-num hidden sm:table-cell">${idx + 1}</td>
+            <td class="py-0.5 sm:py-1.5 px-1 sm:px-3 font-mono font-bold text-excel-800 dark:text-emerald-400 flex sm:table-cell justify-between items-center">
+              <span class="flex items-center gap-1.5">
+                <span class="sm:hidden text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-dark-700 text-slate-500 font-mono">#${idx + 1}</span>
+                <span class="text-sm sm:text-xs">${item.key}</span>
+              </span>
+              <div class="sm:hidden flex gap-1">
+                <button onclick="startEdit(${item.id})" class="px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-200 rounded text-xs font-bold transition-colors flex items-center gap-1 active:scale-95"><i class="fa-solid fa-pen-to-square"></i> Sửa</button>
+                <button onclick="deleteItem(${item.id})" class="px-2.5 py-1 bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 hover:bg-rose-200 rounded text-xs font-bold transition-colors flex items-center gap-1 active:scale-95"><i class="fa-solid fa-trash"></i> Xóa</button>
+              </div>
+            </td>
+            <td class="py-0.5 sm:py-1.5 px-1 sm:px-3 font-mono break-all text-slate-700 dark:text-slate-300 block sm:table-cell text-xs leading-relaxed">${item.value}</td>
+            <td class="py-1.5 px-3 text-right space-x-1 hidden sm:table-cell">
+              <button onclick="startEdit(${item.id})" class="px-2 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 hover:bg-emerald-200 rounded text-[11px] font-bold transition-colors inline-flex items-center gap-1 active:scale-95"><i class="fa-solid fa-pen-to-square"></i> Sửa</button>
+              <button onclick="deleteItem(${item.id})" class="px-2 py-1 bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 hover:bg-rose-200 rounded text-[11px] font-bold transition-colors inline-flex items-center gap-1 active:scale-95"><i class="fa-solid fa-trash"></i> Xóa</button>
             </td>
           `;
         }
@@ -686,8 +704,8 @@
 
       tabTableBtn.addEventListener('click', () => {
         currentMode = 'table';
-        tabTableBtn.className = "text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5";
-        tabRawBtn.className = "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
+        tabTableBtn.className = "text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-2.5 sm:px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5";
+        tabRawBtn.className = "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-2.5 sm:px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
         
         // Sync raw text changes to list
         const rawText = document.getElementById('rawTextArea').value;
@@ -700,8 +718,8 @@
 
       tabRawBtn.addEventListener('click', () => {
         currentMode = 'raw';
-        tabRawBtn.className = "text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5";
-        tabTableBtn.className = "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
+        tabRawBtn.className = "text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-2.5 sm:px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5";
+        tabTableBtn.className = "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-2.5 sm:px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
 
         document.getElementById('rawTextArea').value = stringifyShortcuts(shortcutsList);
         tableModeView.classList.add('hidden');
