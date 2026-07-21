@@ -2078,6 +2078,38 @@ function loadShortcuts() {
     });
 }
 
+function getRawTextFromElement(el) {
+  if (!el) return "";
+  if (el.tagName.toLowerCase() === 'textarea' || el.tagName.toLowerCase() === 'input') {
+    return el.value || "";
+  }
+  let html = el.innerHTML || "";
+  if (!html) return "";
+  let temp = document.createElement("div");
+  temp.innerHTML = html.replace(/<br\s*\/?>/gi, "\n").replace(/<\/div>/gi, "\n").replace(/<\/p>/gi, "\n");
+  let text = temp.textContent || temp.innerText || "";
+  return text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+}
+
+function setRawTextToContentEditable(el, text, isExclude = false) {
+  if (!el) return;
+  if (el.tagName.toLowerCase() === 'textarea' || el.tagName.toLowerCase() === 'input') {
+    el.value = text || "";
+    return;
+  }
+  const lines = (text || "").split('\n');
+  let currentCat = '';
+  let editorHtml = lines.map(line => {
+    if (line.trim() === "") return "";
+    const res = isExclude 
+      ? formatExcludeLineWithHighlights(line, currentCat)
+      : formatLineWithHighlights(line, currentCat);
+    currentCat = res.newCategory;
+    return res.html;
+  }).join('<br>');
+  el.innerHTML = editorHtml;
+}
+
 function saveAppState() {
   const combinedBetInput = document.getElementById('combinedBetInput');
   const excludeInput = document.getElementById('excludeInput');
@@ -2087,10 +2119,10 @@ function saveAppState() {
   const resultDateInput = document.getElementById('resultDateInput');
 
   if (combinedBetInput) {
-    localStorage.setItem('z8_combined_bet', combinedBetInput.innerText || '');
+    localStorage.setItem('z8_combined_bet', getRawTextFromElement(combinedBetInput));
   }
   if (excludeInput) {
-    localStorage.setItem('z8_exclude_input', excludeInput.innerText || '');
+    localStorage.setItem('z8_exclude_input', getRawTextFromElement(excludeInput));
   }
   if (autoFetchToggle) {
     localStorage.setItem('z8_auto_fetch', autoFetchToggle.checked ? '1' : '0');
@@ -2118,11 +2150,11 @@ function loadAppState() {
   let hasData = false;
 
   if (savedBet !== null && combinedBetInput) {
-    combinedBetInput.innerText = savedBet;
+    setRawTextToContentEditable(combinedBetInput, savedBet, false);
     if (savedBet.trim() !== '') hasData = true;
   }
   if (savedExclude !== null && excludeInput) {
-    excludeInput.innerText = savedExclude;
+    setRawTextToContentEditable(excludeInput, savedExclude, true);
     updateExcludeDisplay();
   }
   if (savedAutoFetch !== null && autoFetchToggle) {
