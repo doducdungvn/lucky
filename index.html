@@ -1110,20 +1110,9 @@ function updateExcludeDisplay() {
   displayEl.innerHTML = html;
 }
 
-function formatExcludeLineWithHighlights(line, currentCat) {
-  const tokens = line.match(/\s+|[^\s]+/g) || [];
-  let activeCat = currentCat;
-  let html = "";
-
-  const typeRegex = {
-    de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
-    lo: /^(lo|lô|l)$/i,
-    xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
-    xien: /^(xien|xiên|x|x2|x3|x4)$/i,
-    bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
-  };
-
+function getCustomShortcutsMap() {
   const shortcutsInput = document.getElementById("shortcuts")?.value || "";
+  if (!shortcutsInput.trim()) return {};
   const shortcutsArray = shortcutsInput.split("\n");
   const customShortcuts = {};
   for (let i = 0; i < shortcutsArray.length; i++) {
@@ -1140,6 +1129,57 @@ function formatExcludeLineWithHighlights(line, currentCat) {
       });
     }
   }
+  return customShortcuts;
+}
+
+function isTokenRecognized(token, activeCategory, customShortcuts = {}) {
+  const trimmed = token.trim();
+  if (!trimmed) return true;
+
+  if (/^[\s.,;/\-\+=\*x:]+$/i.test(trimmed)) return true;
+  if (/^(mỗi\s*con\s*=?|moi\s*con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*\d+(?:\.\d+)?(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?$/i.test(trimmed)) return true;
+  if (/^\d+(?:\.\d+)?(?:d|đ|₫|k|n)$/i.test(trimmed)) return true;
+
+  const norm = normalizeBetLine(trimmed);
+  const normLower = trimmed.toLowerCase();
+
+  const categoryRegex = /^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|l\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|d|l|c|bc|cang|3\s*cang)$/i;
+  if (categoryRegex.test(norm)) return true;
+
+  if (customShortcuts[normLower] || customShortcuts[norm]) return true;
+
+  const normShorthand = normalizeShorthandToken(trimmed);
+  if (shorthands[normShorthand] || shorthands[normLower] || shorthands[norm]) return true;
+
+  if (/^(dau|dit|daudit|cham|tong|t|d|d'|bo|he)\d{1,2}$/i.test(norm)) return true;
+  if (/^(daube|dauto|dauchan|daule|ditbe|ditto|ditchan|ditle|tobe|toto|tochan|tole|bebe|beto|bechan|bele|tongchan|tongle|chanchan|chanle|lechan|lele|kl|k)$/i.test(norm)) return true;
+
+  const resolved = resolveShorthands(trimmed);
+  const parsedNums = parseNumbersFromBetString(resolved, activeCategory || 'de');
+  if (parsedNums.length > 0) return true;
+
+  if (/^[\d.,\-\s]+$/.test(trimmed)) {
+    const digitsOnly = trimmed.split(/[^\d]+/).filter(Boolean);
+    if (digitsOnly.length > 0) return true;
+  }
+
+  return false;
+}
+
+function formatExcludeLineWithHighlights(line, currentCat) {
+  const tokens = line.match(/\s+|[^\s]+/g) || [];
+  let activeCat = currentCat;
+  let html = "";
+
+  const typeRegex = {
+    de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
+    lo: /^(lo|lô|l)$/i,
+    xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
+    xien: /^(xien|xiên|x|x2|x3|x4)$/i,
+    bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
+  };
+
+  const customShortcuts = getCustomShortcutsMap();
 
   tokens.forEach(token => {
     const trimmed = token.trim();
@@ -1212,6 +1252,7 @@ function verifyNonGroupText(text, currentCat) {
   let activeCat = currentCat;
   let hasInvalid = false;
   let html = "";
+  const customShortcuts = getCustomShortcutsMap();
   
   tokens.forEach(token => {
     const trimmed = token.trim();
@@ -1245,11 +1286,11 @@ function verifyNonGroupText(text, currentCat) {
       }
     }
     
-    if (/\d/.test(token)) {
+    if (isTokenRecognized(trimmed, activeCat, customShortcuts)) {
+      html += escapeHtml(token);
+    } else {
       hasInvalid = true;
       html += `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(token)}</span>`;
-    } else {
-      html += escapeHtml(token);
     }
   });
   
@@ -3814,6 +3855,13 @@ function setupEventListeners() {
       configurable: true
     });
 
+    excludeInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.execCommand('insertText', false, '\n');
+      }
+    });
+
     excludeInput.addEventListener('paste', function(e) {
       e.preventDefault();
       const text = (e.originalEvent || e).clipboardData.getData('text/plain');
@@ -3860,7 +3908,7 @@ function setupEventListeners() {
           const res = formatExcludeLineWithHighlights(line, currentCat);
           currentCat = res.newCategory;
           return res.html;
-        }).join('\n');
+        }).join('<br>');
 
         let editorHtmlWithMarker = editorHtml;
         if (hasMarker) {
@@ -3902,6 +3950,13 @@ function setupEventListeners() {
   }
 
   if (combinedBetInput && combinedBetInput.tagName.toLowerCase() !== "textarea") {
+    combinedBetInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.execCommand('insertText', false, '\n');
+      }
+    });
+
     combinedBetInput.addEventListener('paste', function(e) {
       e.preventDefault();
       const text = (e.originalEvent || e).clipboardData.getData('text/plain');
@@ -3951,7 +4006,7 @@ function setupEventListeners() {
           const res = formatLineWithHighlights(line, currentCat);
           currentCat = res.newCategory;
           return res.html;
-        }).join('\n');
+        }).join('<br>');
 
         // 5. Replace __CARET_MARKER__ in editorHtml with a temporary span element
         let editorHtmlWithMarker = editorHtml;
