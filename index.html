@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Z8™ </title>
+  <title> Z8™ </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <!-- FontAwesome 6 CDN for authentic Microsoft 365 Office icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -195,15 +195,24 @@
               aria-multiline="true"
             ></div>
             
-            <div 
-              id="excludeInput" 
-              contenteditable="true"
-              class="hidden w-full border border-rose-300 dark:border-rose-800 rounded p-3 focus:ring-2 focus:ring-rose-500 bg-rose-50 dark:bg-rose-950/20 font-mono text-sm leading-relaxed overflow-y-auto whitespace-pre-wrap break-all shadow-inner" 
-              style="height: 300px; outline: none;"
-              placeholder="Ví dụ nhập loại trừ:&#10;Đề 56, dau2&#10;Lô 54,12&#10;3c 564.231"
-              role="textbox"
-              aria-multiline="true"
-            ></div>
+            <div id="excludeContainer" class="hidden grid grid-cols-2 gap-2 sm:gap-3">
+              <div 
+                id="excludeInput" 
+                contenteditable="true"
+                class="w-full border border-rose-300 dark:border-rose-800 rounded p-2 sm:p-3 focus:ring-2 focus:ring-rose-500 bg-rose-50 dark:bg-rose-950/20 font-mono text-xs sm:text-sm leading-relaxed overflow-y-auto whitespace-pre-wrap break-all shadow-inner" 
+                style="height: 300px; outline: none;"
+                placeholder="Ví dụ nhập loại trừ:&#10;Đề 56, dau2&#10;Lô 54,12&#10;3c 564.231"
+                role="textbox"
+                aria-multiline="true"
+              ></div>
+              <div 
+                id="excludeSummaryDisplay" 
+                class="w-full border border-rose-200 dark:border-rose-900/60 rounded p-2 sm:p-3 bg-white dark:bg-dark-800 font-sans text-xs overflow-y-auto shadow-inner"
+                style="height: 300px;"
+              >
+                <!-- Dynamically populated excluded summary by category -->
+              </div>
+            </div>
 
             <!-- 1. CLEAR BUTTON (XÓA CƯỢC / XÓA LỌC) RIGHT BELOW INPUT -->
             <div class="flex justify-end pt-0.5">
@@ -435,7 +444,7 @@
                 <div class="text-slate-400 text-xs font-sans">0 con</div>
               </div>
               <div class="bg-slate-50 dark:bg-dark-700/60 border border-slate-200 dark:border-slate-700 rounded p-1.5 flex justify-between items-center">
-                <span class="text-slate-500 font-sans text-[11px]">Tổng Chuyển:</span>
+                <span class="text-slate-500 font-sans text-[11px]">Tổng:</span>
                 <span id="modifiedTotalSum" class="font-black text-rose-600 dark:text-rose-400">0</span>
               </div>
             </div>
@@ -458,7 +467,7 @@
                 <div class="text-slate-400 text-xs font-sans">0 con</div>
               </div>
               <div class="bg-slate-50 dark:bg-dark-700/60 border border-slate-200 dark:border-slate-700 rounded p-1.5 flex justify-between items-center">
-                <span class="text-slate-500 font-sans text-[11px]">Tổng Nhập:</span>
+                <span class="text-slate-500 font-sans text-[11px]">Tổng:</span>
                 <span id="inputTotalSum" class="font-black text-rose-600 dark:text-rose-400">0</span>
               </div>
             </div>
@@ -1000,6 +1009,105 @@ function isExcluded(categoryKey, key, betNumbers = null) {
     }
   }
   return false;
+}
+
+function updateExcludeDisplay() {
+  const displayEl = document.getElementById('excludeSummaryDisplay');
+  if (!displayEl) return;
+
+  const excl = getExclusions();
+  if (!excl) {
+    displayEl.innerHTML = '';
+    return;
+  }
+
+  const deList = Array.from(excl.de).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  const loList = Array.from(excl.lo).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  const bacangList = Array.from(excl.bacang).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  const xienList = Array.from(excl.xien).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+  const totalCount = deList.length + loList.length + bacangList.length + xienList.length;
+
+  if (totalCount === 0) {
+    displayEl.innerHTML = `
+      <div class="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 py-6 text-center space-y-2 select-none">
+        <i class="fa-solid fa-filter-circle-xmark text-3xl opacity-40 text-rose-500"></i>
+        <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Chưa có dữ liệu loại trừ</p>
+        <p class="text-[11px] text-slate-400 leading-relaxed">Nhập thể loại & danh sách con ở ô bên trái.<br/>Ví dụ: <code class="text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-1 rounded font-mono">Đề 56, dau2</code></p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <div class="font-bold text-xs text-rose-700 dark:text-rose-400 border-b border-rose-200 dark:border-rose-900/60 pb-2 mb-2.5 flex items-center justify-between select-none">
+      <span class="flex items-center gap-1.5">
+        <i class="fa-solid fa-filter-circle-xmark"></i>
+        <span>Các con bị loại trừ</span>
+      </span>
+      <span class="text-[11px] bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded font-mono font-black border border-rose-200 dark:border-rose-800">Tổng ${totalCount} con</span>
+    </div>
+    <div class="space-y-2.5">
+  `;
+
+  if (deList.length > 0) {
+    html += `
+      <div class="bg-rose-50/60 dark:bg-rose-950/20 p-2 rounded-lg border border-rose-200/80 dark:border-rose-900/40">
+        <div class="font-bold text-slate-800 dark:text-slate-200 mb-1.5 flex justify-between items-center text-[11px]">
+          <span>🔴 Đề loại trừ:</span>
+          <span class="text-rose-600 dark:text-rose-400 font-mono font-bold">${deList.length} con</span>
+        </div>
+        <div class="flex flex-wrap gap-1 font-mono text-[11px]">
+          ${deList.map(num => `<span class="px-1.5 py-0.5 bg-white dark:bg-dark-700 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded font-bold shadow-2xs">${num}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  if (loList.length > 0) {
+    html += `
+      <div class="bg-blue-50/60 dark:bg-blue-950/20 p-2 rounded-lg border border-blue-200/80 dark:border-blue-900/40">
+        <div class="font-bold text-slate-800 dark:text-slate-200 mb-1.5 flex justify-between items-center text-[11px]">
+          <span>🔵 Lô loại trừ:</span>
+          <span class="text-blue-600 dark:text-blue-400 font-mono font-bold">${loList.length} con</span>
+        </div>
+        <div class="flex flex-wrap gap-1 font-mono text-[11px]">
+          ${loList.map(num => `<span class="px-1.5 py-0.5 bg-white dark:bg-dark-700 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded font-bold shadow-2xs">${num}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  if (bacangList.length > 0) {
+    html += `
+      <div class="bg-purple-50/60 dark:bg-purple-950/20 p-2 rounded-lg border border-purple-200/80 dark:border-purple-900/40">
+        <div class="font-bold text-slate-800 dark:text-slate-200 mb-1.5 flex justify-between items-center text-[11px]">
+          <span>🟣 3 Càng loại trừ:</span>
+          <span class="text-purple-600 dark:text-purple-400 font-mono font-bold">${bacangList.length} con</span>
+        </div>
+        <div class="flex flex-wrap gap-1 font-mono text-[11px]">
+          ${bacangList.map(num => `<span class="px-1.5 py-0.5 bg-white dark:bg-dark-700 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded font-bold shadow-2xs">${num}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  if (xienList.length > 0) {
+    html += `
+      <div class="bg-emerald-50/60 dark:bg-emerald-950/20 p-2 rounded-lg border border-emerald-200/80 dark:border-emerald-900/40">
+        <div class="font-bold text-slate-800 dark:text-slate-200 mb-1.5 flex justify-between items-center text-[11px]">
+          <span>🟢 Xiên loại trừ:</span>
+          <span class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">${xienList.length} con</span>
+        </div>
+        <div class="flex flex-wrap gap-1 font-mono text-[11px]">
+          ${xienList.map(num => `<span class="px-1.5 py-0.5 bg-white dark:bg-dark-700 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded font-bold shadow-2xs">${num}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+  displayEl.innerHTML = html;
 }
 
 function formatExcludeLineWithHighlights(line, currentCat) {
@@ -1974,6 +2082,7 @@ function loadAppState() {
   }
   if (savedExclude !== null && excludeInput) {
     excludeInput.innerText = savedExclude;
+    updateExcludeDisplay();
   }
   if (savedAutoFetch !== null && autoFetchToggle) {
     autoFetchToggle.checked = (savedAutoFetch === '1');
@@ -3021,14 +3130,10 @@ function calculateSum(isFromRunBalancing = false) {
     const totalSumLabel = document.getElementById("totalSum");
     const modifiedTotalSumLabel = document.getElementById("modifiedTotalSum");
     if (totalSumLabel) {
-      const totalText = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
-      const breakdown = formatBreakdown(false);
-      totalSumLabel.innerHTML = breakdown ? `${totalText}<div class="mt-1.5 pt-1 border-t border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 font-normal space-y-0.5 text-[11px] text-left">${breakdown}</div>` : totalText;
+      totalSumLabel.textContent = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
     }
     if (modifiedTotalSumLabel) {
-      const totalText = `${Math.round(totalVonChuyen).toLocaleString("vi-VN")} / ${Math.round(totalTrungChuyen).toLocaleString("vi-VN")}`;
-      const breakdown = formatBreakdown(true);
-      modifiedTotalSumLabel.innerHTML = breakdown ? `${totalText}<div class="mt-1.5 pt-1 border-t border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 font-normal space-y-0.5 text-[11px] text-left">${breakdown}</div>` : totalText;
+      modifiedTotalSumLabel.textContent = `${Math.round(totalVonChuyen).toLocaleString("vi-VN")} / ${Math.round(totalTrungChuyen).toLocaleString("vi-VN")}`;
     }
 
   } else {
@@ -3156,9 +3261,7 @@ function calculateSum(isFromRunBalancing = false) {
   if (inputListTotalSpan) inputListTotalSpan.textContent = totalBetValue.toLocaleString("vi-VN");
   const inputTotalSumEl = document.getElementById("inputTotalSum");
   if (inputTotalSumEl) {
-    const totalText = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
-    const breakdown = formatBreakdown(false);
-    inputTotalSumEl.innerHTML = breakdown ? `${totalText}<div class="mt-1.5 pt-1 border-t border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 font-normal space-y-0.5 text-[11px] text-left">${breakdown}</div>` : totalText;
+    inputTotalSumEl.textContent = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
   }
   updateCopyButtonLabel();
 }
@@ -3673,20 +3776,24 @@ function setupEventListeners() {
   const tabInputExclude = document.getElementById('tabInputExclude');
 
   if (tabInputMain && tabInputExclude && combinedBetInput && excludeInput) {
+    const excludeContainer = document.getElementById('excludeContainer');
     tabInputMain.addEventListener('click', () => {
-      tabInputMain.className = "text-sm font-bold border-b-2 border-primary dark:border-secondary px-2 py-1 text-primary dark:text-secondary focus:outline-none";
-      tabInputExclude.className = "text-sm font-bold border-b-2 border-transparent px-2 py-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none";
+      tabInputMain.className = "text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5";
+      tabInputExclude.className = "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
       combinedBetInput.classList.remove('hidden');
-      excludeInput.classList.add('hidden');
+      if (excludeContainer) excludeContainer.classList.add('hidden');
+      else excludeInput.classList.add('hidden');
       const lblClear = document.getElementById('lblClearBetInput');
       if (lblClear) lblClear.textContent = "Xóa cược";
     });
 
     tabInputExclude.addEventListener('click', () => {
-      tabInputExclude.className = "text-sm font-bold border-b-2 border-rose-500 px-2 py-1 text-rose-500 focus:outline-none";
-      tabInputMain.className = "text-sm font-bold border-b-2 border-transparent px-2 py-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none";
+      tabInputExclude.className = "text-xs font-bold bg-white dark:bg-dark-800 text-rose-600 dark:text-rose-400 border-t-2 border-rose-500 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5";
+      tabInputMain.className = "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
       combinedBetInput.classList.add('hidden');
-      excludeInput.classList.remove('hidden');
+      if (excludeContainer) excludeContainer.classList.remove('hidden');
+      else excludeInput.classList.remove('hidden');
+      updateExcludeDisplay();
       const lblClear = document.getElementById('lblClearBetInput');
       if (lblClear) lblClear.textContent = "Xóa lọc";
     });
@@ -3717,6 +3824,7 @@ function setupEventListeners() {
     excludeInput.addEventListener('input', function() {
       saveAppState();
       calculateSum();
+      updateExcludeDisplay();
       if (excludeHighlightTimeout) clearTimeout(excludeHighlightTimeout);
       excludeHighlightTimeout = setTimeout(() => {
         const sel = window.getSelection();
@@ -3789,6 +3897,7 @@ function setupEventListeners() {
     excludeInput.addEventListener('blur', function() {
       saveAppState();
       calculateSum();
+      updateExcludeDisplay();
     });
   }
 
@@ -3920,6 +4029,7 @@ function setupEventListeners() {
         excludeInput.innerText = "";
         excludeInput.innerHTML = "";
         localStorage.removeItem('z8_exclude_input');
+        updateExcludeDisplay();
       } else if (combinedBetInput) {
         combinedBetInput.innerText = "";
         combinedBetInput.innerHTML = "";
