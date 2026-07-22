@@ -176,6 +176,10 @@
                 <i class="fa-solid fa-table-cells"></i>
                 <span>Nhập số liệu (Hỗn hợp)</span>
               </button>
+              <button type="button" id="tabInputTransfer" class="text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent">
+                <i class="fa-solid fa-share-nodes text-blue-500"></i>
+                <span>Dữ liệu chuyển</span>
+              </button>
               <button type="button" id="tabInputExclude" class="text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent">
                 <i class="fa-solid fa-filter-circle-xmark text-rose-500"></i>
                 <span>Loại trừ</span>
@@ -195,6 +199,12 @@
               aria-multiline="true"
             ></div>
             
+            <div id="transferContainer" class="hidden w-full border border-slate-300 dark:border-slate-600 rounded-xl p-3 bg-white dark:bg-dark-700 overflow-y-auto" style="height: 300px;">
+              <div id="transferListContent" class="space-y-3 font-sans text-xs text-slate-800 dark:text-slate-100">
+                <!-- Dynamically populated list of transfer steps -->
+              </div>
+            </div>
+
             <div id="excludeContainer" class="hidden grid grid-cols-2 gap-2 sm:gap-3">
               <div 
                 id="excludeInput" 
@@ -384,16 +394,21 @@
 
         <!-- SHORTCUTS PANEL (LOOKUP TABLE) -->
         <div id="shortcutsPanel" class="hidden bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-4 transition-all hover:shadow-md">
-          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wider">
-            <i class="fa-solid fa-code text-excel-800 dark:text-emerald-400"></i>
-            <a href="nhaptat.html" class="text-excel-800 dark:text-emerald-400 hover:underline">Nhập tắt (Mapping Shortcuts):</a>
-          </label>
-          <textarea 
-            id="shortcuts" 
-            class="w-full border border-slate-300 dark:border-slate-600 rounded p-2 text-xs font-mono focus:ring-2 focus:ring-excel-800 bg-white dark:bg-dark-700 shadow-inner" 
-            style="height: 99px"
-            placeholder="Định nghĩa các phím tắt..."
-          ></textarea>
+          <div class="flex justify-between items-center mb-2">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              <i class="fa-solid fa-code text-excel-800 dark:text-emerald-400"></i>
+              <a href="nhaptat.html" class="text-excel-800 dark:text-emerald-400 hover:underline">Nhập tắt:</a>
+            </label>
+            <button type="button" id="btnToggleShortcuts" class="text-xs bg-slate-100 dark:bg-dark-700 hover:bg-slate-200 dark:hover:bg-dark-600 text-slate-600 dark:text-slate-200 px-2 py-0.5 rounded transition-all active:scale-95">Hiện</button>
+          </div>
+          <div id="shortcutsTextareaContainer" class="hidden">
+            <textarea 
+              id="shortcuts" 
+              class="w-full border border-slate-300 dark:border-slate-600 rounded p-2 text-xs font-mono focus:ring-2 focus:ring-excel-800 bg-white dark:bg-dark-700 shadow-inner" 
+              style="height: 99px"
+              placeholder="Định nghĩa các phím tắt..."
+            ></textarea>
+          </div>
           <p class="text-center mt-3 text-xs text-slate-400">
             <a href="dothuong.html" class="hover:underline">copyright</a> © by 
             <a href="ex.html" class="text-excel-800 dark:text-emerald-400 font-bold hover:underline">Angle</a>
@@ -2113,10 +2128,15 @@ function setRawTextToContentEditable(el, text, isExclude = false) {
 function saveAppState() {
   const combinedBetInput = document.getElementById('combinedBetInput');
   const excludeInput = document.getElementById('excludeInput');
-  const allPrizesInput = document.getElementById('allPrizesInput');
-  const specialPrizeInput = document.getElementById('specialPrizeInput');
   const autoFetchToggle = document.getElementById('autoFetchToggle');
   const resultDateInput = document.getElementById('resultDateInput');
+  const specialPrizeInput = document.getElementById('specialPrizeInput');
+  const allPrizesInput = document.getElementById('allPrizesInput');
+  const retainDe = document.getElementById('retainDe');
+  const retainLo = document.getElementById('retainLo');
+  const retain3c = document.getElementById('retain3c');
+  const retainX = document.getElementById('retainX');
+  const checkedRadio = document.querySelector('input[name="retainType"]:checked');
 
   if (combinedBetInput) {
     localStorage.setItem('z8_combined_bet', getRawTextFromElement(combinedBetInput));
@@ -2130,6 +2150,30 @@ function saveAppState() {
   if (resultDateInput) {
     localStorage.setItem('z8_result_date', resultDateInput.value || '');
   }
+  if (specialPrizeInput) {
+    localStorage.setItem('z8_special_prize', specialPrizeInput.value || '');
+  }
+  if (allPrizesInput) {
+    localStorage.setItem('z8_all_prizes', allPrizesInput.value || '');
+  }
+  if (retainDe) {
+    localStorage.setItem('z8_retain_de', retainDe.value || '0');
+  }
+  if (retainLo) {
+    localStorage.setItem('z8_retain_lo', retainLo.value || '0');
+  }
+  if (retain3c) {
+    localStorage.setItem('z8_retain_3c', retain3c.value || '0');
+  }
+  if (retainX) {
+    localStorage.setItem('z8_retain_x', retainX.value || '0');
+  }
+  if (checkedRadio) {
+    localStorage.setItem('z8_retain_type', checkedRadio.value);
+  }
+  if (typeof balanceState !== 'undefined') {
+    localStorage.setItem('z8_balance_state', JSON.stringify(balanceState));
+  }
 }
 
 function loadAppState() {
@@ -2139,6 +2183,10 @@ function loadAppState() {
   const specialPrizeInput = document.getElementById('specialPrizeInput');
   const autoFetchToggle = document.getElementById('autoFetchToggle');
   const resultDateInput = document.getElementById('resultDateInput');
+  const retainDe = document.getElementById('retainDe');
+  const retainLo = document.getElementById('retainLo');
+  const retain3c = document.getElementById('retain3c');
+  const retainX = document.getElementById('retainX');
 
   const savedBet = localStorage.getItem('z8_combined_bet');
   const savedExclude = localStorage.getItem('z8_exclude_input');
@@ -2146,6 +2194,12 @@ function loadAppState() {
   const savedSpecial = localStorage.getItem('z8_special_prize');
   const savedAutoFetch = localStorage.getItem('z8_auto_fetch');
   const savedDate = localStorage.getItem('z8_result_date');
+  const savedRetainDe = localStorage.getItem('z8_retain_de');
+  const savedRetainLo = localStorage.getItem('z8_retain_lo');
+  const savedRetain3c = localStorage.getItem('z8_retain_3c');
+  const savedRetainX = localStorage.getItem('z8_retain_x');
+  const savedRetainType = localStorage.getItem('z8_retain_type');
+  const savedBalanceState = localStorage.getItem('z8_balance_state');
 
   let hasData = false;
 
@@ -2174,8 +2228,43 @@ function loadAppState() {
     }
   }
 
+  if (savedSpecial !== null && specialPrizeInput) {
+    specialPrizeInput.value = savedSpecial;
+  }
+  if (savedPrizes !== null && allPrizesInput) {
+    allPrizesInput.value = savedPrizes;
+  }
+  if (savedRetainDe !== null && retainDe) {
+    retainDe.value = savedRetainDe;
+  }
+  if (savedRetainLo !== null && retainLo) {
+    retainLo.value = savedRetainLo;
+  }
+  if (savedRetain3c !== null && retain3c) {
+    retain3c.value = savedRetain3c;
+  }
+  if (savedRetainX !== null && retainX) {
+    retainX.value = savedRetainX;
+  }
+  if (savedRetainType !== null) {
+    const radio = document.querySelector(`input[name="retainType"][value="${savedRetainType}"]`);
+    if (radio) radio.checked = true;
+  }
+  if (savedBalanceState !== null) {
+    try {
+      const parsed = JSON.parse(savedBalanceState);
+      Object.assign(balanceState, parsed);
+      const counterLabel = document.getElementById('balanceCounterLabel');
+      if (counterLabel) counterLabel.textContent = `Số Lần Đã Cân Chuyển = ${balanceState.step}`;
+    } catch (e) {
+      console.error("Error parsing balanceState:", e);
+    }
+  }
+
   if (hasData) {
     calculateSum();
+  } else {
+    updateTransferTabDisplay();
   }
 
   if (autoFetchToggle && autoFetchToggle.checked) {
@@ -3118,6 +3207,8 @@ function calculateSum(isFromRunBalancing = false) {
       chuyen: chuyenData,
       giulai: giulaiData
     };
+    window.lastCalculatedTotalCost = totalVon;
+    window.lastCalculatedTotalCostChuyen = totalVonChuyen;
 
     // Helper to format/set cells
     const setCell = (id, val, isFormat = true) => {
@@ -3337,6 +3428,7 @@ function calculateSum(isFromRunBalancing = false) {
     inputTotalSumEl.textContent = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
   }
   updateCopyButtonLabel();
+  updateTransferTabDisplay();
 }
 
 function updateCopyButtonLabel() {
@@ -3846,30 +3938,80 @@ function setupEventListeners() {
   const combinedBetInput = document.getElementById('combinedBetInput');
   const excludeInput = document.getElementById('excludeInput');
   const tabInputMain = document.getElementById('tabInputMain');
+  const tabInputTransfer = document.getElementById('tabInputTransfer');
   const tabInputExclude = document.getElementById('tabInputExclude');
+  const transferContainer = document.getElementById('transferContainer');
+  const btnToggleShortcuts = document.getElementById('btnToggleShortcuts');
+  const shortcutsTextareaContainer = document.getElementById('shortcutsTextareaContainer');
 
-  if (tabInputMain && tabInputExclude && combinedBetInput && excludeInput) {
+  if (btnToggleShortcuts && shortcutsTextareaContainer) {
+    btnToggleShortcuts.addEventListener('click', () => {
+      if (shortcutsTextareaContainer.classList.contains('hidden')) {
+        shortcutsTextareaContainer.classList.remove('hidden');
+        btnToggleShortcuts.textContent = 'Ẩn';
+      } else {
+        shortcutsTextareaContainer.classList.add('hidden');
+        btnToggleShortcuts.textContent = 'Hiện';
+      }
+    });
+  }
+
+  if (tabInputMain && tabInputTransfer && tabInputExclude && combinedBetInput && excludeInput) {
     const excludeContainer = document.getElementById('excludeContainer');
-    tabInputMain.addEventListener('click', () => {
-      tabInputMain.className = "text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5";
-      tabInputExclude.className = "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
-      combinedBetInput.classList.remove('hidden');
-      if (excludeContainer) excludeContainer.classList.add('hidden');
-      else excludeInput.classList.add('hidden');
-      const lblClear = document.getElementById('lblClearBetInput');
-      if (lblClear) lblClear.textContent = "Xóa cược";
-    });
+    
+    const setTabActive = (activeTab) => {
+      // Main tab styling
+      tabInputMain.className = activeTab === 'main'
+        ? "text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5"
+        : "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
+        
+      // Transfer tab styling
+      tabInputTransfer.className = activeTab === 'transfer'
+        ? "text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5"
+        : "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
+        
+      // Exclude tab styling
+      tabInputExclude.className = activeTab === 'exclude'
+        ? "text-xs font-bold bg-white dark:bg-dark-800 text-rose-600 dark:text-rose-400 border-t-2 border-rose-500 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5"
+        : "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
 
-    tabInputExclude.addEventListener('click', () => {
-      tabInputExclude.className = "text-xs font-bold bg-white dark:bg-dark-800 text-rose-600 dark:text-rose-400 border-t-2 border-rose-500 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5";
-      tabInputMain.className = "text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent";
-      combinedBetInput.classList.add('hidden');
-      if (excludeContainer) excludeContainer.classList.remove('hidden');
-      else excludeInput.classList.remove('hidden');
-      updateExcludeDisplay();
+      // Containers visibility
+      if (activeTab === 'main') {
+        combinedBetInput.classList.remove('hidden');
+        if (excludeContainer) excludeContainer.classList.add('hidden');
+        if (transferContainer) transferContainer.classList.add('hidden');
+      } else if (activeTab === 'transfer') {
+        combinedBetInput.classList.add('hidden');
+        if (excludeContainer) excludeContainer.classList.add('hidden');
+        if (transferContainer) transferContainer.classList.remove('hidden');
+        updateTransferTabDisplay();
+      } else if (activeTab === 'exclude') {
+        combinedBetInput.classList.add('hidden');
+        if (excludeContainer) excludeContainer.classList.remove('hidden');
+        if (transferContainer) transferContainer.classList.add('hidden');
+        updateExcludeDisplay();
+      }
+
+      // Update clear button text
       const lblClear = document.getElementById('lblClearBetInput');
-      if (lblClear) lblClear.textContent = "Xóa lọc";
-    });
+      const btnClearBetInput = document.getElementById('btnClearBetInput');
+      if (lblClear && btnClearBetInput) {
+        if (activeTab === 'main') {
+          lblClear.textContent = "Xóa cược";
+          btnClearBetInput.classList.remove('hidden');
+        } else if (activeTab === 'exclude') {
+          lblClear.textContent = "Xóa lọc";
+          btnClearBetInput.classList.remove('hidden');
+        } else {
+          // Hide clear button in transfer tab
+          btnClearBetInput.classList.add('hidden');
+        }
+      }
+    };
+
+    tabInputMain.addEventListener('click', () => setTabActive('main'));
+    tabInputTransfer.addEventListener('click', () => setTabActive('transfer'));
+    tabInputExclude.addEventListener('click', () => setTabActive('exclude'));
   }
 
   if (excludeInput) {
@@ -4112,17 +4254,25 @@ function setupEventListeners() {
     btnClearBetInput.addEventListener('click', () => {
       const combinedBetInput = document.getElementById('combinedBetInput');
       const excludeInput = document.getElementById('excludeInput');
-      if (excludeInput && !excludeInput.classList.contains('hidden')) {
-        excludeInput.innerText = "";
-        excludeInput.innerHTML = "";
-        localStorage.removeItem('z8_exclude_input');
-        updateExcludeDisplay();
-      } else if (combinedBetInput) {
-        combinedBetInput.innerText = "";
-        combinedBetInput.innerHTML = "";
-        localStorage.removeItem('z8_combined_bet');
+      const activeTab = !document.getElementById('transferContainer').classList.contains('hidden') 
+        ? 'transfer' 
+        : (!document.getElementById('excludeContainer').classList.contains('hidden') ? 'exclude' : 'main');
+
+      if (activeTab === 'exclude') {
+        if (excludeInput) {
+          excludeInput.innerText = "";
+          excludeInput.innerHTML = "";
+          localStorage.removeItem('z8_exclude_input');
+          updateExcludeDisplay();
+        }
+      } else if (activeTab === 'main') {
+        if (combinedBetInput) {
+          combinedBetInput.innerText = "";
+          combinedBetInput.innerHTML = "";
+          localStorage.removeItem('z8_combined_bet');
+        }
+        resetBalancing();
       }
-      resetBalancing();
     });
   }
 
@@ -4528,6 +4678,113 @@ function setupEventListeners() {
   }
 }
 
+function updateTransferTabDisplay() {
+  const container = document.getElementById('transferListContent');
+  if (!container) return;
+
+  const totalVon = window.lastCalculatedTotalCost || 0; // in k
+  const totalVonChuyen = window.lastCalculatedTotalCostChuyen || 0; // in k
+  const totalVonGiulai = Math.max(0, totalVon - totalVonChuyen);
+
+  const formatMoney = (valK) => {
+    return Math.round(valK * 1000).toLocaleString('vi-VN') + "đ";
+  };
+
+  if (!balanceState || balanceState.step === 0) {
+    container.innerHTML = `
+      <div class="h-full flex flex-col items-center justify-center text-slate-400 py-12 text-center space-y-2 select-none">
+        <i class="fa-solid fa-share-nodes text-3xl opacity-40 text-excel-800 dark:text-emerald-500"></i>
+        <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">Chưa có dữ liệu cân chuyển</p>
+        <p class="text-[10px] text-slate-500 dark:text-slate-400">Bấm nút "Chuyển 1" để bắt đầu thực hiện các bước cân chuyển.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Tự động tái tạo lịch sử chuyển nếu bị khuyết (do tải lại phiên cũ)
+  if (!balanceState.history) balanceState.history = [];
+  while (balanceState.history.length < balanceState.step) {
+    const nextStep = balanceState.history.length + 1;
+    if (nextStep === balanceState.step) {
+      balanceState.history.push({
+        step: nextStep,
+        costTransferred: totalVonChuyen,
+        costRetained: totalVonGiulai
+      });
+    } else {
+      balanceState.history.push({
+        step: nextStep,
+        costTransferred: 0,
+        costRetained: totalVon
+      });
+    }
+  }
+
+  let html = `
+    <!-- Tổng chuyển card -->
+    <div class="bg-excel-800/10 dark:bg-emerald-950/20 p-3 rounded-xl border border-excel-800/20 dark:border-emerald-800/30 shadow-xs mb-4">
+      <div class="font-bold text-xs text-excel-800 dark:text-emerald-400 border-b border-excel-800/20 dark:border-emerald-800/20 pb-1.5 mb-2 flex items-center justify-between">
+        <span class="flex items-center gap-1.5">
+          <span>📊 TỔNG CHUYỂN CỦA TẤT CẢ CÁC BƯỚC</span>
+        </span>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="bg-white dark:bg-dark-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700">
+          <span class="text-[10px] text-slate-400 block uppercase font-semibold">Chuyển</span>
+          <span class="text-sm font-extrabold text-excel-800 dark:text-emerald-400 mt-0.5 block">${formatMoney(totalVonChuyen)}</span>
+        </div>
+        <div class="bg-white dark:bg-dark-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700">
+          <span class="text-[10px] text-slate-400 block uppercase font-semibold">Giữ lại</span>
+          <span class="text-sm font-extrabold text-slate-700 dark:text-slate-300 mt-0.5 block">${formatMoney(totalVonGiulai)}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Steps history list -->
+    <div class="space-y-2.5 max-h-[180px] overflow-y-auto pr-1">
+  `;
+
+  const history = balanceState.history || [];
+  history.forEach((stepItem) => {
+    html += `
+      <div class="bg-slate-50 dark:bg-dark-800/50 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700/60 shadow-xxs">
+        <div class="font-bold text-[11px] text-slate-700 dark:text-slate-300 mb-1.5 flex justify-between items-center">
+          <span>➡️ Lần chuyển ${stepItem.step}:</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
+          <div class="flex justify-between items-center bg-white dark:bg-dark-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-700/40">
+            <span class="text-slate-500">Chuyển:</span>
+            <span class="font-bold text-excel-800 dark:text-emerald-400">${formatMoney(stepItem.costTransferred)}</span>
+          </div>
+          <div class="flex justify-between items-center bg-white dark:bg-dark-800 px-2 py-1 rounded border border-slate-100 dark:border-slate-700/40">
+            <span class="text-slate-500">Giữ lại:</span>
+            <span class="font-bold text-slate-700 dark:text-slate-200">${formatMoney(stepItem.costRetained)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function calculatePortionCost(deMap, loMap, baCangMap, xienMap) {
+  const deComm = parseFloat(document.getElementById('deComm')?.value) || 0;
+  const loCost = parseFloat(document.getElementById('loCost')?.value) || 0;
+  const baCangComm = parseFloat(document.getElementById('baCangComm')?.value) || 0;
+  const xienComm = parseFloat(document.getElementById('xienComm')?.value) || 0;
+
+  let totalCost = 0;
+  Object.values(deMap).forEach(amt => { totalCost += amt * (deComm / 100); });
+  Object.values(loMap).forEach(amt => { totalCost += amt * (loCost / 1000); });
+  Object.values(baCangMap).forEach(amt => { totalCost += amt * (baCangComm / 100); });
+  Object.entries(xienMap).forEach(([idx, amt]) => {
+    totalCost += amt * (xienComm / 100);
+  });
+  return totalCost;
+}
+
 function runBalancingStep(isPercent) {
   // Ensure pending calculation is computed for current input before step execution
   calculateSum(false);
@@ -4653,6 +4910,20 @@ function runBalancingStep(isPercent) {
     balanceState.xienTransfers[idx] = (balanceState.xienTransfers[idx] || 0) + val;
   });
 
+  // Calculate costs for history log
+  const stepCost = calculatePortionCost(stepDeTransfers, stepLoTransfers, stepBaCangTransfers, stepXienTransfers);
+  const currentTotalVon = window.lastCalculatedTotalCost || 0;
+  const prevCumulativeTransferred = window.lastCalculatedTotalCostChuyen || 0;
+  const newCumulativeTransferred = prevCumulativeTransferred + stepCost;
+  const costRetained = Math.max(0, currentTotalVon - newCumulativeTransferred);
+
+  if (!balanceState.history) balanceState.history = [];
+  balanceState.history.push({
+    step: balanceState.step + 1,
+    costTransferred: stepCost,
+    costRetained: costRetained
+  });
+
   // Increment step
   balanceState.step++;
 
@@ -4665,6 +4936,7 @@ function runBalancingStep(isPercent) {
 
   // Re-calculate and update Chuyển column, passing true for isFromRunBalancing
   calculateSum(true);
+  updateTransferTabDisplay();
   return true;
 }
 
@@ -4684,11 +4956,47 @@ function resetBalancing() {
   balanceState.loSums = {};
   balanceState.baCangSums = {};
   balanceState.xienBets = [];
+  balanceState.history = [];
+
+  // Reset retain configs to default
+  const retainDe = document.getElementById('retainDe');
+  const retainLo = document.getElementById('retainLo');
+  const retain3c = document.getElementById('retain3c');
+  const retainX = document.getElementById('retainX');
+  if (retainDe) retainDe.value = "20";
+  if (retainLo) retainLo.value = "0";
+  if (retain3c) retain3c.value = "0";
+  if (retainX) retainX.value = "0";
+
+  const radioMoney = document.querySelector('input[name="retainType"][value="money"]');
+  if (radioMoney) radioMoney.checked = true;
+
+  // Reset results inputs to default empty
+  const specialPrizeInput = document.getElementById('specialPrizeInput');
+  const allPrizesInput = document.getElementById('allPrizesInput');
+  if (specialPrizeInput) specialPrizeInput.value = "";
+  if (allPrizesInput) allPrizesInput.value = "";
+
+  // Turn off auto-fetch
+  const autoFetchToggle = document.getElementById('autoFetchToggle');
+  if (autoFetchToggle) autoFetchToggle.checked = false;
+
+  // Remove saved localStorage keys
+  localStorage.removeItem('z8_special_prize');
+  localStorage.removeItem('z8_all_prizes');
+  localStorage.removeItem('z8_auto_fetch');
+  localStorage.removeItem('z8_balance_state');
+  localStorage.removeItem('z8_retain_de');
+  localStorage.removeItem('z8_retain_lo');
+  localStorage.removeItem('z8_retain_3c');
+  localStorage.removeItem('z8_retain_x');
+  localStorage.removeItem('z8_retain_type');
 
   const counterLabel = document.getElementById('balanceCounterLabel');
   if (counterLabel) counterLabel.textContent = 'Số Lần Đã Cân Chuyển = 0';
 
   calculateSum();
+  updateTransferTabDisplay();
 }
 
 function toggleCardDetail(id) {
