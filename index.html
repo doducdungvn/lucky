@@ -419,7 +419,7 @@
         <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           
           <!-- Card 1: Kết quả -->
-          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-between">
+          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-[460px]">
             <h3 onclick="toggleCardDetail('result')" class="font-bold text-xs flex items-center gap-1.5 mb-2 border-b border-slate-200 dark:border-slate-700 pb-2 cursor-pointer select-none text-slate-800 dark:text-slate-200">
               <i class="fa-solid fa-chart-simple text-excel-800 dark:text-emerald-400"></i>
               <span>Kết quả:</span>
@@ -436,13 +436,13 @@
               </div>
             </div>
             
-            <div id="wrapper-result" class="h-[220px] border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40">
-              <div id="result" class="space-y-1 h-full overflow-y-auto p-2 font-mono text-xs"></div>
+            <div id="wrapper-result" class="flex-1 flex flex-col min-h-0 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40">
+              <div id="result" class="space-y-1 flex-1 overflow-y-auto p-2 font-mono text-xs"></div>
             </div>
           </div>
 
           <!-- Card 2: Chuyển 1 -->
-          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-between">
+          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-[460px]">
             <h3 onclick="toggleCardDetail('modifiedResult')" class="font-bold text-xs flex items-center gap-1.5 mb-2 border-b border-slate-200 dark:border-slate-700 pb-2 cursor-pointer select-none text-slate-800 dark:text-slate-200">
               <i class="fa-solid fa-arrows-rotate text-indigo-600 dark:text-indigo-400"></i>
               <span id="transferHeaderTitle">Chuyển 1:</span>
@@ -459,17 +459,17 @@
               </div>
             </div>
             
-            <div id="transferStepsContainer" class="mb-2 hidden">
+            <div id="transferStepsContainer" class="flex-1 flex flex-col min-h-0 mb-2 hidden">
               <div id="transferStepsTabHeaders" class="flex flex-wrap gap-1 mb-2"></div>
-              <div id="transferStepsTabContent" class="text-[11.5px] bg-slate-50 dark:bg-dark-900/40 p-1.5 rounded border border-slate-200 dark:border-slate-700 h-[220px] overflow-y-auto font-sans leading-normal box-sizing-border-box select-text break-all"></div>
+              <div id="transferStepsTabContent" class="text-[11.5px] bg-slate-50 dark:bg-dark-900/40 p-1.5 rounded border border-slate-200 dark:border-slate-700 flex-1 min-h-0 overflow-y-auto font-sans leading-normal box-sizing-border-box select-text break-all"></div>
             </div>
-            <div id="wrapper-modifiedResult" class="h-[220px] border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40">
-              <div id="modifiedResult" class="space-y-1 h-full overflow-y-auto p-2 font-mono text-xs"></div>
+            <div id="wrapper-modifiedResult" class="flex-1 flex flex-col min-h-0 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40">
+              <div id="modifiedResult" class="space-y-1 flex-1 overflow-y-auto p-2 font-mono text-xs"></div>
             </div>
           </div>
 
           <!-- Card 3: Chi tiết Input -->
-          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-between">
+          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-[460px]">
             <h3 onclick="toggleCardDetail('inputList')" class="font-bold text-xs flex items-center gap-1.5 mb-2 border-b border-slate-200 dark:border-slate-700 pb-2 cursor-pointer select-none text-slate-800 dark:text-slate-200">
               <i class="fa-solid fa-magnifying-glass text-amber-600 dark:text-amber-400"></i>
               <span>Chi tiết:</span>
@@ -486,8 +486,8 @@
               </div>
             </div>
             
-            <div id="wrapper-inputList" class="h-[220px] border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40">
-              <ul id="inputList" class="space-y-1 h-full overflow-y-auto p-2 font-mono text-xs"></ul>
+            <div id="wrapper-inputList" class="flex-1 flex flex-col min-h-0 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40">
+              <ul id="inputList" class="space-y-1 flex-1 overflow-y-auto p-2 font-mono text-xs"></ul>
             </div>
           </div>
 
@@ -634,6 +634,10 @@
   </main>
 
   <script>
+window.onerror = function(message, source, lineno, colno, error) {
+  alert("LỖI JS: " + message + "\nTại: " + source + ":" + lineno + ":" + colno + "\nStack: " + (error ? error.stack : "N/A"));
+  return false;
+};
 // Predefined shorthands map from thau_lode.html
 const shorthands = {
   "k": "00.11.22.33.44.55.66.77.88.99",
@@ -2861,10 +2865,16 @@ function calculateSum(isFromRunBalancing = false) {
       let excess;
       if (isExcl) {
         excess = val;
+        excess = Math.max(0, Math.round(excess * 10) / 10);
       } else {
-        excess = retainType === "money" ? val - retainVal : val - (val * (retainVal / 100));
+        if (retainType === "money") {
+          excess = val - retainVal;
+          excess = Math.max(0, Math.round(excess * 10) / 10);
+        } else {
+          excess = val - (val * (retainVal / 100));
+          excess = Math.max(0, Math.ceil(excess));
+        }
       }
-      excess = Math.max(0, Math.round(excess * 10) / 10);
 
       const alreadyTransferred = cumulativeMap[key] || 0;
       const pendingTransfer = Math.max(0, Math.round((excess - alreadyTransferred) * 10) / 10);
@@ -2874,6 +2884,40 @@ function calculateSum(isFromRunBalancing = false) {
       }
     });
     return map;
+  };
+
+  const getCumulativeTransferMap = (categoryKey) => {
+    const map = {};
+    const cumulativeKey = categoryKey === 'bacang_lo' ? 'baCangLoTransfers' : (categoryKey === 'bacang' ? 'baCangTransfers' : categoryKey + 'Transfers');
+    const cumulative = balanceState[cumulativeKey] || {};
+    
+    // Start with the cumulative of all completed steps
+    Object.entries(cumulative).forEach(([key, val]) => {
+      map[key] = val;
+    });
+    
+    // If there's a pending step, add its pending transfers
+    if (balanceState.isPendingCalculated || balanceState.step === 0) {
+      const pending = getCategoryTransferMap(categoryKey);
+      Object.entries(pending).forEach(([key, val]) => {
+        map[key] = (map[key] || 0) + val;
+      });
+    }
+    return map;
+  };
+
+  const getCumulativeLayoffValues = (sumsMap, getPayoutFn, categoryKey) => {
+    let costSum = 0;
+    let winSum = 0;
+    const transferMap = getCumulativeTransferMap(categoryKey);
+    Object.entries(sumsMap).forEach(([key, value]) => {
+      let modifiedSum = transferMap[key] || 0;
+      if (modifiedSum >= 0.1) {
+        costSum += modifiedSum;
+        winSum += getPayoutFn(key, modifiedSum);
+      }
+    });
+    return { costSum, winSum };
   };
 
   const getLayoffValues = (sumsMap, getPayoutFn, categoryKey) => {
@@ -2933,6 +2977,49 @@ function calculateSum(isFromRunBalancing = false) {
 
   const totalVonChuyen = deVonChuyen + loVonChuyen + xienVonChuyen + baCangVonChuyen;
   const totalTrungChuyen = deTrungChuyen + loTrungChuyen + xienTrungChuyen + baCangTrungChuyen;
+
+  // Cumulative transfer calculations for report
+  const deLayoffCum = getCumulativeLayoffValues(deSums, (key, amt) => (key === specialPrizeLast2 ? amt * dePayout_chuyen : 0), 'de');
+  const deVonChuyenCum = deLayoffCum.costSum * (deComm_chuyen / 100);
+  const deTrungChuyenCum = deLayoffCum.winSum;
+
+  const loLayoffCum = getCumulativeLayoffValues(loSums, (key, amt) => {
+    const occurrences = allPrizesLast2.filter(p => p === key).length;
+    return occurrences * amt * loPayoutFactor_chuyen;
+  }, 'lo');
+  const loVonChuyenCum = loLayoffCum.costSum * loCostFactor_chuyen;
+  const loTrungChuyenCum = loLayoffCum.winSum;
+
+  let xienVonChuyenCum = 0;
+  let xienTrungChuyenCum = 0;
+  let xienXacChuyenCum = 0;
+  const xienTransferMapCum = getCumulativeTransferMap('xien');
+  xienBets.forEach((bet, idx) => {
+    let modifiedSum = xienTransferMapCum[idx] || 0;
+    if (modifiedSum >= 0.1) {
+      xienXacChuyenCum += modifiedSum;
+      xienVonChuyenCum += modifiedSum * (xienComm_chuyen / 100);
+      const allHit = bet.numbers.every(num => allPrizesLast2.includes(num));
+      if (allHit) {
+        const size = bet.numbers.length;
+        const winRate = size === 2 ? x2Payout_chuyen : (size === 3 ? x3Payout_chuyen : x4Payout_chuyen);
+        xienTrungChuyenCum += modifiedSum * winRate;
+      }
+    }
+  });
+
+  const baCangLayoffCum = getCumulativeLayoffValues(baCangSums, (key, amt) => {
+    const match3 = key === specialPrizeLast3;
+    const match2 = key.slice(-2) === specialPrizeLast2;
+    if (match3) return amt * baCangPayout_chuyen;
+    if (match2) return amt * baCangApMa_chuyen;
+    return 0;
+  }, 'bacang');
+  const baCangVonChuyenCum = baCangLayoffCum.costSum * (baCangComm_chuyen / 100);
+  const baCangTrungChuyenCum = baCangLayoffCum.winSum;
+
+  const totalVonChuyenCum = deVonChuyenCum + loVonChuyenCum + xienVonChuyenCum + baCangVonChuyenCum;
+  const totalTrungChuyenCum = deTrungChuyenCum + loTrungChuyenCum + xienTrungChuyenCum + baCangTrungChuyenCum;
 
   const deTransferMap = getCategoryTransferMap('de');
   const deWinSumChuyen = deSums[specialPrizeLast2] ? deTransferMap[specialPrizeLast2] || 0 : 0;
@@ -3265,7 +3352,7 @@ function calculateSum(isFromRunBalancing = false) {
     const baCangXac = baCangDeBetSum;
 
     // Save calculation data in window.lastReportData
-    const totalNetChuyen = totalVonChuyen - totalTrungChuyen;
+    const totalNetChuyenCum = totalVonChuyenCum - totalTrungChuyenCum;
     const thauData = {
       deXac, deVon, deTrung: deTrung, deWinXac: deWinSum, deNet,
       loXac, loVon, loTrung: loTrung, loWinXac: loWinSum, loNet,
@@ -3274,11 +3361,11 @@ function calculateSum(isFromRunBalancing = false) {
       totalVon, totalTrung, totalNet
     };
     const chuyenData = {
-      deXac: deLayoff.costSum, deVon: deVonChuyen, deTrung: deTrungChuyen, deNet: (deVonChuyen - deTrungChuyen),
-      loXac: loLayoff.costSum, loVon: loVonChuyen, loTrung: loTrungChuyen, loNet: (loVonChuyen - loTrungChuyen),
-      xienXac: xienXacChuyen, xienVon: xienVonChuyen, xienTrung: xienTrungChuyen, xienNet: (xienVonChuyen - xienTrungChuyen),
-      baCangXac: baCangLayoff.costSum, baCangVon: baCangVonChuyen, baCangTrung: baCangTrungChuyen, baCangNet: (baCangVonChuyen - baCangTrungChuyen),
-      totalVon: totalVonChuyen, totalTrung: totalTrungChuyen, totalNet: totalNetChuyen
+      deXac: deLayoffCum.costSum, deVon: deVonChuyenCum, deTrung: deTrungChuyenCum, deNet: (deVonChuyenCum - deTrungChuyenCum),
+      loXac: loLayoffCum.costSum, loVon: loVonChuyenCum, loTrung: loTrungChuyenCum, loNet: (loVonChuyenCum - loTrungChuyenCum),
+      xienXac: xienXacChuyenCum, xienVon: xienVonChuyenCum, xienTrung: xienTrungChuyenCum, xienNet: (xienVonChuyenCum - xienTrungChuyenCum),
+      baCangXac: baCangLayoffCum.costSum, baCangVon: baCangVonChuyenCum, baCangTrung: baCangTrungChuyenCum, baCangNet: (baCangVonChuyenCum - baCangTrungChuyenCum),
+      totalVon: totalVonChuyenCum, totalTrung: totalTrungChuyenCum, totalNet: totalNetChuyenCum
     };
     const giulaiData = {
       deXac: Math.max(0, thauData.deXac - chuyenData.deXac),
@@ -3312,7 +3399,7 @@ function calculateSum(isFromRunBalancing = false) {
       giulai: giulaiData
     };
     window.lastCalculatedTotalCost = totalVon;
-    window.lastCalculatedTotalCostChuyen = totalVonChuyen;
+    window.lastCalculatedTotalCostChuyen = totalVonChuyenCum;
 
     // Helper to format/set cells
     const setCell = (id, val, isFormat = true) => {
@@ -3333,7 +3420,7 @@ function calculateSum(isFromRunBalancing = false) {
     const thauNetEl = document.getElementById("thauNet");
     const thauNetLabel = document.getElementById("thauNetLabel");
     if (thauNetEl && thauNetLabel) {
-      thauNetEl.textContent = Math.round(Math.abs(totalNet)).toLocaleString('vi-VN');
+      thauNetEl.textContent = Math.ceil(Math.abs(totalNet)).toLocaleString('vi-VN');
       if (totalNet < 0) {
         thauNetLabel.textContent = "Thầu bù";
         thauNetLabel.className = "text-gray-500 block font-bold text-emerald-600 dark:text-emerald-400";
@@ -3346,13 +3433,13 @@ function calculateSum(isFromRunBalancing = false) {
     }
 
     // Chuyển
-    setCell("chuyenVon", totalVonChuyen);
-    setCell("chuyenTrung", totalTrungChuyen);
+    setCell("chuyenVon", totalVonChuyenCum);
+    setCell("chuyenTrung", totalTrungChuyenCum);
     const chuyenNetEl = document.getElementById("chuyenNet");
     const chuyenNetLabel = document.getElementById("chuyenNetLabel");
     if (chuyenNetEl && chuyenNetLabel) {
-      chuyenNetEl.textContent = Math.round(Math.abs(totalNetChuyen)).toLocaleString('vi-VN');
-      if (totalNetChuyen < 0) {
+      chuyenNetEl.textContent = Math.round(Math.abs(totalNetChuyenCum)).toLocaleString('vi-VN');
+      if (totalNetChuyenCum < 0) {
         chuyenNetLabel.textContent = "Lời";
         chuyenNetLabel.className = "text-gray-500 block font-bold text-emerald-600 dark:text-emerald-400";
         chuyenNetEl.className = "font-extrabold text-emerald-600 dark:text-emerald-400 text-sm";
@@ -3401,7 +3488,7 @@ function calculateSum(isFromRunBalancing = false) {
       totalSumLabel.textContent = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
     }
     if (modifiedTotalSumLabel) {
-      modifiedTotalSumLabel.textContent = `${Math.round(totalVonChuyen).toLocaleString("vi-VN")} / ${Math.round(totalTrungChuyen).toLocaleString("vi-VN")}`;
+      modifiedTotalSumLabel.textContent = `${Math.round(totalVonChuyenCum).toLocaleString("vi-VN")} / ${Math.round(totalTrungChuyenCum).toLocaleString("vi-VN")}`;
     }
 
   } else {
@@ -3476,7 +3563,7 @@ function calculateSum(isFromRunBalancing = false) {
   };
 
   const getLayoffCount = (sumsMap, categoryKey) => {
-    const transferMap = getCategoryTransferMap(categoryKey);
+    const transferMap = getCumulativeTransferMap(categoryKey);
     return Object.keys(sumsMap).filter(key => {
       let modifiedSum = transferMap[key] || 0;
       return modifiedSum >= 0.1;
@@ -3490,8 +3577,9 @@ function calculateSum(isFromRunBalancing = false) {
 
   const layoffDeCount = getLayoffCount(deSums, 'de');
   const layoffLoCount = getLayoffCount(loSums, 'lo');
+  const transferMapCumXien = getCumulativeTransferMap('xien');
   const layoffXienCount = xienBets.filter((bet, idx) => {
-    let modifiedSum = xienTransferMap[idx] || 0;
+    let modifiedSum = transferMapCumXien[idx] || 0;
     return modifiedSum >= 0.1;
   }).length;
   const layoff3CCount = getLayoffCount(baCangSums, 'bacang');
@@ -4806,13 +4894,11 @@ function updateTransferStepsUI() {
   // Show/hide content based on activeStepTab
   if (!window.activeStepTab || window.activeStepTab > balanceState.step || window.activeStepTab < 1) {
     content.classList.add('hidden');
-    content.style.display = 'none';
     if (wrapperModifiedResult) wrapperModifiedResult.classList.remove('hidden');
     return;
   }
 
   content.classList.remove('hidden');
-  content.style.display = 'block';
   if (wrapperModifiedResult) wrapperModifiedResult.classList.add('hidden');
 
   // Find active step data
@@ -5029,10 +5115,17 @@ function runBalancingStep(isPercent) {
       let excess;
       if (isExcl) {
         excess = total - prevTransfer;
+        excess = Math.max(0, Math.round(excess * 10) / 10);
       } else {
-        excess = isPct ? (total * ((100 - limit) / 100)) - prevTransfer : total - prevTransfer - limit;
+        if (isPct) {
+          const targetTransfer = Math.ceil(total * ((100 - limit) / 100));
+          excess = targetTransfer - prevTransfer;
+          excess = Math.max(0, Math.round(excess * 10) / 10);
+        } else {
+          excess = total - prevTransfer - limit;
+          excess = Math.max(0, Math.round(excess * 10) / 10);
+        }
       }
-      excess = Math.round(excess * 10) / 10;
       if (excess >= 0.1) {
         stepTransfersMap[key] = excess;
       }
@@ -5050,10 +5143,17 @@ function runBalancingStep(isPercent) {
     let excess;
     if (isExcl) {
       excess = bet.amount - prevTransfer;
+      excess = Math.max(0, Math.round(excess * 10) / 10);
     } else {
-      excess = isPercent ? (bet.amount * ((100 - retainX) / 100)) - prevTransfer : bet.amount - prevTransfer - retainX;
+      if (isPercent) {
+        const targetTransfer = Math.ceil(bet.amount * ((100 - retainX) / 100));
+        excess = targetTransfer - prevTransfer;
+        excess = Math.max(0, Math.round(excess * 10) / 10);
+      } else {
+        excess = bet.amount - prevTransfer - retainX;
+        excess = Math.max(0, Math.round(excess * 10) / 10);
+      }
     }
-    excess = Math.round(excess * 10) / 10;
     if (excess >= 0.1) {
       stepXienTransfers[idx] = excess;
     }
