@@ -276,12 +276,21 @@
             class="input-premium h-48 font-mono text-sm leading-relaxed overflow-y-auto whitespace-pre-wrap break-all border border-slate-700/50 rounded-xl p-3 bg-slate-900/30 text-slate-200" 
             style="outline: none;"
           ></div>
-          <div 
-            id="excludeInput" 
-            contenteditable="true"
-            class="hidden w-full border border-rose-800/40 rounded-xl p-3 bg-rose-950/10 text-slate-200 font-mono text-sm leading-relaxed overflow-y-auto whitespace-pre-wrap break-all" 
-            style="height: 12rem; outline: none;"
-          ></div>
+          <div id="excludeContainer" class="hidden grid grid-cols-2 gap-2 sm:gap-3">
+            <div 
+              id="excludeInput" 
+              contenteditable="true"
+              class="w-full border border-rose-800/40 rounded-xl p-2 sm:p-3 bg-rose-950/10 text-slate-200 font-mono text-xs sm:text-sm leading-relaxed overflow-y-auto whitespace-pre-wrap break-all" 
+              style="height: 12rem; outline: none;"
+            ></div>
+            <div 
+              id="excludeSummaryDisplay" 
+              class="w-full border border-rose-800/40 rounded-xl p-2 sm:p-3 bg-slate-900/40 font-sans text-xs overflow-y-auto shadow-inner text-slate-200"
+              style="height: 12rem;"
+            >
+              <!-- Dynamically populated excluded summary by category -->
+            </div>
+          </div>
         </div>
 
         <!-- Big Calculate Button -->
@@ -963,7 +972,8 @@
         }
 
         // Auto recalculate if there is input
-        if (document.getElementById('combinedBetInput').value.trim()) {
+        const rawInput = getRawTextFromElement(document.getElementById('combinedBetInput'));
+        if (rawInput && rawInput.trim()) {
           calculateLottoReport();
         }
       };
@@ -975,7 +985,8 @@
       // Auto recalculate on limit input changes
       document.querySelectorAll('#layoffPercentInput, #layoffLimitDe, #layoffLimitLo, #layoffLimitXien, #layoffLimit3C').forEach(input => {
         input.addEventListener('input', () => {
-          if (document.getElementById('combinedBetInput').value.trim()) {
+          const rawInput = getRawTextFromElement(document.getElementById('combinedBetInput'));
+          if (rawInput && rawInput.trim()) {
             calculateLottoReport();
           }
         });
@@ -983,7 +994,8 @@
           if (e.key === 'Enter') {
             e.preventDefault();
             input.blur();
-            if (document.getElementById('combinedBetInput').value.trim()) {
+            const rawInput = getRawTextFromElement(document.getElementById('combinedBetInput'));
+            if (rawInput && rawInput.trim()) {
               calculateLottoReport();
             }
           }
@@ -1025,7 +1037,8 @@
         }
 
         // Recalculate if there is input
-        if (document.getElementById('combinedBetInput').value.trim()) {
+        const rawInput = getRawTextFromElement(document.getElementById('combinedBetInput'));
+        if (rawInput && rawInput.trim()) {
           calculateLottoReport();
         }
       });
@@ -1587,32 +1600,47 @@
       }
 
       function normalizeBetLine(line) {
-        let normalized = stripAccents(line.trim());
-        normalized = normalized.replace(/([dđ])`/gi, '$1');
+        let normalized = stripAccents(line.trim().toLowerCase());
+        normalized = normalized.replace(/([dđ])`/g, '$1');
         normalized = normalized.replace(/[’‘ʼ＇]/g, "'");
         normalized = normalized.replace(/(\d)\s*,\s*(\d)/g, '$1.$2');
         normalized = normalized.replace(/(\d)\s*\.\s*(\d)/g, '$1.$2');
-        normalized = normalized.replace(/\b(?:dau\s+dit|dau\s+duoi)\s*(\d)(?![0-9])/gi, 'dau$1, dit$1');
-        normalized = normalized.replace(/\b(?:dd)\s*(\d)(?![0-9])/gi, 'dau$1, dit$1');
-        normalized = normalized.replace(/\b(?:kep lech)\b/gi, 'kl');
-        normalized = normalized.replace(/\b(?:lip|kep)\b/gi, 'k');
-        normalized = normalized.replace(/\b(?:dau)\s*(\d)(?![0-9])/gi, 'dau$1');
-        normalized = normalized.replace(/\b(?:dit|duoi)\s*(\d)(?![0-9])/gi, 'dit$1');
-        normalized = normalized.replace(/\b(?:cham)\s*(\d)(?![0-9])/gi, 'cham$1');
-        normalized = normalized.replace(/\b(?:tong)\s*(\d)(?![0-9])/gi, 't$1');
-        normalized = normalized.replace(/\b(?:d)\s*(\d)(?![0-9])/gi, 'd$1');
-        normalized = normalized.replace(/\b(?:t)\s*(\d)(?![0-9])/gi, 't$1');
-        normalized = normalized.replace(/\b(?:bo|he)\s*(\d{1,2})(?![0-9])/gi, 'bo$1');
-        normalized = normalized.replace(/\b(?:moi con bang|moi con)\b/gi, 'mc');
-        normalized = normalized.replace(/\s*[,.]\s*(?==|x|mc|moi\s+con|\+|\*)/gi, ' ');
-        normalized = normalized.replace(/([a-z0-9])\s*(mỗi\s+con\s*=?|moi\s+con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, '$1x$3');
-        normalized = normalized.replace(/\bmc\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/gi, 'x$1');
-        normalized = normalized.replace(/\s+(\d+(?:\.\d+)?)\s*(?:d|đ|₫|k|n)(?![a-z0-9])/gi, ' x$1');
+        normalized = normalized.replace(/\b(?:chan\s+chan|chanchan)\b/g, 'chanchan');
+        normalized = normalized.replace(/\b(?:chan\s+le|chanle)\b/g, 'chanle');
+        normalized = normalized.replace(/\b(?:le\s+chan|lechan)\b/g, 'lechan');
+        normalized = normalized.replace(/\b(?:le\s+le|lele)\b/g, 'lele');
+        normalized = normalized.replace(/\b(?:daudit|dau\s+dit|dau\s+duoi|dd|đđ)\s*(\d)(?![0-9])/g, 'daudit$1');
+        normalized = normalized.replace(/\b(?:kep lech)\b/g, 'kl');
+        normalized = normalized.replace(/\b(?:lip|kep)\b/g, 'k');
+        normalized = normalized.replace(/\b(?:dau)\s*(\d)(?![0-9])/g, 'dau$1');
+        normalized = normalized.replace(/\b(?:dit|duoi)\s*(\d)(?![0-9])/g, 'dit$1');
+        normalized = normalized.replace(/\b(?:cham)\s*(\d)(?![0-9])/g, 'cham$1');
+        normalized = normalized.replace(/\b(?:tong)\s*(\d)(?![0-9])/g, 't$1');
+        normalized = normalized.replace(/\b(?:d)\s*(\d)(?![0-9])/g, 'd$1');
+        normalized = normalized.replace(/\b(?:t)\s*(\d)(?![0-9])/g, 't$1');
+        normalized = normalized.replace(/\b(?:bo|he)\s*(\d{1,2})(?![0-9])/g, 'bo$1');
+        normalized = normalized.replace(/\b(?:moi\s*con\s*bang|moi\s*con)\b/g, 'mc');
+        normalized = normalized.replace(/\b(?:3\s*cang|3\s*c)\b/g, '3c');
+        normalized = normalized.replace(/\b(?:xien\s*quay|x\s*quay)\b/g, 'xq');
+        normalized = normalized.replace(/\b(?:lo\s*xien|l\s*xien)\b/g, 'xien');
+        normalized = normalized.replace(/\s*[,.]\s*(?==|x|mc|moi\s*con|\+|\*)/g, ' ');
+        normalized = normalized.replace(/([a-z0-9])\s*(mỗi\s*con\s*=?|moi\s*con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/g, '$1x$3');
+        normalized = normalized.replace(/\bmc\s*(\d+(?:\.\d+)?)(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?(?![a-z0-9])/g, 'x$1');
+        normalized = normalized.replace(/\s+(\d+(?:\.\d+)?)\s*(?:d|đ|₫|k|n)(?![a-z0-9])/g, ' x$1');
         return normalized;
       }
 
       function normalizeShorthandToken(token) {
         let t = token.trim().toLowerCase().replace(/[’‘ʼ＇`]/g, "'");
+        const dauditMatch = t.match(/^daudit(\d)$/);
+        if (dauditMatch) {
+          const d = dauditMatch[1];
+          const dauKey = 'd' + d;
+          const ditKey = "d'" + d;
+          if (shorthands[dauKey] && shorthands[ditKey]) {
+            return shorthands[dauKey] + '.' + shorthands[ditKey];
+          }
+        }
         const dauMatch = t.match(/^dau(\d)$/);
         if (dauMatch) return 'd' + dauMatch[1];
         const ditMatch = t.match(/^dit(\d)$/);
@@ -1637,7 +1665,9 @@
           'bt': 'beto',
           'bb': 'bebe',
           'tc': 'tongchan',
-          'tl': 'tongle'
+          'tl': 'tongle',
+          'chan': 'ditchan',
+          'le': 'ditle'
         };
         return aliases[t] || t;
       }
@@ -1647,7 +1677,7 @@
         const shortcutsInput = ""; 
         const customShortcuts = {};
 
-        const combinedRegex = /(dau|dit|d'|d|he|bo|t|cham)([0-9]{1,2})((?:[.,\-\s]+[0-9]{1,2})+)/gi;
+        const combinedRegex = /(dau|dit|daudit|d'|d|he|bo|t|cham)([0-9]{1,2})((?:[.,\-\s]+[0-9]{1,2})+)/gi;
         s = s.replace(combinedRegex, (match, prefix, firstDigit, rest) => {
           const digits = rest.split(/[^0-9]+/).filter(Boolean);
           const expanded = [prefix + firstDigit, ...digits.map(d => prefix + d)];
@@ -1662,6 +1692,7 @@
           const normalized = normalizeShorthandToken(part);
           if (customShortcuts[normalized]) return customShortcuts[normalized];
           if (shorthands[normalized]) return shorthands[normalized];
+          if (/^[\d.]+$/.test(normalized)) return normalized;
           return part;
         });
         return resolvedParts.join('');
@@ -1699,6 +1730,140 @@
           }
         });
         return numbers;
+      }
+
+      function getCustomShortcutsMap() {
+        const shortcutsInput = document.getElementById("shortcuts")?.value || "";
+        const shortcutsArray = shortcutsInput.split("\n");
+        const customShortcuts = {};
+        for (let i = 0; i < shortcutsArray.length; i++) {
+          const shortcutParts = shortcutsArray[i].split("=");
+          const shortcutName = shortcutParts[0]?.trim().toLowerCase();
+          const shortcutValue = shortcutParts[1]?.trim();
+          if (shortcutName && shortcutValue) {
+            const keys = shortcutName.split(",");
+            keys.forEach(k => {
+              const cleanedKey = k.trim();
+              if (cleanedKey) {
+                customShortcuts[cleanedKey] = shortcutValue;
+              }
+            });
+          }
+        }
+        return customShortcuts;
+      }
+
+      function isTokenRecognized(token, activeCategory, customShortcuts = {}) {
+        const trimmed = token.trim();
+        if (!trimmed) return true;
+
+        if (/^[\s.,;/\-\+=\*x:]+$/i.test(trimmed)) return true;
+        if (/^(mỗi\s*con\s*=?|moi\s*con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*\d+(?:\.\d+)?(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?$/i.test(trimmed)) return true;
+        if (/^\d+(?:\.\d+)?(?:d|đ|₫|k|n)$/i.test(trimmed)) return true;
+
+        const norm = normalizeBetLine(trimmed);
+        const normLower = trimmed.toLowerCase();
+
+        const categoryRegex = /^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|l\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|d|l|c|bc|cang|3\s*cang)$/i;
+        if (categoryRegex.test(norm)) return true;
+
+        if (customShortcuts[normLower] || customShortcuts[norm]) return true;
+
+        const normShorthand = normalizeShorthandToken(trimmed);
+        if (shorthands[normShorthand] || shorthands[normLower] || shorthands[norm]) return true;
+
+        if (/^(dau|dit|daudit|cham|tong|t|d|d'|bo|he)\d{1,2}$/i.test(norm)) return true;
+        if (/^(daube|dauto|dauchan|daule|ditbe|ditto|ditchan|ditle|tobe|toto|tochan|tole|bebe|beto|bechan|bele|tongchan|tongle|chanchan|chanle|lechan|lele|kl|k)$/i.test(norm)) return true;
+
+        const resolved = resolveShorthands(trimmed);
+        const parsedNums = parseNumbersFromBetString(resolved, activeCategory || 'de');
+        if (parsedNums.length > 0) return true;
+
+        if (/^[\d.,\-\s]+$/.test(trimmed)) {
+          const digitsOnly = trimmed.split(/[^\d]+/).filter(Boolean);
+          if (digitsOnly.length > 0) return true;
+        }
+
+        return false;
+      }
+
+      function formatExcludeLineWithHighlights(line, currentCat) {
+        const tokens = line.match(/\s+|[^\s]+/g) || [];
+        let activeCat = currentCat;
+        let html = "";
+
+        const typeRegex = {
+          de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
+          lo: /^(lo|lô|l)$/i,
+          xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
+          xien: /^(xien|xiên|x|x2|x3|x4)$/i,
+          bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
+        };
+
+        const customShortcuts = getCustomShortcutsMap();
+
+        tokens.forEach(token => {
+          const trimmed = token.trim();
+          if (!trimmed) {
+            html += escapeHtml(token);
+            return;
+          }
+
+          const norm = normalizeBetLine(trimmed);
+          const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|d|l|c|bc|cang|3\s*cang)$/i);
+          if (spaceMatch) {
+            const rawType = spaceMatch[1].toLowerCase();
+            let newCat = '';
+            if (typeRegex.de.test(rawType)) newCat = 'de';
+            else if (typeRegex.lo.test(rawType)) newCat = 'lo';
+            else if (typeRegex.xienquay.test(rawType)) newCat = 'xienquay';
+            else if (typeRegex.xien.test(rawType)) newCat = 'xien';
+            else if (typeRegex.bacang.test(rawType)) newCat = 'bacang';
+
+            if (newCat) {
+              activeCat = newCat;
+              html += escapeHtml(token);
+              return;
+            }
+          }
+
+          const subTokens = trimmed.split(/[.,\-\s]+/);
+          let allValid = true;
+
+          for (let i = 0; i < subTokens.length; i++) {
+            const sub = subTokens[i].trim();
+            if (!sub) continue;
+
+            const normSub = normalizeShorthandToken(sub);
+
+            if (customShortcuts[sub.toLowerCase()]) continue;
+            if (customShortcuts[normSub]) continue;
+            if (shorthands[normSub]) continue;
+
+            if (!activeCat) {
+              allValid = false;
+              break;
+            }
+            const cat = activeCat;
+            const resolved = resolveShorthands(sub);
+            const parsedNums = parseNumbersFromBetString(resolved, cat);
+            if (parsedNums.length === 0) {
+              allValid = false;
+              break;
+            }
+          }
+
+          if (allValid) {
+            html += escapeHtml(token);
+          } else {
+            html += `<span class="text-green-600 dark:text-green-400 font-bold bg-green-50 dark:bg-green-950/20 px-1 rounded border border-green-300 dark:border-green-900/50">${escapeHtml(token)}</span>`;
+          }
+        });
+
+        return {
+          html: html,
+          newCategory: activeCat
+        };
       }
 
       function parseExclusions(excludeString) {
@@ -1792,20 +1957,107 @@
         return false;
       }
 
-      function formatExcludeLineWithHighlights(line, currentCat) {
-        const tokens = line.match(/\s+|[^\s]+/g) || [];
-        let activeCat = currentCat;
-        let html = "";
+      function updateExcludeDisplay() {
+        const displayEl = document.getElementById('excludeSummaryDisplay');
+        if (!displayEl) return;
 
-        const typeRegex = {
-          de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
-          lo: /^(lo|lô|l)$/i,
-          xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
-          xien: /^(xien|xiên|x|x2|x3|x4)$/i,
-          bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
-        };
+        const excl = getExclusions();
+        if (!excl) {
+          displayEl.innerHTML = '';
+          return;
+        }
 
+        const deList = Array.from(excl.de).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        const loList = Array.from(excl.lo).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        const bacangList = Array.from(excl.bacang).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        const xienList = Array.from(excl.xien).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+        const totalCount = deList.length + loList.length + bacangList.length + xienList.length;
+
+        if (totalCount === 0) {
+          displayEl.innerHTML = `
+            <div class="h-full flex flex-col items-center justify-center text-slate-400 py-4 text-center space-y-1 select-none">
+              <i class="fa-solid fa-filter-circle-xmark text-2xl opacity-40 text-rose-500"></i>
+              <p class="text-xs font-semibold text-slate-300">Chưa có dữ liệu loại trừ</p>
+              <p class="text-[11px] text-slate-400 leading-relaxed">Nhập thể loại & danh sách con ở ô bên trái.<br/>Ví dụ: <code class="text-rose-400 bg-rose-950/40 px-1 rounded font-mono">Đề 56, dau2</code></p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = `
+          <div class="font-bold text-xs text-rose-400 border-b border-rose-800/40 pb-1.5 mb-2 flex items-center justify-between select-none">
+            <span class="flex items-center gap-1.5">
+              <span>🚫 Các con bị loại trừ</span>
+            </span>
+            <span class="text-[11px] bg-rose-950/60 text-rose-300 px-2 py-0.5 rounded font-mono font-black border border-rose-800/50">Tổng ${totalCount} con</span>
+          </div>
+          <div class="space-y-2">
+        `;
+
+        if (deList.length > 0) {
+          html += `
+            <div class="bg-rose-950/20 p-2 rounded-lg border border-rose-800/40">
+              <div class="font-bold text-slate-200 mb-1 flex justify-between items-center text-[11px]">
+                <span>🔴 Đề loại trừ:</span>
+                <span class="text-rose-400 font-mono font-bold">${deList.length} con</span>
+              </div>
+              <div class="flex flex-wrap gap-1 font-mono text-[11px]">
+                ${deList.map(num => `<span class="px-1.5 py-0.5 bg-slate-900 text-rose-300 border border-rose-800/50 rounded font-bold">${num}</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        if (loList.length > 0) {
+          html += `
+            <div class="bg-blue-950/20 p-2 rounded-lg border border-blue-800/40">
+              <div class="font-bold text-slate-200 mb-1 flex justify-between items-center text-[11px]">
+                <span>🔵 Lô loại trừ:</span>
+                <span class="text-blue-400 font-mono font-bold">${loList.length} con</span>
+              </div>
+              <div class="flex flex-wrap gap-1 font-mono text-[11px]">
+                ${loList.map(num => `<span class="px-1.5 py-0.5 bg-slate-900 text-blue-300 border border-blue-800/50 rounded font-bold">${num}</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        if (bacangList.length > 0) {
+          html += `
+            <div class="bg-purple-950/20 p-2 rounded-lg border border-purple-800/40">
+              <div class="font-bold text-slate-200 mb-1 flex justify-between items-center text-[11px]">
+                <span>🟣 3 Càng loại trừ:</span>
+                <span class="text-purple-400 font-mono font-bold">${bacangList.length} con</span>
+              </div>
+              <div class="flex flex-wrap gap-1 font-mono text-[11px]">
+                ${bacangList.map(num => `<span class="px-1.5 py-0.5 bg-slate-900 text-purple-300 border border-purple-800/50 rounded font-bold">${num}</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        if (xienList.length > 0) {
+          html += `
+            <div class="bg-green-950/20 p-2 rounded-lg border border-green-800/40">
+              <div class="font-bold text-slate-200 mb-1 flex justify-between items-center text-[11px]">
+                <span>🟢 Xiên loại trừ:</span>
+                <span class="text-green-400 font-mono font-bold">${xienList.length} con</span>
+              </div>
+              <div class="flex flex-wrap gap-1 font-mono text-[11px]">
+                ${xienList.map(num => `<span class="px-1.5 py-0.5 bg-slate-900 text-green-300 border border-green-800/50 rounded font-bold">${num}</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        html += `</div>`;
+        displayEl.innerHTML = html;
+      }
+
+      function getCustomShortcutsMap() {
         const shortcutsInput = document.getElementById("shortcuts")?.value || "";
+        if (!shortcutsInput.trim()) return {};
         const shortcutsArray = shortcutsInput.split("\n");
         const customShortcuts = {};
         for (let i = 0; i < shortcutsArray.length; i++) {
@@ -1822,6 +2074,57 @@
             });
           }
         }
+        return customShortcuts;
+      }
+
+      function isTokenRecognized(token, activeCategory, customShortcuts = {}) {
+        const trimmed = token.trim();
+        if (!trimmed) return true;
+
+        if (/^[\s.,;/\-\+=\*x:]+$/i.test(trimmed)) return true;
+        if (/^(mỗi\s*con\s*=?|moi\s*con\s*=?|mc\s*=|mc|=\s*mc|=|\+|\*|x)\s*\d+(?:\.\d+)?(?:\s*(?:d|đ|₫|k|n)(?=[\s.,;\-\d]|$))?$/i.test(trimmed)) return true;
+        if (/^\d+(?:\.\d+)?(?:d|đ|₫|k|n)$/i.test(trimmed)) return true;
+
+        const norm = normalizeBetLine(trimmed);
+        const normLower = trimmed.toLowerCase();
+
+        const categoryRegex = /^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|l\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|d|l|c|bc|cang|3\s*cang)$/i;
+        if (categoryRegex.test(norm)) return true;
+
+        if (customShortcuts[normLower] || customShortcuts[norm]) return true;
+
+        const normShorthand = normalizeShorthandToken(trimmed);
+        if (shorthands[normShorthand] || shorthands[normLower] || shorthands[norm]) return true;
+
+        if (/^(dau|dit|daudit|cham|tong|t|d|d'|bo|he)\d{1,2}$/i.test(norm)) return true;
+        if (/^(daube|dauto|dauchan|daule|ditbe|ditto|ditchan|ditle|tobe|toto|tochan|tole|bebe|beto|bechan|bele|tongchan|tongle|chanchan|chanle|lechan|lele|kl|k)$/i.test(norm)) return true;
+
+        const resolved = resolveShorthands(trimmed);
+        const parsedNums = parseNumbersFromBetString(resolved, activeCategory || 'de');
+        if (parsedNums.length > 0) return true;
+
+        if (/^[\d.,\-\s]+$/.test(trimmed)) {
+          const digitsOnly = trimmed.split(/[^\d]+/).filter(Boolean);
+          if (digitsOnly.length > 0) return true;
+        }
+
+        return false;
+      }
+
+      function formatExcludeLineWithHighlights(line, currentCat) {
+        const tokens = line.match(/\s+|[^\s]+/g) || [];
+        let activeCat = currentCat;
+        let html = "";
+
+        const typeRegex = {
+          de: /^(de|d|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề)$/i,
+          lo: /^(lo|lô|l)$/i,
+          xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
+          xien: /^(xien|xiên|x|x2|x3|x4)$/i,
+          bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
+        };
+
+        const customShortcuts = getCustomShortcutsMap();
 
         tokens.forEach(token => {
           const trimmed = token.trim();
@@ -1894,6 +2197,7 @@
         let activeCat = currentCat;
         let hasInvalid = false;
         let html = "";
+        const customShortcuts = getCustomShortcutsMap();
         
         tokens.forEach(token => {
           const trimmed = token.trim();
@@ -1903,15 +2207,15 @@
           }
           
           const norm = normalizeBetLine(trimmed);
-          const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s+xien|de|lo|xien|x|x2|x3|x4|3cang|3c|d|l|c|bc|cang|3\s+cang)$/i);
+          const spaceMatch = norm.match(/^(xienquay|xq|xienq|quay|q|xquay|lo\s*xien|de|lo|xien|x|x2|x3|x4|3cang|3c|d|l|c|bc|cang|3\s*cang)$/i);
           if (spaceMatch) {
             const rawType = spaceMatch[1].toLowerCase();
             const typeRegex = {
               de: /^(de|d)$/i,
               lo: /^(lo|l)$/i,
               xienquay: /^(xienquay|xq|xienq|quay|q|xquay)$/i,
-              xien: /^(lo\s+xien|xien|x|x2|x3|x4)$/i,
-              bacang: /^(3cang|3c|c|bc|cang|3\s+cang)$/i
+              xien: /^(lo\s*xien|xien|x|x2|x3|x4)$/i,
+              bacang: /^(3cang|3c|c|bc|cang|3\s*cang)$/i
             };
             let newCat = '';
             if (typeRegex.de.test(rawType)) newCat = 'de';
@@ -1927,11 +2231,11 @@
             }
           }
           
-          if (/\d/.test(token)) {
+          if (isTokenRecognized(trimmed, activeCat, customShortcuts)) {
+            html += escapeHtml(token);
+          } else {
             hasInvalid = true;
             html += `<span class="text-danger font-bold bg-red-100 dark:bg-red-950/20 px-1 rounded border border-red-300 dark:border-red-900/50">${escapeHtml(token)}</span>`;
-          } else {
-            html += escapeHtml(token);
           }
         });
         
@@ -2358,6 +2662,9 @@
           return key;
         };
 
+        const layoffModeSelect = document.getElementById('layoffModeSelect');
+        const layoffMode = layoffModeSelect ? layoffModeSelect.value : 'none';
+
         if (layoffMode === 'none') {
           for (let key in originalBets) {
             if (key === 'rawOrder') {
@@ -2481,23 +2788,350 @@
         return lines.join('\n');
       }
 
+      function getRawTextFromElement(el) {
+        if (!el) return "";
+        if (el.tagName.toLowerCase() === 'textarea' || el.tagName.toLowerCase() === 'input') {
+          return el.value || "";
+        }
+        let html = el.innerHTML || "";
+        if (!html) return "";
+        let temp = document.createElement("div");
+        temp.innerHTML = html.replace(/<br\s*\/?>/gi, "\n").replace(/<\/div>/gi, "\n").replace(/<\/p>/gi, "\n");
+        let text = temp.textContent || temp.innerText || "";
+        return text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+      }
+
+      function setRawTextToContentEditable(el, text, isExclude = false) {
+        if (!el) return;
+        if (el.tagName.toLowerCase() === 'textarea' || el.tagName.toLowerCase() === 'input') {
+          el.value = text || "";
+          return;
+        }
+        const lines = (text || "").split('\n');
+        let currentCat = '';
+        let editorHtml = lines.map(line => {
+          if (line.trim() === "") return "";
+          const res = isExclude 
+            ? formatExcludeLineWithHighlights(line, currentCat)
+            : formatLineWithHighlights(line, currentCat);
+          currentCat = res.newCategory;
+          return res.html;
+        }).join('<br>');
+        el.innerHTML = editorHtml;
+      }
+
+      function saveAppState() {
+        const combinedBetInput = document.getElementById('combinedBetInput');
+        const excludeInput = document.getElementById('excludeInput');
+        const allPrizesInput = document.getElementById('allPrizesInput');
+        const specialPrizeInput = document.getElementById('specialPrizeInput');
+
+        if (combinedBetInput) localStorage.setItem('z8_combined_bet', getRawTextFromElement(combinedBetInput));
+        if (excludeInput) localStorage.setItem('z8_exclude_input', getRawTextFromElement(excludeInput));
+        if (allPrizesInput) localStorage.setItem('z8_all_prizes', allPrizesInput.value || '');
+        if (specialPrizeInput) localStorage.setItem('z8_special_prize', specialPrizeInput.value || '');
+
+        // Persist layoff settings
+        localStorage.setItem('z8_layoff_mode', layoffMode || 'none');
+        const lp = document.getElementById('layoffPercentInput');
+        const ld = document.getElementById('layoffLimitDe');
+        const ll = document.getElementById('layoffLimitLo');
+        const lx = document.getElementById('layoffLimitXien');
+        const l3 = document.getElementById('layoffLimit3C');
+        if (lp) localStorage.setItem('z8_layoff_percent', lp.value || '0');
+        if (ld) localStorage.setItem('z8_layoff_limit_de', ld.value || '0');
+        if (ll) localStorage.setItem('z8_layoff_limit_lo', ll.value || '0');
+        if (lx) localStorage.setItem('z8_layoff_limit_xien', lx.value || '0');
+        if (l3) localStorage.setItem('z8_layoff_limit_3c', l3.value || '0');
+
+        // Persist payout toggle
+        const togglePayoutCalc = document.getElementById('togglePayoutCalc');
+        if (togglePayoutCalc) localStorage.setItem('z8_toggle_payout_calc', togglePayoutCalc.checked ? '1' : '0');
+
+        // Persist rates
+        const rates = [
+          'rateDeComm', 'rateDePayout', 'rateLoCost', 'rateLoPayout',
+          'rateXienComm', 'rateXien2Payout', 'rateXien3Payout', 'rateXien4Payout',
+          'rate3CComm', 'rate3CPayout', 'rate3CApMa', 'rate3CLoCost', 'rate3CLoPayout'
+        ];
+        rates.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) localStorage.setItem('z8_' + id, el.value || '');
+        });
+      }
+
+      function loadAppState() {
+        const combinedBetInput = document.getElementById('combinedBetInput');
+        const excludeInput = document.getElementById('excludeInput');
+        const allPrizesInput = document.getElementById('allPrizesInput');
+        const specialPrizeInput = document.getElementById('specialPrizeInput');
+
+        const savedBet = localStorage.getItem('z8_combined_bet');
+        const savedExclude = localStorage.getItem('z8_exclude_input');
+        const savedPrizes = localStorage.getItem('z8_all_prizes');
+        const savedSpecial = localStorage.getItem('z8_special_prize');
+
+        let hasData = false;
+
+        if (savedBet !== null && combinedBetInput) {
+          setRawTextToContentEditable(combinedBetInput, savedBet, false);
+          if (savedBet.trim() !== '') hasData = true;
+        }
+        if (savedPrizes !== null && allPrizesInput) {
+          allPrizesInput.value = savedPrizes;
+        }
+        if (savedSpecial !== null && specialPrizeInput) {
+          specialPrizeInput.value = savedSpecial;
+        }
+        if (savedExclude !== null && excludeInput) {
+          setRawTextToContentEditable(excludeInput, savedExclude, true);
+          updateExcludeDisplay();
+        }
+
+        // Restore layoff settings
+        const savedLayoffMode = localStorage.getItem('z8_layoff_mode') || 'none';
+        setLayoffMode(savedLayoffMode);
+        
+        const lp = document.getElementById('layoffPercentInput');
+        const ld = document.getElementById('layoffLimitDe');
+        const ll = document.getElementById('layoffLimitLo');
+        const lx = document.getElementById('layoffLimitXien');
+        const l3 = document.getElementById('layoffLimit3C');
+        const savedLp = localStorage.getItem('z8_layoff_percent');
+        const savedLd = localStorage.getItem('z8_layoff_limit_de');
+        const savedLl = localStorage.getItem('z8_layoff_limit_lo');
+        const savedLx = localStorage.getItem('z8_layoff_limit_xien');
+        const savedL3 = localStorage.getItem('z8_layoff_limit_3c');
+        if (savedLp !== null && lp) lp.value = savedLp;
+        if (savedLd !== null && ld) ld.value = savedLd;
+        if (savedLl !== null && ll) ll.value = savedLl;
+        if (savedLx !== null && lx) lx.value = savedLx;
+        if (savedL3 !== null && l3) l3.value = savedL3;
+
+        // Restore payout toggle
+        const togglePayoutCalc = document.getElementById('togglePayoutCalc');
+        const savedToggle = localStorage.getItem('z8_toggle_payout_calc');
+        if (togglePayoutCalc && savedToggle !== null) {
+          togglePayoutCalc.checked = (savedToggle === '1');
+          // Trigger the visual UI update for the toggle
+          togglePayoutCalc.dispatchEvent(new Event('change'));
+        }
+
+        // Restore rates
+        const rates = [
+          'rateDeComm', 'rateDePayout', 'rateLoCost', 'rateLoPayout',
+          'rateXienComm', 'rateXien2Payout', 'rateXien3Payout', 'rateXien4Payout',
+          'rate3CComm', 'rate3CPayout', 'rate3CApMa', 'rate3CLoCost', 'rate3CLoPayout'
+        ];
+        rates.forEach(id => {
+          const el = document.getElementById(id);
+          const val = localStorage.getItem('z8_' + id);
+          if (el && val !== null) el.value = val;
+        });
+
+        if (hasData) {
+          calculateLottoReport();
+        }
+      }
+
       // Input Tab Switchers
       const tabInputMain = document.getElementById('tabInputMain');
       const tabInputExclude = document.getElementById('tabInputExclude');
+      const excludeContainer = document.getElementById('excludeContainer');
 
       if (tabInputMain && tabInputExclude) {
         tabInputMain.addEventListener('click', () => {
           tabInputMain.className = "text-xs font-bold border-b-2 border-indigo-500 px-2 py-1 text-indigo-400 focus:outline-none";
           tabInputExclude.className = "text-xs font-bold border-b-2 border-transparent px-2 py-1 text-slate-500 hover:text-slate-400 focus:outline-none";
-          combinedBetInput.classList.remove('hidden');
-          excludeInput.classList.add('hidden');
+          if (combinedBetInput) combinedBetInput.classList.remove('hidden');
+          if (excludeContainer) excludeContainer.classList.add('hidden');
+          else if (excludeInput) excludeInput.classList.add('hidden');
         });
 
         tabInputExclude.addEventListener('click', () => {
           tabInputExclude.className = "text-xs font-bold border-b-2 border-indigo-500 px-2 py-1 text-indigo-400 focus:outline-none";
           tabInputMain.className = "text-xs font-bold border-b-2 border-transparent px-2 py-1 text-slate-500 hover:text-slate-400 focus:outline-none";
-          combinedBetInput.classList.add('hidden');
-          excludeInput.classList.remove('hidden');
+          if (combinedBetInput) combinedBetInput.classList.add('hidden');
+          if (excludeContainer) excludeContainer.classList.remove('hidden');
+          else if (excludeInput) excludeInput.classList.remove('hidden');
+          updateExcludeDisplay();
+        });
+      }
+
+      if (excludeInput) {
+        excludeInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            document.execCommand('insertText', false, '\n');
+          }
+        });
+        excludeInput.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+          document.execCommand("insertText", false, text);
+        });
+
+        let excludeHighlightTimeout = null;
+        excludeInput.addEventListener('input', () => {
+          saveAppState();
+          updateExcludeDisplay();
+          if (excludeHighlightTimeout) clearTimeout(excludeHighlightTimeout);
+          excludeHighlightTimeout = setTimeout(() => {
+            const sel = window.getSelection();
+            let range = null;
+            let hasMarker = false;
+            let markerTextNode = null;
+            
+            if (sel && sel.rangeCount > 0 && document.activeElement === excludeInput) {
+              range = sel.getRangeAt(0);
+              if (excludeInput.contains(range.startContainer)) {
+                markerTextNode = document.createTextNode("__CARET_MARKER__");
+                try {
+                  range.insertNode(markerTextNode);
+                  hasMarker = true;
+                } catch (e) {
+                  console.warn("Could not insert caret marker node", e);
+                }
+              }
+            }
+
+            const inputString = excludeInput.innerText;
+
+            if (hasMarker && markerTextNode && markerTextNode.parentNode) {
+              markerTextNode.parentNode.removeChild(markerTextNode);
+            }
+
+            const originalLines = inputString.split('\n');
+            let currentCat = '';
+            let editorHtml = originalLines.map(line => {
+              if (line.trim() === "") {
+                return "";
+              }
+              const res = formatExcludeLineWithHighlights(line, currentCat);
+              currentCat = res.newCategory;
+              return res.html;
+            }).join('<br>');
+
+            let editorHtmlWithMarker = editorHtml;
+            if (hasMarker) {
+              editorHtmlWithMarker = editorHtml.replace(/__CARET_MARKER__/g, '<span id="caret-marker"></span>');
+            }
+
+            const currentHtmlClean = excludeInput.innerHTML.replace(/<span id="caret-marker"><\/span>/g, '').replace(/__CARET_MARKER__/g, '');
+            const editorHtmlClean = editorHtml.replace(/__CARET_MARKER__/g, '');
+
+            if (currentHtmlClean !== editorHtmlClean) {
+              excludeInput.innerHTML = editorHtmlWithMarker;
+
+              if (hasMarker) {
+                const markerNode = document.getElementById('caret-marker');
+                if (markerNode) {
+                  const newRange = document.createRange();
+                  const textNode = document.createTextNode("");
+                  markerNode.parentNode.replaceChild(textNode, markerNode);
+                  newRange.setStart(textNode, 0);
+                  newRange.collapse(true);
+                  sel.removeAllRanges();
+                  sel.addRange(newRange);
+                }
+              }
+            } else if (hasMarker) {
+              const markerNode = document.getElementById('caret-marker');
+              if (markerNode) {
+                markerNode.parentNode.removeChild(markerNode);
+              }
+            }
+          }, 50);
+        });
+
+        excludeInput.addEventListener('blur', () => {
+          updateExcludeDisplay();
+        });
+      }
+
+      if (combinedBetInput && combinedBetInput.tagName.toLowerCase() !== 'textarea') {
+        combinedBetInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            document.execCommand('insertText', false, '\n');
+          }
+        });
+        combinedBetInput.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+          document.execCommand("insertText", false, text);
+        });
+
+        let mainHighlightTimeout = null;
+        combinedBetInput.addEventListener('input', () => {
+          saveAppState();
+          if (mainHighlightTimeout) clearTimeout(mainHighlightTimeout);
+          mainHighlightTimeout = setTimeout(() => {
+            const sel = window.getSelection();
+            let range = null;
+            let hasMarker = false;
+            let markerTextNode = null;
+            
+            if (sel && sel.rangeCount > 0 && document.activeElement === combinedBetInput) {
+              range = sel.getRangeAt(0);
+              if (combinedBetInput.contains(range.startContainer)) {
+                markerTextNode = document.createTextNode("__CARET_MARKER__");
+                try {
+                  range.insertNode(markerTextNode);
+                  hasMarker = true;
+                } catch (e) {
+                  console.warn("Could not insert caret marker node", e);
+                }
+              }
+            }
+
+            const inputString = combinedBetInput.innerText;
+
+            if (hasMarker && markerTextNode && markerTextNode.parentNode) {
+              markerTextNode.parentNode.removeChild(markerTextNode);
+            }
+
+            const originalLines = inputString.split('\n');
+            let currentCat = '';
+            let editorHtml = originalLines.map(line => {
+              if (line.trim() === "") {
+                return "";
+              }
+              const res = formatLineWithHighlights(line, currentCat);
+              currentCat = res.newCategory;
+              return res.html;
+            }).join('<br>');
+
+            let editorHtmlWithMarker = editorHtml;
+            if (hasMarker) {
+              editorHtmlWithMarker = editorHtml.replace(/__CARET_MARKER__/g, '<span id="caret-marker"></span>');
+            }
+
+            const currentHtmlClean = combinedBetInput.innerHTML.replace(/<span id="caret-marker"><\/span>/g, '').replace(/__CARET_MARKER__/g, '');
+            const editorHtmlClean = editorHtml.replace(/__CARET_MARKER__/g, '');
+
+            if (currentHtmlClean !== editorHtmlClean) {
+              combinedBetInput.innerHTML = editorHtmlWithMarker;
+
+              if (hasMarker) {
+                const markerNode = document.getElementById('caret-marker');
+                if (markerNode) {
+                  const newRange = document.createRange();
+                  const textNode = document.createTextNode("");
+                  markerNode.parentNode.replaceChild(textNode, markerNode);
+                  newRange.setStart(textNode, 0);
+                  newRange.collapse(true);
+                  sel.removeAllRanges();
+                  sel.addRange(newRange);
+                }
+              }
+            } else if (hasMarker) {
+              const markerNode = document.getElementById('caret-marker');
+              if (markerNode) {
+                markerNode.parentNode.removeChild(markerNode);
+              }
+            }
+          }, 50);
         });
       }
 
@@ -2507,9 +3141,14 @@
       });
 
       function calculateLottoReport() {
-        const inputString = document.getElementById('combinedBetInput').value;
-        const specialPrizeRaw = specialPrizeInput.value.trim();
-        const allPrizesRaw = allPrizesInput.value.trim();
+        saveAppState();
+        const combinedBetInput = document.getElementById('combinedBetInput');
+        if (!combinedBetInput) return;
+        const inputString = getRawTextFromElement(combinedBetInput);
+        const specialPrizeInput = document.getElementById('specialPrizeInput');
+        const allPrizesInput = document.getElementById('allPrizesInput');
+        const specialPrizeRaw = specialPrizeInput ? specialPrizeInput.value.trim() : "";
+        const allPrizesRaw = allPrizesInput ? allPrizesInput.value.trim() : "";
 
         const parsedBetsOriginal = parseCombinedInput(inputString);
         console.log("Parsed Bets Original:", parsedBetsOriginal);
@@ -2533,31 +3172,40 @@
           }
         }
 
+        const layoffModeSelect = document.getElementById('layoffModeSelect');
+        const layoffMode = layoffModeSelect ? layoffModeSelect.value : 'none';
+        const reportViewTabs = document.getElementById('reportViewTabs');
+        const breakdownContainer = document.getElementById('breakdownContainer');
+        const tabViewRetained = document.getElementById('tabViewRetained');
+        const tabViewTransferred = document.getElementById('tabViewTransferred');
+        const tabViewOriginal = document.getElementById('tabViewOriginal');
+        const layoffOutputText = document.getElementById('layoffOutputText');
+
         // Determine view tabs display & default view mode
         if (layoffMode === 'none' && !hasTransferred) {
-          reportViewTabs.classList.add('hidden');
+          if (reportViewTabs) reportViewTabs.classList.add('hidden');
           currentViewMode = 'original';
-          breakdownContainer.classList.add('hidden');
+          if (breakdownContainer) breakdownContainer.classList.add('hidden');
         } else {
-          reportViewTabs.classList.remove('hidden');
+          if (reportViewTabs) reportViewTabs.classList.remove('hidden');
           currentViewMode = 'retained'; // reset to retained on new calculation
-          breakdownContainer.classList.remove('hidden');
+          if (breakdownContainer) breakdownContainer.classList.remove('hidden');
 
           // Reset tab styles to retained active
-          tabViewRetained.className = 'py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md';
-          tabViewTransferred.className = 'py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all';
-          tabViewOriginal.className = 'py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all';
+          if (tabViewRetained) tabViewRetained.className = 'py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md';
+          if (tabViewTransferred) tabViewTransferred.className = 'py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all';
+          if (tabViewOriginal) tabViewOriginal.className = 'py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all';
 
           // Format & display layoff output text
           const formattedTransferred = formatTransferredBets(transferred);
-          layoffOutputText.value = formattedTransferred || "Không có cược nào cần chuyển đi.";
+          if (layoffOutputText) layoffOutputText.value = formattedTransferred || "Không có cược nào cần chuyển đi.";
 
           // Helper to calculate total cost using current configs
-          const deComm = parseFloat(rateDeComm.value) || 0;
-          const loCost = parseFloat(rateLoCost.value) || 0;
-          const xienComm = parseFloat(rateXienComm.value) || 0;
-          const baCangComm = parseFloat(rate3CComm.value) || 0;
-          const baCangLoCost = parseFloat(rate3CLoCost.value) || 0;
+          const deComm = parseFloat(document.getElementById('rateDeComm')?.value) || 0;
+          const loCost = parseFloat(document.getElementById('rateLoCost')?.value) || 0;
+          const xienComm = parseFloat(document.getElementById('rateXienComm')?.value) || 0;
+          const baCangComm = parseFloat(document.getElementById('rate3CComm')?.value) || 0;
+          const baCangLoCost = parseFloat(document.getElementById('rate3CLoCost')?.value) || 0;
 
           const calculateTotalCost = (bets) => {
             let deCostSum = bets.de.reduce((sum, b) => sum + b.amount * (deComm / 100), 0);
@@ -2569,17 +3217,19 @@
           };
 
           const calculateTotalWinnings = (bets) => {
-            const dePayout = parseFloat(rateDePayout.value) || 0;
-            const loPayout = parseFloat(rateLoPayout.value) || 0;
-            const xien2Payout = parseFloat(rateXien2Payout.value) || 0;
-            const xien3Payout = parseFloat(rateXien3Payout.value) || 0;
-            const xien4Payout = parseFloat(rateXien4Payout.value) || 0;
-            const baCangPayout = parseFloat(rate3CPayout.value) || 0;
-            const baCangApMa = parseFloat(rate3CApMa.value) || 0;
-            const baCangLoPayout = parseFloat(rate3CLoPayout.value) || 0;
+            const dePayout = parseFloat(document.getElementById('rateDePayout')?.value) || 0;
+            const loPayout = parseFloat(document.getElementById('rateLoPayout')?.value) || 0;
+            const xien2Payout = parseFloat(document.getElementById('rateXien2Payout')?.value) || 0;
+            const xien3Payout = parseFloat(document.getElementById('rateXien3Payout')?.value) || 0;
+            const xien4Payout = parseFloat(document.getElementById('rateXien4Payout')?.value) || 0;
+            const baCangPayout = parseFloat(document.getElementById('rate3CPayout')?.value) || 0;
+            const baCangApMa = parseFloat(document.getElementById('rate3CApMa')?.value) || 0;
+            const baCangLoPayout = parseFloat(document.getElementById('rate3CLoPayout')?.value) || 0;
 
-            const specialPrizeRaw = specialPrizeInput.value.trim();
-            const allPrizesRaw = allPrizesInput.value.trim();
+            const specialPrizeInput = document.getElementById('specialPrizeInput');
+            const allPrizesInput = document.getElementById('allPrizesInput');
+            const specialPrizeRaw = specialPrizeInput ? specialPrizeInput.value.trim() : "";
+            const allPrizesRaw = allPrizesInput ? allPrizesInput.value.trim() : "";
             const specialPrizeLast2 = specialPrizeRaw ? specialPrizeRaw.slice(-2) : "";
             const specialPrizeLast3 = specialPrizeRaw ? specialPrizeRaw.slice(-3) : "";
             const allPrizes = allPrizesRaw ? allPrizesRaw.split(/[\s,]+/).filter(Boolean) : [];
@@ -2645,17 +3295,19 @@
       }
 
       function getReportSummaryDetails(parsedBets) {
-        const dePayout = parseFloat(rateDePayout.value) || 0;
-        const loPayout = parseFloat(rateLoPayout.value) || 0;
-        const xien2Payout = parseFloat(rateXien2Payout.value) || 0;
-        const xien3Payout = parseFloat(rateXien3Payout.value) || 0;
-        const xien4Payout = parseFloat(rateXien4Payout.value) || 0;
-        const baCangPayout = parseFloat(rate3CPayout.value) || 0;
-        const baCangApMa = parseFloat(rate3CApMa.value) || 0;
-        const baCangLoPayout = parseFloat(rate3CLoPayout.value) || 0;
+        const dePayout = parseFloat(document.getElementById('rateDePayout')?.value) || 0;
+        const loPayout = parseFloat(document.getElementById('rateLoPayout')?.value) || 0;
+        const xien2Payout = parseFloat(document.getElementById('rateXien2Payout')?.value) || 0;
+        const xien3Payout = parseFloat(document.getElementById('rateXien3Payout')?.value) || 0;
+        const xien4Payout = parseFloat(document.getElementById('rateXien4Payout')?.value) || 0;
+        const baCangPayout = parseFloat(document.getElementById('rate3CPayout')?.value) || 0;
+        const baCangApMa = parseFloat(document.getElementById('rate3CApMa')?.value) || 0;
+        const baCangLoPayout = parseFloat(document.getElementById('rate3CLoPayout')?.value) || 0;
 
-        const specialPrizeRaw = specialPrizeInput.value.trim();
-        const allPrizesRaw = allPrizesInput.value.trim();
+        const specialPrizeInput = document.getElementById('specialPrizeInput');
+        const allPrizesInput = document.getElementById('allPrizesInput');
+        const specialPrizeRaw = specialPrizeInput ? specialPrizeInput.value.trim() : "";
+        const allPrizesRaw = allPrizesInput ? allPrizesInput.value.trim() : "";
         const specialPrizeLast2 = specialPrizeRaw ? specialPrizeRaw.slice(-2) : "";
         const specialPrizeLast3 = specialPrizeRaw ? specialPrizeRaw.slice(-3) : "";
         const allPrizes = allPrizesRaw ? allPrizesRaw.split(/[\s,]+/).filter(Boolean) : [];
@@ -2729,8 +3381,12 @@
       }
 
       function renderLottoReport(parsedBets) {
-        const specialPrizeRaw = specialPrizeInput.value.trim();
-        const allPrizesRaw = allPrizesInput.value.trim();
+        const specialPrizeInput = document.getElementById('specialPrizeInput');
+        const allPrizesInput = document.getElementById('allPrizesInput');
+        const togglePayoutCalc = document.getElementById('togglePayoutCalc');
+        const isToggleChecked = togglePayoutCalc ? togglePayoutCalc.checked : false;
+        const specialPrizeRaw = specialPrizeInput ? specialPrizeInput.value.trim() : "";
+        const allPrizesRaw = allPrizesInput ? allPrizesInput.value.trim() : "";
 
         // Normalized result references
         const specialPrizeLast2 = specialPrizeRaw ? specialPrizeRaw.slice(-2) : "";
@@ -2741,19 +3397,19 @@
         const allPrizesLast3 = allPrizes.filter(p => p.length >= 3).map(p => p.slice(-3));
 
         // Get configurations
-        const deComm = parseFloat(rateDeComm.value) || 0;
-        const dePayout = parseFloat(rateDePayout.value) || 0;
-        const loCost = parseFloat(rateLoCost.value) || 0;
-        const loPayout = parseFloat(rateLoPayout.value) || 0;
-        const xienComm = parseFloat(rateXienComm.value) || 0;
-        const xien2Payout = parseFloat(rateXien2Payout.value) || 0;
-        const xien3Payout = parseFloat(rateXien3Payout.value) || 0;
-        const xien4Payout = parseFloat(rateXien4Payout.value) || 0;
-        const baCangComm = parseFloat(rate3CComm.value) || 0;
-        const baCangPayout = parseFloat(rate3CPayout.value) || 0;
-        const baCangApMa = parseFloat(rate3CApMa.value) || 0;
-        const baCangLoCost = parseFloat(rate3CLoCost.value) || 0;
-        const baCangLoPayout = parseFloat(rate3CLoPayout.value) || 0;
+        const deComm = parseFloat(document.getElementById('rateDeComm')?.value) || 0;
+        const dePayout = parseFloat(document.getElementById('rateDePayout')?.value) || 0;
+        const loCost = parseFloat(document.getElementById('rateLoCost')?.value) || 0;
+        const loPayout = parseFloat(document.getElementById('rateLoPayout')?.value) || 0;
+        const xienComm = parseFloat(document.getElementById('rateXienComm')?.value) || 0;
+        const xien2Payout = parseFloat(document.getElementById('rateXien2Payout')?.value) || 0;
+        const xien3Payout = parseFloat(document.getElementById('rateXien3Payout')?.value) || 0;
+        const xien4Payout = parseFloat(document.getElementById('rateXien4Payout')?.value) || 0;
+        const baCangComm = parseFloat(document.getElementById('rate3CComm')?.value) || 0;
+        const baCangPayout = parseFloat(document.getElementById('rate3CPayout')?.value) || 0;
+        const baCangApMa = parseFloat(document.getElementById('rate3CApMa')?.value) || 0;
+        const baCangLoCost = parseFloat(document.getElementById('rate3CLoCost')?.value) || 0;
+        const baCangLoPayout = parseFloat(document.getElementById('rate3CLoPayout')?.value) || 0;
 
         let totalCostAll = 0;
         let totalWinningsAll = 0;
@@ -2783,7 +3439,7 @@
                 </div>
                 <div class="text-right">
                   <span class="text-slate-400">Vốn: ${Math.round(cost * 1000).toLocaleString()}đ</span>
-                  ${togglePayoutCalc.checked ? `<span class="block ${statusClass}">Trúng: ${Math.round(win * 1000).toLocaleString()}đ${hitDetails}</span>` : ''}
+                  ${isToggleChecked ? `<span class="block ${statusClass}">Trúng: ${Math.round(win * 1000).toLocaleString()}đ${hitDetails}</span>` : ''}
                 </div>
               </div>`;
           });
@@ -2810,7 +3466,7 @@
         );
         document.getElementById('listDeBets').innerHTML = deCalc.html;
         document.getElementById('badgeDeCount').innerText = `${parsedBets.de.length} con`;
-        document.getElementById('accordionDeFinancial').innerText = togglePayoutCalc.checked
+        document.getElementById('accordionDeFinancial').innerText = isToggleChecked
           ? `${Math.round(deCalc.costSum).toLocaleString()} / ${Math.round(deCalc.winSum).toLocaleString()}`
           : `${Math.round(deCalc.costSum).toLocaleString()}`;
         totalCostAll += deCalc.costSum;
@@ -2831,7 +3487,7 @@
         );
         document.getElementById('listLoBets').innerHTML = loCalc.html;
         document.getElementById('badgeLoCount').innerText = `${parsedBets.lo.length} con`;
-        document.getElementById('accordionLoFinancial').innerText = togglePayoutCalc.checked
+        document.getElementById('accordionLoFinancial').innerText = isToggleChecked
           ? `${Math.round(loCalc.costSum).toLocaleString()} / ${Math.round(loCalc.winSum).toLocaleString()}`
           : `${Math.round(loCalc.costSum).toLocaleString()}`;
         totalCostAll += loCalc.costSum;
@@ -2855,7 +3511,7 @@
         );
         document.getElementById('listXienBets').innerHTML = xienCalc.html;
         document.getElementById('badgeXienCount').innerText = `${xienBets.length} bộ`;
-        document.getElementById('accordionXienFinancial').innerText = togglePayoutCalc.checked
+        document.getElementById('accordionXienFinancial').innerText = isToggleChecked
           ? `${Math.round(xienCalc.costSum).toLocaleString()} / ${Math.round(xienCalc.winSum).toLocaleString()}`
           : `${Math.round(xienCalc.costSum).toLocaleString()}`;
         totalCostAll += xienCalc.costSum;
@@ -2883,7 +3539,7 @@
         );
         document.getElementById('list3CBets').innerHTML = baCangCalc.html;
         document.getElementById('badge3CCount').innerText = `${parsedBets.bacang.length} con`;
-        document.getElementById('accordion3CFinancial').innerText = togglePayoutCalc.checked
+        document.getElementById('accordion3CFinancial').innerText = isToggleChecked
           ? `${Math.round(baCangCalc.costSum).toLocaleString()} / ${Math.round(baCangCalc.winSum).toLocaleString()}`
           : `${Math.round(baCangCalc.costSum).toLocaleString()}`;
         totalCostAll += baCangCalc.costSum;
@@ -2904,7 +3560,7 @@
         );
         document.getElementById('list3CLBets').innerHTML = baCangLoCalc.html;
         document.getElementById('badge3CLCount').innerText = `${parsedBets.bacang_lo.length} con`;
-        document.getElementById('accordion3CLFinancial').innerText = togglePayoutCalc.checked
+        document.getElementById('accordion3CLFinancial').innerText = isToggleChecked
           ? `${Math.round(baCangLoCalc.costSum).toLocaleString()} / ${Math.round(baCangLoCalc.winSum).toLocaleString()}`
           : `${Math.round(baCangLoCalc.costSum).toLocaleString()}`;
         totalCostAll += baCangLoCalc.costSum;
@@ -2944,7 +3600,7 @@
 
         summaryNetValue.innerText = Math.round(Math.abs(netResult) / 1000).toLocaleString('vi-VN');
         
-        if (togglePayoutCalc.checked) {
+        if (isToggleChecked) {
           netResultContainer.classList.remove('hidden');
           if (netResult > 0) {
             summaryNetLabel.innerText = "Chủ thầu bù";
@@ -2979,7 +3635,7 @@
         document.getElementById('printReportTitle').innerText = headerTitle;
         document.getElementById('printReportDate').classList.add('hidden');
 
-        if (togglePayoutCalc.checked) {
+        if (isToggleChecked) {
           document.getElementById('summaryInWords').innerText = docso(Math.round(Math.abs(netResult)));
 
           const netLabelText = /lấy về|lãi|trả|bù/i.test(summaryNetLabel.innerText) ? "LẤY VỀ" : "NỘP";
@@ -2999,7 +3655,7 @@
 
         // Đề
         if (details.de.xac > 0 || details.de.trung > 0) {
-          const winTd = togglePayoutCalc.checked
+          const winTd = isToggleChecked
             ? `<td class="py-2.5 text-right font-semibold text-emerald-400">${formatMoneyK(details.de.trung)}</td>`
             : '';
           printTableBody += `
@@ -3012,7 +3668,7 @@
 
         // Lô
         if (details.lo.xac > 0 || details.lo.trung > 0) {
-          const winTd = togglePayoutCalc.checked
+          const winTd = isToggleChecked
             ? `<td class="py-2.5 text-right font-semibold text-emerald-400">${details.lo.trung}</td>`
             : '';
           printTableBody += `
@@ -3025,7 +3681,7 @@
 
         // Xiên
         if (details.xien.xac > 0 || details.xien.trung > 0) {
-          const winTd = togglePayoutCalc.checked
+          const winTd = isToggleChecked
             ? `<td class="py-2.5 text-right font-semibold text-emerald-400">${formatMoneyK(details.xien.trung)}</td>`
             : '';
           printTableBody += `
@@ -3038,7 +3694,7 @@
 
         // Ba Càng Đề (3c)
         if (details.bacang.xac > 0 || details.bacang.trung > 0) {
-          const winTd = togglePayoutCalc.checked
+          const winTd = isToggleChecked
             ? `<td class="py-2.5 text-right font-semibold text-emerald-400">${formatMoneyK(details.bacang.trung)}</td>`
             : '';
           printTableBody += `
@@ -3051,7 +3707,7 @@
 
         // Ba Càng Lô (3c Lô)
         if (details.bacang_lo.xac > 0 || details.bacang_lo.trung > 0) {
-          const winTd = togglePayoutCalc.checked
+          const winTd = isToggleChecked
             ? `<td class="py-2.5 text-right font-semibold text-emerald-400">${details.bacang_lo.trung}</td>`
             : '';
           printTableBody += `
@@ -3144,8 +3800,11 @@
 
         const headerText = `BÁO CÁO - ${dayMonthText}`;
 
+        const togglePayoutCalc = document.getElementById('togglePayoutCalc');
+        const isToggleChecked = togglePayoutCalc ? togglePayoutCalc.checked : false;
+
         let reportText = "";
-        if (togglePayoutCalc.checked) {
+        if (isToggleChecked) {
           const deStr = `Đề: ${formatMoneyK(details.de.xac)}/ ${formatMoneyK(details.de.trung)}`;
           const loStr = `Lô: ${details.lo.xac} / ${details.lo.trung}`;
           const xienStr = `Xiên: ${formatMoneyK(details.xien.xac)} / ${formatMoneyK(details.xien.trung)}`;
@@ -3285,7 +3944,8 @@
 
       const closePriceConfigModal = () => {
         modalPriceConfig.classList.add('hidden');
-        if (document.getElementById('combinedBetInput').value.trim()) {
+        const rawInputText = getRawTextFromElement(document.getElementById('combinedBetInput'));
+        if (rawInputText && rawInputText.trim()) {
           calculateLottoReport();
         }
       };
@@ -3299,6 +3959,7 @@
       });
 
       // Trigger auto load on load
+      loadAppState();
       triggerAutoFetch();
     });
   </script>
