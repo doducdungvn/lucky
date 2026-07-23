@@ -218,7 +218,7 @@
 
             <!-- 1. CLEAR BUTTON (XÓA CƯỢC / XÓA LỌC) RIGHT BELOW INPUT -->
             <div class="flex justify-end pt-0.5">
-              <button id="btnClearBetInput" class="text-xs bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 dark:border-rose-800 px-3 py-1 rounded transition-all flex items-center gap-1.5 active:scale-95 font-semibold" title="Xóa toàn bộ khung nhập cược">
+              <button id="btnClearBetInput" class="text-xs bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 dark:border-rose-800 px-3 py-1 rounded transition-all flex items-center gap-1.5 active:scale-95 font-semibold disabled:opacity-40 disabled:pointer-events-none" title="Xóa toàn bộ khung nhập cược">
                 <i class="fa-solid fa-eraser"></i>
                 <span id="lblClearBetInput">Xóa cược</span>
               </button>
@@ -287,7 +287,7 @@
                 </div>
               </div>
 
-              <button id="btnResetBalance" class="bg-rose-600 hover:bg-rose-700 text-white text-xs px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 font-bold active:scale-95 shrink-0" title="Reset cân chuyển từ đầu">
+              <button id="btnResetBalance" class="bg-rose-600 hover:bg-rose-700 text-white text-xs px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 font-bold active:scale-95 shrink-0 disabled:opacity-40 disabled:pointer-events-none" title="Reset cân chuyển từ đầu">
                 <i class="fa-solid fa-rotate-left"></i>
                 <span>Từ đầu</span>
               </button>
@@ -2183,6 +2183,50 @@ function setRawTextToContentEditable(el, text, isExclude = false) {
   el.innerHTML = editorHtml;
 }
 
+function updateClearAndResetButtons() {
+  const btnClearBetInput = document.getElementById('btnClearBetInput');
+  const btnResetBalance = document.getElementById('btnResetBalance');
+  
+  if (btnClearBetInput) {
+    const excludeContainer = document.getElementById('excludeContainer');
+    const activeTab = (excludeContainer && !excludeContainer.classList.contains('hidden')) ? 'exclude' : 'main';
+    let canClear = false;
+    
+    if (activeTab === 'main') {
+      const combinedBetInput = document.getElementById('combinedBetInput');
+      canClear = combinedBetInput && combinedBetInput.innerText.trim() !== "";
+    } else {
+      const excludeInput = document.getElementById('excludeInput');
+      canClear = excludeInput && excludeInput.innerText.trim() !== "";
+    }
+    btnClearBetInput.disabled = !canClear;
+  }
+  
+  if (btnResetBalance) {
+    const retainDe = document.getElementById('retainDe');
+    const retainLo = document.getElementById('retainLo');
+    const retain3c = document.getElementById('retain3c');
+    const retainX = document.getElementById('retainX');
+    const radioPercentage = document.querySelector('input[name="retainType"][value="percentage"]');
+    const specialPrizeInput = document.getElementById('specialPrizeInput');
+    const allPrizesInput = document.getElementById('allPrizesInput');
+    const autoFetchToggle = document.getElementById('autoFetchToggle');
+    
+    let hasChanges = false;
+    if (typeof balanceState !== 'undefined' && balanceState && balanceState.step > 0) hasChanges = true;
+    else if (retainDe && retainDe.value !== "20") hasChanges = true;
+    else if (retainLo && retainLo.value !== "0") hasChanges = true;
+    else if (retain3c && retain3c.value !== "0") hasChanges = true;
+    else if (retainX && retainX.value !== "0") hasChanges = true;
+    else if (radioPercentage && radioPercentage.checked) hasChanges = true;
+    else if (specialPrizeInput && specialPrizeInput.value.trim() !== "") hasChanges = true;
+    else if (allPrizesInput && allPrizesInput.value.trim() !== "") hasChanges = true;
+    else if (autoFetchToggle && autoFetchToggle.checked) hasChanges = true;
+    
+    btnResetBalance.disabled = !hasChanges;
+  }
+}
+
 function saveAppState() {
   const combinedBetInput = document.getElementById('combinedBetInput');
   const excludeInput = document.getElementById('excludeInput');
@@ -2232,6 +2276,7 @@ function saveAppState() {
   if (typeof balanceState !== 'undefined') {
     localStorage.setItem('z8_balance_state', JSON.stringify(balanceState));
   }
+  updateClearAndResetButtons();
 }
 
 function loadAppState() {
@@ -2328,6 +2373,7 @@ function loadAppState() {
   if (autoFetchToggle && autoFetchToggle.checked) {
     triggerAutoFetch();
   }
+  updateClearAndResetButtons();
 }
 
 function getCaretOffset(element) {
@@ -4049,6 +4095,7 @@ function setupEventListeners() {
           lblClear.textContent = "Xóa lọc";
           btnClearBetInput.classList.remove('hidden');
         }
+        updateClearAndResetButtons();
       }
     };
 
@@ -4480,7 +4527,10 @@ function setupEventListeners() {
     if (input) {
       input.addEventListener('focus', () => clearDefaultValue(input));
       input.addEventListener('blur', () => {
-        if (input.value === "") input.value = "0";
+        if (input.value === "") {
+          input.value = "0";
+          calculateSum();
+        }
       });
       input.addEventListener('input', () => calculateSum());
     }
