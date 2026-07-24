@@ -416,7 +416,7 @@
       <div id="column2" class="flex-1 space-y-4">
         
         <!-- CARDS GRID (EXCEL DATA TABLES) -->
-        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
           
           <!-- Card 1: Kết quả -->
           <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-[460px]">
@@ -504,7 +504,7 @@
           </div>
 
           <!-- Tab Selector / Summary Figures Grid -->
-          <div id="baoCaoTabsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-center select-none">
+          <div id="baoCaoTabsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-center select-none">
             <!-- Tab Thầu -->
             <div id="tabThau" class="cursor-pointer bg-excel-50/70 dark:bg-emerald-950/20 p-3 rounded-lg border-2 border-excel-800 dark:border-emerald-500 transition-all hover:scale-[1.01] active:scale-95 space-y-2 shadow-xs">
               <div class="text-xs font-black text-excel-800 dark:text-emerald-400 uppercase tracking-wider">📊 Báo cáo Thầu</div>
@@ -544,7 +544,7 @@
             </div>
 
             <!-- Tab Giữ lại -->
-            <div id="tabGiulai" class="hidden cursor-pointer bg-slate-50 dark:bg-dark-900 p-3 rounded-lg border-2 border-transparent transition-all hover:scale-[1.01] active:scale-95 space-y-2">
+            <div id="tabGiulai" class="cursor-pointer bg-slate-50 dark:bg-dark-900 p-3 rounded-lg border-2 border-transparent transition-all hover:scale-[1.01] active:scale-95 space-y-2">
               <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">🔒 Giữ lại</div>
               <div class="grid grid-cols-3 gap-1 divide-x divide-slate-200 dark:divide-slate-700 text-[11px] font-mono">
                 <div>
@@ -621,9 +621,7 @@
             <button type="button" id="btnCopyTextReport" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-all flex-1 flex items-center justify-center gap-1.5 active:scale-95 shadow-xs" title="Copy báo cáo">
               <i class="fa-solid fa-copy"></i> Copy
             </button>
-            <button type="button" id="btnSummaryReport" class="px-3 py-2 bg-excel-800 hover:bg-excel-900 text-white rounded text-xs font-bold transition-all flex-1 flex items-center justify-center gap-1.5 active:scale-95 shadow-xs" title="Tổng kết Giữ lại">
-              <i class="fa-solid fa-chart-pie"></i> Tổng kết
-            </button>
+
           </div>
         </div>
 
@@ -4775,38 +4773,7 @@ function setupEventListeners() {
     });
   }
 
-  // Register btnSummaryReport listener
-  const btnSummaryReport = document.getElementById('btnSummaryReport');
-  if (btnSummaryReport && tabGiulai && baoCaoTabsContainer) {
-    btnSummaryReport.addEventListener('click', () => {
-      const isHidden = tabGiulai.classList.contains('hidden');
-      if (isHidden) {
-        // Reveal the tab Giữ lại
-        tabGiulai.classList.remove('hidden');
-        
-        // Update grid columns from 2 to 3
-        baoCaoTabsContainer.classList.remove('md:grid-cols-2');
-        baoCaoTabsContainer.classList.add('md:grid-cols-3');
-        
-        // Active the Giữ lại tab
-        window.activeReportTab = 'giulai';
-      } else {
-        // Hide the tab Giữ lại
-        tabGiulai.classList.add('hidden');
-        
-        // Update grid columns from 3 to 2
-        baoCaoTabsContainer.classList.remove('md:grid-cols-3');
-        baoCaoTabsContainer.classList.add('md:grid-cols-2');
-        
-        // If the active tab was giulai, switch back to thau
-        if (window.activeReportTab === 'giulai') {
-          window.activeReportTab = 'thau';
-        }
-      }
-      updateReportTabUI();
-      renderReportTable();
-    });
-  }
+
 
   // Copy report listener
   const btnCopyTextReport = document.getElementById("btnCopyTextReport");
@@ -5385,12 +5352,22 @@ function toggleCardDetail(id) {
   const btn = document.getElementById('toggleBtn-' + id);
   if (!wrapper || !btn) return;
   
+  const card = wrapper.closest('.bg-white');
+  
   if (wrapper.classList.contains('hidden')) {
     wrapper.classList.remove('hidden');
     btn.textContent = 'Ẩn';
+    if (card) {
+      card.classList.add('h-[460px]');
+      card.classList.remove('h-auto');
+    }
   } else {
     wrapper.classList.add('hidden');
     btn.textContent = 'Hiện';
+    if (card) {
+      card.classList.remove('h-[460px]');
+      card.classList.add('h-auto');
+    }
   }
 }
 
