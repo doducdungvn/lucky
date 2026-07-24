@@ -271,19 +271,19 @@
               <div class="grid grid-cols-4 gap-1.5 flex-1">
                 <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
                   <span class="bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">Đ</span>
-                  <input type="text" id="retainDe" value="20" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
+                  <input type="text" id="retainDe" value="20" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
                 </div>
                 <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
                   <span class="bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">L</span>
-                  <input type="text" id="retainLo" value="0" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
+                  <input type="text" id="retainLo" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
                 </div>
                 <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
                   <span class="bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">3c</span>
-                  <input type="text" id="retain3c" value="0" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
+                  <input type="text" id="retain3c" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
                 </div>
                 <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
                   <span class="bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">X</span>
-                  <input type="text" id="retainX" value="0" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
+                  <input type="text" id="retainX" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
                 </div>
               </div>
 
@@ -459,7 +459,7 @@
               </div>
             </div>
             
-            <div id="transferStepsContainer" class="flex-1 flex flex-col min-h-0 mb-2 hidden">
+            <div id="transferStepsContainer" class="flex flex-col min-h-0 mb-2 hidden">
               <div id="transferStepsTabHeaders" class="flex flex-wrap gap-1 mb-2"></div>
               <div id="transferStepsTabContent" class="text-[11.5px] bg-slate-50 dark:bg-dark-900/40 p-1.5 rounded border border-slate-200 dark:border-slate-700 flex-1 min-h-0 overflow-y-auto font-sans leading-normal box-sizing-border-box select-text break-all"></div>
             </div>
@@ -638,6 +638,8 @@ window.onerror = function(message, source, lineno, colno, error) {
   alert("LỖI JS: " + message + "\nTại: " + source + ":" + lineno + ":" + colno + "\nStack: " + (error ? error.stack : "N/A"));
   return false;
 };
+
+
 // Predefined shorthands map from thau_lode.html
 const shorthands = {
   "k": "00.11.22.33.44.55.66.77.88.99",
@@ -979,22 +981,39 @@ function parseExclusions(excludeString) {
       }
     }
 
-    if (!lineType) lineType = activeCategory;
-    if (!lineType) return;
+    const isGeneral = !lineType && !activeCategory;
 
     const resolved = resolveShorthands(trimmed);
     const segments = resolved.split(/[.,\-\s]+/).filter(s => s.length > 0);
     segments.forEach(seg => {
       if (!/^\d+$/.test(seg)) return;
-      const targetType = (lineType === 'xienquay' || lineType === 'xien') ? 'xien' : lineType;
-      const nums = parseNumbersFromBetString(seg, targetType);
-      nums.forEach(num => {
-        if (targetType === 'xien') {
-          excluded.xien.add(num);
-        } else {
-          excluded[targetType].add(num);
-        }
-      });
+      
+      if (isGeneral) {
+        const numsDeLo = parseNumbersFromBetString(seg, 'de');
+        numsDeLo.forEach(num => {
+          const ns = String(num).trim();
+          excluded.de.add(ns);
+          excluded.lo.add(ns);
+          excluded.xien.add(ns);
+        });
+        const nums3C = parseNumbersFromBetString(seg, 'bacang');
+        nums3C.forEach(num => {
+          const ns = String(num).trim();
+          excluded.bacang.add(ns);
+        });
+      } else {
+        const targetType = lineType || activeCategory;
+        const resolvedType = (targetType === 'xienquay' || targetType === 'xien') ? 'xien' : targetType;
+        const nums = parseNumbersFromBetString(seg, resolvedType);
+        nums.forEach(num => {
+          const ns = String(num).trim();
+          if (resolvedType === 'xien') {
+            excluded.xien.add(ns);
+          } else {
+            excluded[resolvedType].add(ns);
+          }
+        });
+      }
     });
   });
 
@@ -1004,7 +1023,7 @@ function parseExclusions(excludeString) {
 function getExclusions() {
   const excludeInput = document.getElementById('excludeInput');
   if (!excludeInput) return null;
-  const excludeString = excludeInput.innerText || '';
+  const excludeString = getRawTextFromElement(excludeInput);
   return parseExclusions(excludeString);
 }
 
@@ -1012,18 +1031,20 @@ function isExcluded(categoryKey, key, betNumbers = null) {
   const excl = getExclusions();
   if (!excl) return false;
 
+  const keyStr = String(key).trim();
+
   if (categoryKey === 'de') {
-    return excl.de.has(key);
+    return excl.de.has(keyStr);
   }
   if (categoryKey === 'lo') {
-    return excl.lo.has(key);
+    return excl.lo.has(keyStr);
   }
   if (categoryKey === 'bacang') {
-    return excl.bacang.has(key);
+    return excl.bacang.has(keyStr);
   }
   if (categoryKey === 'xien') {
     if (betNumbers) {
-      return betNumbers.some(num => excl.xien.has(num) || excl.lo.has(num));
+      return betNumbers.some(num => excl.xien.has(String(num).trim()) || excl.lo.has(String(num).trim()));
     }
   }
   return false;
@@ -1905,6 +1926,8 @@ async function triggerAutoFetch() {
     if (allPrizesInput) allPrizesInput.value = data.prizes.join(', ');
 
     updateTwoDigitBoard();
+    saveAppState();
+    calculateSum();
 
   } catch (error) {
     console.error(error);
@@ -2198,10 +2221,10 @@ function updateClearAndResetButtons() {
     
     if (activeTab === 'main') {
       const combinedBetInput = document.getElementById('combinedBetInput');
-      canClear = combinedBetInput && combinedBetInput.innerText.trim() !== "";
+      canClear = combinedBetInput && getRawTextFromElement(combinedBetInput).trim() !== "";
     } else {
       const excludeInput = document.getElementById('excludeInput');
-      canClear = excludeInput && excludeInput.innerText.trim() !== "";
+      canClear = excludeInput && getRawTextFromElement(excludeInput).trim() !== "";
     }
     btnClearBetInput.disabled = !canClear;
   }
@@ -2464,7 +2487,7 @@ function calculateSum(isFromRunBalancing = false) {
 
   const inputEl = document.getElementById("combinedBetInput") || document.getElementById("numbers");
   if (!inputEl) return;
-  const inputString = inputEl.tagName.toLowerCase() === "textarea" ? inputEl.value : inputEl.innerText;
+  const inputString = getRawTextFromElement(inputEl);
 
   const allPrizesEl = document.getElementById("allPrizesInput") || document.getElementById("twentySevenNumbers");
   const allPrizesRaw = allPrizesEl ? allPrizesEl.value.trim() : "";
@@ -3097,15 +3120,15 @@ function calculateSum(isFromRunBalancing = false) {
     return `(${Math.round(von).toLocaleString('vi-VN')} / ${Math.round(trung).toLocaleString('vi-VN')})`;
   };
 
-  renderGroupResult(`🔴 Đề ${formatHeaderMoney(deVon, deTrung)}`, deSums, false, "de");
-  renderGroupResult(`🔵 Lô(đ) ${formatHeaderMoney(loVon, loTrung)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loBetSum)}đ / ${Math.round(loWinSum)}đ]</span>`, loSums, true, "lo");
+  renderGroupResult(`🔴 Đề ${formatHeaderMoney(deBetSum, deTrung)}`, deSums, false, "de");
+  renderGroupResult(`🔵 Lô(đ) ${formatHeaderMoney(loBetSum * 23, loTrung)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loBetSum)}đ / ${Math.round(loWinSum)}đ]</span>`, loSums, true, "lo");
 
   if (xienBets.length > 0 && resultDiv) {
     const stateKey = "res_xien";
     const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
 
     const header = document.createElement("div");
-    header.innerHTML = `<strong>🟢 Xiên ${formatHeaderMoney(xienVon, xienTrung)}</strong>`;
+    header.innerHTML = `<strong>🟢 Xiên ${formatHeaderMoney(xienBetSum, xienTrung)}</strong>`;
     header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
     
     const content = document.createElement("div");
@@ -3138,7 +3161,7 @@ function calculateSum(isFromRunBalancing = false) {
     const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
 
     const header = document.createElement("div");
-    header.innerHTML = `<strong>🟣 3C ${formatHeaderMoney(baCangVon, baCangTrung)}</strong>`;
+    header.innerHTML = `<strong>🟣 3C ${formatHeaderMoney(baCangDeBetSum, baCangTrung)}</strong>`;
     header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
     
     const content = document.createElement("div");
@@ -3256,8 +3279,8 @@ function calculateSum(isFromRunBalancing = false) {
 
   const loLayoffPointsWin = loPayoutFactor > 0 ? Math.round(loLayoff.winSum / loPayoutFactor) : 0;
   
-  renderGroupLayoff(`🔴 Đề ${formatHeaderMoney(deVonChuyen, deTrungChuyen)}`, deSums, false, 'de');
-  renderGroupLayoff(`🔵 Lô(đ) ${formatHeaderMoney(loVonChuyen, loTrungChuyen)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loLayoff.costSum)}đ / ${loLayoffPointsWin}đ]</span>`, loSums, true, 'lo');
+  renderGroupLayoff(`🔴 Đề ${formatHeaderMoney(deLayoff.costSum, deTrungChuyen)}`, deSums, false, 'de');
+  renderGroupLayoff(`🔵 Lô(đ) ${formatHeaderMoney(loLayoff.costSum * 23, loTrungChuyen)} <span class="text-yellow-600 dark:text-yellow-400">[${Math.round(loLayoff.costSum)}đ / ${loLayoffPointsWin}đ]</span>`, loSums, true, 'lo');
 
   let xienLayoffHtml = "";
   // xienTransferMap is already defined above
@@ -3282,7 +3305,7 @@ function calculateSum(isFromRunBalancing = false) {
     const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
 
     const header = document.createElement("div");
-    header.innerHTML = `<strong>🟢 Xiên ${formatHeaderMoney(xienVonChuyen, xienTrungChuyen)}</strong>`;
+    header.innerHTML = `<strong>🟢 Xiên ${formatHeaderMoney(xienXacChuyen, xienTrungChuyen)}</strong>`;
     header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
     
     const content = document.createElement("div");
@@ -3323,7 +3346,7 @@ function calculateSum(isFromRunBalancing = false) {
     const isCollapsed = !!window.collapsedCategoriesState?.[stateKey];
 
     const header = document.createElement("div");
-    header.innerHTML = `<strong>🟣 Bc ${formatHeaderMoney(baCangVonChuyen, baCangTrungChuyen)}</strong>`;
+    header.innerHTML = `<strong>🟣 Bc ${formatHeaderMoney(baCangLayoff.costSum, baCangTrungChuyen)}</strong>`;
     header.className = "mt-2 border-b border-gray-100 dark:border-gray-700 pb-1 text-emerald-600 dark:text-emerald-500 text-xs cursor-pointer select-none hover:opacity-80";
     
     const content = document.createElement("div");
@@ -3485,10 +3508,12 @@ function calculateSum(isFromRunBalancing = false) {
     const totalSumLabel = document.getElementById("totalSum");
     const modifiedTotalSumLabel = document.getElementById("modifiedTotalSum");
     if (totalSumLabel) {
-      totalSumLabel.textContent = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
+      const totalXac = deBetSum + loBetSum * 23 + xienBetSum + baCangDeBetSum;
+      totalSumLabel.textContent = `${Math.round(totalXac).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
     }
     if (modifiedTotalSumLabel) {
-      modifiedTotalSumLabel.textContent = `${Math.round(totalVonChuyenCum).toLocaleString("vi-VN")} / ${Math.round(totalTrungChuyenCum).toLocaleString("vi-VN")}`;
+      const totalXacChuyenCum = deLayoffCum.costSum + loLayoffCum.costSum * 23 + xienXacChuyenCum + baCangLayoffCum.costSum;
+      modifiedTotalSumLabel.textContent = `${Math.round(totalXacChuyenCum).toLocaleString("vi-VN")} / ${Math.round(totalTrungChuyenCum).toLocaleString("vi-VN")}`;
     }
 
   } else {
@@ -3617,7 +3642,8 @@ function calculateSum(isFromRunBalancing = false) {
   if (inputListTotalSpan) inputListTotalSpan.textContent = totalBetValue.toLocaleString("vi-VN");
   const inputTotalSumEl = document.getElementById("inputTotalSum");
   if (inputTotalSumEl) {
-    inputTotalSumEl.textContent = `${Math.round(totalVon).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
+    const totalXac = deBetSum + loBetSum * 23 + xienBetSum + baCangDeBetSum;
+    inputTotalSumEl.textContent = `${Math.round(totalXac).toLocaleString("vi-VN")} / ${Math.round(totalTrung).toLocaleString("vi-VN")}`;
   }
   updateCopyButtonLabel();
   updateTransferStepsUI();
@@ -4166,9 +4192,11 @@ function setupEventListeners() {
       if (activeTab === 'main') {
         combinedBetInput.classList.remove('hidden');
         if (excludeContainer) excludeContainer.classList.add('hidden');
+        calculateSum();
       } else if (activeTab === 'exclude') {
         combinedBetInput.classList.add('hidden');
         if (excludeContainer) excludeContainer.classList.remove('hidden');
+        calculateSum();
         updateExcludeDisplay();
       }
 
@@ -4194,7 +4222,7 @@ function setupEventListeners() {
   if (excludeInput) {
     Object.defineProperty(excludeInput, 'value', {
       get: function() {
-        let txt = this.innerText || '';
+        let txt = getRawTextFromElement(this);
         txt = txt.replace(/\r\n$/, '\n').replace(/\n$/, '');
         return txt;
       },
@@ -4244,7 +4272,7 @@ function setupEventListeners() {
           }
         }
 
-        const inputString = excludeInput.innerText;
+        const inputString = getRawTextFromElement(excludeInput);
 
         if (hasMarker && markerTextNode && markerTextNode.parentNode) {
           markerTextNode.parentNode.removeChild(markerTextNode);
@@ -4340,7 +4368,7 @@ function setupEventListeners() {
         }
 
         // 2. Read innerText (which now contains the placeholder)
-        const inputString = combinedBetInput.innerText;
+        const inputString = getRawTextFromElement(combinedBetInput);
 
         // 3. Remove the temporary placeholder text node from the DOM immediately
         if (hasMarker && markerTextNode && markerTextNode.parentNode) {
@@ -4398,7 +4426,7 @@ function setupEventListeners() {
     combinedBetInput.addEventListener('blur', function() {
       saveAppState();
       if (highlightTimeout) clearTimeout(highlightTimeout);
-      const inputString = combinedBetInput.innerText;
+      const inputString = getRawTextFromElement(combinedBetInput);
       const originalLines = inputString.split('\n');
       let currentCat = '';
       let editorHtml = originalLines.map(line => {
@@ -4895,11 +4923,13 @@ function updateTransferStepsUI() {
   if (!window.activeStepTab || window.activeStepTab > balanceState.step || window.activeStepTab < 1) {
     content.classList.add('hidden');
     if (wrapperModifiedResult) wrapperModifiedResult.classList.remove('hidden');
+    container.classList.remove('flex-1');
     return;
   }
 
   content.classList.remove('hidden');
   if (wrapperModifiedResult) wrapperModifiedResult.classList.add('hidden');
+  container.classList.add('flex-1');
 
   // Find active step data
   const history = balanceState.history || [];
@@ -5070,7 +5100,7 @@ function runBalancingStep(isPercent) {
   calculateSum(false);
 
   const combinedBetInput = document.getElementById('combinedBetInput');
-  const inputString = combinedBetInput ? (combinedBetInput.tagName.toLowerCase() === "textarea" ? combinedBetInput.value : combinedBetInput.innerText) : '';
+  const inputString = combinedBetInput ? getRawTextFromElement(combinedBetInput) : '';
   const parsedBets = parseCombinedInput(inputString);
 
   // Compute totals for current editor content
