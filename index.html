@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> Z8™ </title>
+  <title>+ Z8™ +</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <!-- FontAwesome 6 CDN for authentic Microsoft 365 Office icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -255,11 +255,11 @@
               </div>
               
               <div class="flex items-center gap-2 bg-white dark:bg-dark-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 text-xs">
-                <label class="flex items-center gap-1 cursor-pointer font-medium">
+                <label class="flex items-center gap-1 cursor-pointer font-medium px-2 py-1">
                   <input type="radio" name="retainType" id="retainTypeMoney" value="money" checked class="form-radio text-excel-800 focus:ring-excel-800">
                   <span>Tiền</span>
                 </label>
-                <label class="flex items-center gap-1 cursor-pointer font-medium">
+                <label class="flex items-center gap-1 cursor-pointer font-medium px-2 py-1">
                   <input type="radio" name="retainType" id="retainTypePercentage" value="percentage" class="form-radio text-excel-800 focus:ring-excel-800">
                   <span>%</span>
                 </label>
@@ -275,7 +275,7 @@
                 </div>
                 <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
                   <span class="bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">L</span>
-                  <input type="text" id="retainLo" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
+                  <input type="text" id="retainLo" value="5" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
                 </div>
                 <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
                   <span class="bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 text-[11px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">3c</span>
@@ -419,7 +419,7 @@
         <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
           
           <!-- Card 1: Kết quả -->
-          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-[460px]">
+          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-auto">
             <h3 onclick="toggleCardDetail('result')" class="font-bold text-xs flex items-center gap-1.5 mb-2 border-b border-slate-200 dark:border-slate-700 pb-2 cursor-pointer select-none text-slate-800 dark:text-slate-200">
               <i class="fa-solid fa-chart-simple text-excel-800 dark:text-emerald-400"></i>
               <span>Kết quả:</span>
@@ -436,13 +436,13 @@
               </div>
             </div>
             
-            <div id="wrapper-result" class="flex-1 flex flex-col min-h-0 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40">
+            <div id="wrapper-result" class="hidden max-h-80 flex flex-col border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40 overflow-y-auto">
               <div id="result" class="space-y-1 flex-1 overflow-y-auto p-2 font-mono text-xs"></div>
             </div>
           </div>
 
           <!-- Card 2: Chuyển 1 -->
-          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-[460px]">
+          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-auto">
             <h3 onclick="toggleCardDetail('modifiedResult')" class="font-bold text-xs flex items-center gap-1.5 mb-2 border-b border-slate-200 dark:border-slate-700 pb-2 cursor-pointer select-none text-slate-800 dark:text-slate-200">
               <i class="fa-solid fa-arrows-rotate text-indigo-600 dark:text-indigo-400"></i>
               <span id="transferHeaderTitle">Chuyển 1:</span>
@@ -463,13 +463,13 @@
               <div id="transferStepsTabHeaders" class="flex flex-wrap gap-1 mb-2"></div>
               <div id="transferStepsTabContent" class="text-[11.5px] bg-slate-50 dark:bg-dark-900/40 p-1.5 rounded border border-slate-200 dark:border-slate-700 flex-1 min-h-0 overflow-y-auto font-sans leading-normal box-sizing-border-box select-text break-all"></div>
             </div>
-            <div id="wrapper-modifiedResult" class="flex-1 flex flex-col min-h-0 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40">
+            <div id="wrapper-modifiedResult" class="hidden max-h-80 flex flex-col border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40 overflow-y-auto">
               <div id="modifiedResult" class="space-y-1 flex-1 overflow-y-auto p-2 font-mono text-xs"></div>
             </div>
           </div>
 
           <!-- Card 3: Chi tiết Input -->
-          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-[460px]">
+          <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-auto">
             <h3 onclick="toggleCardDetail('inputList')" class="font-bold text-xs flex items-center gap-1.5 mb-2 border-b border-slate-200 dark:border-slate-700 pb-2 cursor-pointer select-none text-slate-800 dark:text-slate-200">
               <i class="fa-solid fa-magnifying-glass text-amber-600 dark:text-amber-400"></i>
               <span>Chi tiết:</span>
@@ -486,7 +486,7 @@
               </div>
             </div>
             
-            <div id="wrapper-inputList" class="flex-1 flex flex-col min-h-0 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40">
+            <div id="wrapper-inputList" class="hidden max-h-80 flex flex-col border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-dark-900/40 overflow-y-auto">
               <ul id="inputList" class="space-y-1 flex-1 overflow-y-auto p-2 font-mono text-xs"></ul>
             </div>
           </div>
@@ -1872,7 +1872,7 @@ function formatDateDDMMYYYY(dateString) {
 }
 
 async function triggerAutoFetch(isAuto = false) {
-  const auto = (isAuto === true);
+  const isAutoFetch = (isAuto === true);
   const fetchBtnSpinner = document.getElementById('fetchBtnSpinner');
   const fetchBtnText = document.getElementById('fetchBtnText');
   const btnFetchResults = document.getElementById('btnFetchResults');
@@ -1898,41 +1898,50 @@ async function triggerAutoFetch(isAuto = false) {
     let data = null;
     let errors = [];
 
-    if (auto) {
-      // Automatic fetch: try GitHub first
+    if (isAutoFetch) {
+      // 1. Tự động: trước tiên là lấy kết quả ở GitHub Data
       try {
         data = await fetchFromGitHubXSMB(targetDate);
       } catch (e) {
         errors.push("GitHub: " + e.message);
       }
 
-      // If GitHub fails, try selected source
+      // 2. Nếu GitHub lỗi hoặc không có, thử nguồn đã chọn
       if (!data) {
         if (currentSource === 'github') {
-          // Already tried
+          // GitHub already tried
         } else if (currentSource === 'minhngoc') {
           try { data = await fetchFromMinhNgoc(targetDate); } catch (e) { errors.push("Minh Ngọc: " + e.message); }
         } else if (currentSource === 'xskt') {
           try { data = await fetchFromXSKT(targetDate); } catch (e) { errors.push("XSKT: " + e.message); }
-        } else {
+        } else if (currentSource === 'mketqua') {
           try { data = await fetchFromMKetqua(targetDate); } catch (e) { errors.push("mketqua: " + e.message); }
         }
       }
     } else {
-      // Manual fetch: try selected source first
+      // 1. Thủ công: tự chọn trang lấy kết quả và ấn tải kq để lấy ở trang đó
       if (currentSource === 'github') {
         try { data = await fetchFromGitHubXSMB(targetDate); } catch (e) { errors.push("GitHub: " + e.message); }
       } else if (currentSource === 'minhngoc') {
         try { data = await fetchFromMinhNgoc(targetDate); } catch (e) { errors.push("Minh Ngọc: " + e.message); }
       } else if (currentSource === 'xskt') {
         try { data = await fetchFromXSKT(targetDate); } catch (e) { errors.push("XSKT: " + e.message); }
-      } else {
+      } else if (currentSource === 'mketqua') {
         try { data = await fetchFromMKetqua(targetDate); } catch (e) { errors.push("mketqua: " + e.message); }
+      }
+
+      // 2. Nếu nguồn đã chọn lỗi, thử GitHub làm fallback đầu tiên
+      if (!data && currentSource !== 'github') {
+        try {
+          data = await fetchFromGitHubXSMB(targetDate);
+        } catch (e) {
+          errors.push("GitHub (fallback): " + e.message);
+        }
       }
     }
 
-    // Fallback chain
-    if (!data && (!auto || currentSource !== 'github')) {
+    // 3. Fallback chain cho các nguồn khác
+    if (!data && currentSource !== 'github') {
       try { data = await fetchFromGitHubXSMB(targetDate); } catch (e) { errors.push("GitHub (fallback): " + e.message); }
     }
     if (!data && currentSource !== 'minhngoc') {
@@ -2434,6 +2443,11 @@ function loadAppState() {
     calculateSum();
   } else {
     updateTransferStepsUI();
+    // Ẩn wrappers khi không có dữ liệu
+    ['wrapper-result', 'wrapper-inputList', 'wrapper-modifiedResult'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
   }
 
   if (autoFetchToggle && autoFetchToggle.checked) {
@@ -3705,6 +3719,18 @@ function calculateSum(isFromRunBalancing = false) {
   }
   updateCopyButtonLabel();
   updateTransferStepsUI();
+
+  // Ẩn/hiện wrapper theo dữ liệu đầu vào
+  const hasInputData = (inputString || '').trim().length > 0;
+  const showHideWrapper = (id, show) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (show) { el.classList.remove('hidden'); }
+    else { el.classList.add('hidden'); }
+  };
+  showHideWrapper('wrapper-result', hasInputData);
+  showHideWrapper('wrapper-inputList', hasInputData);
+  showHideWrapper('wrapper-modifiedResult', hasInputData);
 }
 
 function updateCopyButtonLabel() {
@@ -4702,7 +4728,7 @@ function setupEventListeners() {
 
   const btnFetchResults = document.getElementById('btnFetchResults');
   if (btnFetchResults) {
-    btnFetchResults.addEventListener('click', triggerAutoFetch);
+    btnFetchResults.addEventListener('click', () => triggerAutoFetch(false));
   }
 
   const btnSourceMinhNgoc = document.getElementById('btnSourceMinhNgoc');
@@ -4741,7 +4767,24 @@ function setupEventListeners() {
   }
 
   document.querySelectorAll('input[name="retainType"]').forEach(radio => {
-    radio.addEventListener('change', () => calculateSum());
+    radio.addEventListener('change', (e) => {
+      const retainDe = document.getElementById('retainDe');
+      const retainLo = document.getElementById('retainLo');
+      const retain3c = document.getElementById('retain3c');
+      const retainX = document.getElementById('retainX');
+      if (e.target.value === 'money') {
+        if (retainDe) retainDe.value = '20';
+        if (retainLo) retainLo.value = '5';
+        if (retain3c) retain3c.value = '0';
+        if (retainX) retainX.value = '0';
+      } else {
+        if (retainDe) retainDe.value = '50';
+        if (retainLo) retainLo.value = '50';
+        if (retain3c) retain3c.value = '0';
+        if (retainX) retainX.value = '0';
+      }
+      calculateSum();
+    });
   });
 
   // Summary Table listeners
@@ -4946,7 +4989,13 @@ function updateTransferStepsUI() {
 
   if (!balanceState || balanceState.step === 0) {
     container.classList.add('hidden');
-    if (wrapperModifiedResult) wrapperModifiedResult.classList.remove('hidden');
+    // Chỉ hiện wrapper-modifiedResult khi có dữ liệu đầu vào
+    const inputEl2 = document.getElementById('combinedBetInput') || document.getElementById('numbers');
+    const hasInput = inputEl2 ? getRawTextFromElement(inputEl2).trim().length > 0 : false;
+    if (wrapperModifiedResult) {
+      if (hasInput) wrapperModifiedResult.classList.remove('hidden');
+      else wrapperModifiedResult.classList.add('hidden');
+    }
     return;
   }
 
@@ -4985,7 +5034,12 @@ function updateTransferStepsUI() {
   const isValidTab = window.activeStepTab === 'TC' || (window.activeStepTab >= 1 && window.activeStepTab <= balanceState.step);
   if (!window.activeStepTab || !isValidTab) {
     content.classList.add('hidden');
-    if (wrapperModifiedResult) wrapperModifiedResult.classList.remove('hidden');
+    const inputEl3 = document.getElementById('combinedBetInput') || document.getElementById('numbers');
+    const hasInput3 = inputEl3 ? getRawTextFromElement(inputEl3).trim().length > 0 : false;
+    if (wrapperModifiedResult) {
+      if (hasInput3) wrapperModifiedResult.classList.remove('hidden');
+      else wrapperModifiedResult.classList.add('hidden');
+    }
     container.classList.remove('flex-1');
     return;
   }
@@ -5319,12 +5373,13 @@ function runBalancingStep(isPercent) {
   const newCumulativeTransferred = prevCumulativeTransferred + stepCost;
   const costRetained = Math.max(0, currentTotalVon - newCumulativeTransferred);
 
-  // Reconstruct retained lists at this step before applying the step cumulative changes
+  // Reconstruct retained lists at this step - only numbers processed in this step
   const getStepRetainedMap = (originalSums, cumulativeTransfers, stepTransfers) => {
     const map = {};
-    Object.entries(originalSums).forEach(([num, total]) => {
+    // Only show numbers that were actively processed in this step (had stepTrans > 0)
+    Object.entries(stepTransfers).forEach(([num, stepTrans]) => {
+      const total = originalSums[num] || 0;
       const prevTrans = cumulativeTransfers[num] || 0;
-      const stepTrans = stepTransfers[num] || 0;
       const newTrans = prevTrans + stepTrans;
       const kept = Math.round((total - newTrans) * 10) / 10;
       if (kept >= 0.1) {
