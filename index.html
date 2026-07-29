@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>+ Z8™ +</title>
+  <title> Z8™ </title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <!-- FontAwesome 6 CDN for authentic Microsoft 365 Office icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -5080,8 +5080,27 @@ function updateTransferStepsUI() {
       }
     });
 
-    retainedMap = lastStepEntry ? lastStepEntry.retained : { de: {}, lo: {}, bacang: {}, xien: {} };
+    // TC Giữ lại = cộng dồn từng bước (giống TC Chuyển), dùng history.retained
+    costRetained = history.reduce((sum, h) => sum + (h.costRetained || 0), 0);
+    retainedMap = { de: {}, lo: {}, bacang: {}, bacang_lo: {}, xien: {} };
+    history.forEach(h => {
+      if (!h.retained) return;
+      ['de', 'lo', 'bacang', 'bacang_lo'].forEach(key => {
+        if (h.retained[key]) {
+          Object.entries(h.retained[key]).forEach(([num, val]) => {
+            retainedMap[key][num] = (retainedMap[key][num] || 0) + val;
+          });
+        }
+      });
+      if (h.retained.xien) {
+        Object.entries(h.retained.xien).forEach(([k, v]) => {
+          retainedMap.xien[k] = (retainedMap.xien[k] || 0) + v;
+        });
+      }
+    });
+
   } else {
+
     const stepData = history.find(h => h.step === window.activeStepTab);
     if (!stepData) {
       content.innerHTML = `<div class="text-slate-400 dark:text-slate-500 italic">Không có dữ liệu cho Lần chuyển ${window.activeStepTab}</div>`;
@@ -5376,7 +5395,7 @@ function runBalancingStep(isPercent) {
   // Reconstruct retained lists at this step - only numbers processed in this step
   const getStepRetainedMap = (originalSums, cumulativeTransfers, stepTransfers) => {
     const map = {};
-    // Only show numbers that were actively processed in this step (had stepTrans > 0)
+    // Chỉ hiện số đã được chuyển ở bước này, hiện phần giữ lại = gốc - lũy kế sau bước này
     Object.entries(stepTransfers).forEach(([num, stepTrans]) => {
       const total = originalSums[num] || 0;
       const prevTrans = cumulativeTransfers[num] || 0;
