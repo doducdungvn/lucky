@@ -140,7 +140,7 @@
   <!-- ==================== TOP EXCEL BAR ==================== -->
   <header class="bg-excel-800 text-white flex items-center justify-between px-3 py-1.5 shadow-md z-30 flex-shrink-0">
     <div class="flex items-center space-x-2">
-      <div class="w-6 h-6 bg-white text-excel-800 rounded flex items-center justify-center font-black text-xs shadow-xs">1</div>
+      <div class="w-6 h-6 bg-white text-excel-800 rounded flex items-center justify-center font-black text-xs shadow-xs">2</div>
       
       <button id="logoButton" class="group flex items-center gap-1.5 focus:outline-none cursor-pointer">
         <span class="text-base font-black text-white tracking-wide">Z8™</span>
@@ -1582,7 +1582,7 @@ function normalizeBetLine(line) {
 
 function parseCombinedInput(inputString) {
   let processedInput = inputString.replace(/[’‘ʼ＇`]/g, "'");
-  const keywordRegex = /(^|[\s,;])(xienquay|xquay|xienq|3cang|3càng|3\s*càng|3\s*cang|quay|xien|xiên|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|bc|càng|cang|d|đ|l|c|q|x)(\d)/gi;
+  const keywordRegex = /(^|[\s,;])(xienquay|xquay|xienq|3cang|3càng|3\s*càng|3\s*cang|quay|xien|xiên|xq|de|đề|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lo|lô|3c|bc|càng|cang|d(?!\d(?!\d))|đ(?!\d(?!\d))|l|c|q|x)(\d)/gi;
   processedInput = processedInput.replace(keywordRegex, "$1$2 $3");
   const sameLinePattern = /[\s,;]+(xienquay|xq|xienq|quay|q|xquay|lô\s*xiên|lo\s*xien|đề|de|đê|đe|dê|dè|đè|Dè|Đè|dề|Dề|lô|lo|l|xiên|xien|x2|x3|x4)(?=[\s.,;\-\d]|$)|[\s,;]+(3càng|3cang|3\s*càng|3\s*cang|3c|bc|càng|cang)(?=[\s.,;\-\d]|$)|[\s,;]+(d|đ|l|c)(?=[\s.,;\-\d]|$)(?=\s+[a-z0-9'’‘＇`])/gi;
   processedInput = processedInput.replace(sameLinePattern, (match) => {
@@ -3116,6 +3116,43 @@ function calculateSum(isFromRunBalancing = false) {
   const totalVonChuyenCum = deVonChuyenCum + loVonChuyenCum + xienVonChuyenCum + baCangVonChuyenCum;
   const totalTrungChuyenCum = deTrungChuyenCum + loTrungChuyenCum + xienTrungChuyenCum + baCangTrungChuyenCum;
 
+  const deTransferMapCum = getCumulativeTransferMap('de');
+  const deWinXacChuyenCum = deSums[specialPrizeLast2] ? deTransferMapCum[specialPrizeLast2] || 0 : 0;
+
+  let loWinXacChuyenCum = 0;
+  const loTransferMapCum = getCumulativeTransferMap('lo');
+  Object.entries(loSums).forEach(([num, val]) => {
+    const occurrences = allPrizesLast2.filter(p => p === num).length;
+    if (occurrences > 0) {
+      loWinXacChuyenCum += occurrences * (loTransferMapCum[num] || 0);
+    }
+  });
+
+  let baCangWinXacChuyenCum = 0;
+  const baCangTransferMapCum = getCumulativeTransferMap('bacang');
+  Object.entries(baCangSums).forEach(([num, val]) => {
+    const match3 = num === specialPrizeLast3;
+    const match2 = num.slice(-2) === specialPrizeLast2;
+    const modVal = baCangTransferMapCum[num] || 0;
+    if (match3) {
+      baCangWinXacChuyenCum += modVal;
+    } else if (match2) {
+      baCangWinXacChuyenCum += modVal;
+    }
+  });
+
+  let xienWinXacChuyenCum = 0;
+  const xienTransferMapCum2 = getCumulativeTransferMap('xien');
+  xienBets.forEach((bet, idx) => {
+    let modifiedSum = xienTransferMapCum2[idx] || 0;
+    if (modifiedSum >= 0.1) {
+      const allHit = bet.numbers.every(num => allPrizesLast2.includes(num));
+      if (allHit) {
+        xienWinXacChuyenCum += modifiedSum;
+      }
+    }
+  });
+
   const deTransferMap = getCategoryTransferMap('de');
   const deWinSumChuyen = deSums[specialPrizeLast2] ? deTransferMap[specialPrizeLast2] || 0 : 0;
 
@@ -3456,10 +3493,10 @@ function calculateSum(isFromRunBalancing = false) {
       totalVon, totalTrung, totalNet
     };
     const chuyenData = {
-      deXac: deLayoffCum.costSum, deVon: deVonChuyenCum, deTrung: deTrungChuyenCum, deNet: (deVonChuyenCum - deTrungChuyenCum),
-      loXac: loLayoffCum.costSum, loVon: loVonChuyenCum, loTrung: loTrungChuyenCum, loNet: (loVonChuyenCum - loTrungChuyenCum),
-      xienXac: xienXacChuyenCum, xienVon: xienVonChuyenCum, xienTrung: xienTrungChuyenCum, xienNet: (xienVonChuyenCum - xienTrungChuyenCum),
-      baCangXac: baCangLayoffCum.costSum, baCangVon: baCangVonChuyenCum, baCangTrung: baCangTrungChuyenCum, baCangNet: (baCangVonChuyenCum - baCangTrungChuyenCum),
+      deXac: deLayoffCum.costSum, deVon: deVonChuyenCum, deTrung: deTrungChuyenCum, deNet: (deVonChuyenCum - deTrungChuyenCum), deWinXac: deWinXacChuyenCum,
+      loXac: loLayoffCum.costSum, loVon: loVonChuyenCum, loTrung: loTrungChuyenCum, loNet: (loVonChuyenCum - loTrungChuyenCum), loWinXac: loWinXacChuyenCum,
+      xienXac: xienXacChuyenCum, xienVon: xienVonChuyenCum, xienTrung: xienTrungChuyenCum, xienNet: (xienVonChuyenCum - xienTrungChuyenCum), xienWinXac: xienWinXacChuyenCum,
+      baCangXac: baCangLayoffCum.costSum, baCangVon: baCangVonChuyenCum, baCangTrung: baCangTrungChuyenCum, baCangNet: (baCangVonChuyenCum - baCangTrungChuyenCum), baCangWinXac: baCangWinXacChuyenCum,
       totalVon: totalVonChuyenCum, totalTrung: totalTrungChuyenCum, totalNet: totalNetChuyenCum
     };
     const giulaiData = {
@@ -3467,21 +3504,25 @@ function calculateSum(isFromRunBalancing = false) {
       deVon: thauData.deVon - chuyenData.deVon,
       deTrung: thauData.deTrung - chuyenData.deTrung,
       deNet: thauData.deNet - chuyenData.deNet,
+      deWinXac: Math.max(0, thauData.deWinXac - chuyenData.deWinXac),
 
       loXac: Math.max(0, thauData.loXac - chuyenData.loXac),
       loVon: thauData.loVon - chuyenData.loVon,
       loTrung: thauData.loTrung - chuyenData.loTrung,
       loNet: thauData.loNet - chuyenData.loNet,
+      loWinXac: Math.max(0, thauData.loWinXac - chuyenData.loWinXac),
 
       xienXac: Math.max(0, thauData.xienXac - chuyenData.xienXac),
       xienVon: thauData.xienVon - chuyenData.xienVon,
       xienTrung: thauData.xienTrung - chuyenData.xienTrung,
       xienNet: thauData.xienNet - chuyenData.xienNet,
+      xienWinXac: Math.max(0, thauData.xienWinXac - chuyenData.xienWinXac),
 
       baCangXac: Math.max(0, thauData.baCangXac - chuyenData.baCangXac),
       baCangVon: thauData.baCangVon - chuyenData.baCangVon,
       baCangTrung: thauData.baCangTrung - chuyenData.baCangTrung,
       baCangNet: thauData.baCangNet - chuyenData.baCangNet,
+      baCangWinXac: Math.max(0, thauData.baCangWinXac - chuyenData.baCangWinXac),
 
       totalVon: thauData.totalVon - chuyenData.totalVon,
       totalTrung: thauData.totalTrung - chuyenData.totalTrung,
@@ -3799,7 +3840,9 @@ function renderReportTable() {
     setCell("tblDeVon", data.chuyen.deVon);
     const tblDeTrungEl = document.getElementById("tblDeTrung");
     if (tblDeTrungEl) {
-      tblDeTrungEl.textContent = data.chuyen.deTrung > 0 ? Math.round(data.chuyen.deTrung).toLocaleString('vi-VN') : "0";
+      tblDeTrungEl.textContent = data.chuyen.deWinXac > 0 
+        ? `(${Math.round(data.chuyen.deWinXac).toLocaleString('vi-VN')})${Math.round(data.chuyen.deTrung).toLocaleString('vi-VN')}` 
+        : "0";
     }
     setNetCell("tblDeNet", data.chuyen.deNet);
 
@@ -3807,7 +3850,9 @@ function renderReportTable() {
     setCell("tblLoVon", data.chuyen.loVon);
     const tblLoTrungEl = document.getElementById("tblLoTrung");
     if (tblLoTrungEl) {
-      tblLoTrungEl.textContent = data.chuyen.loTrung > 0 ? Math.round(data.chuyen.loTrung).toLocaleString('vi-VN') : "0";
+      tblLoTrungEl.textContent = data.chuyen.loWinXac > 0 
+        ? `(${Math.round(data.chuyen.loWinXac).toLocaleString('vi-VN')})${Math.round(data.chuyen.loTrung).toLocaleString('vi-VN')}` 
+        : "0";
     }
     setNetCell("tblLoNet", data.chuyen.loNet);
 
@@ -3815,7 +3860,9 @@ function renderReportTable() {
     setCell("tblXienVon", data.chuyen.xienVon);
     const tblXienTrungEl = document.getElementById("tblXienTrung");
     if (tblXienTrungEl) {
-      tblXienTrungEl.textContent = data.chuyen.xienTrung > 0 ? Math.round(data.chuyen.xienTrung).toLocaleString('vi-VN') : "0";
+      tblXienTrungEl.textContent = data.chuyen.xienWinXac > 0 
+        ? `(${Math.round(data.chuyen.xienWinXac).toLocaleString('vi-VN')})${Math.round(data.chuyen.xienTrung).toLocaleString('vi-VN')}` 
+        : "0";
     }
     setNetCell("tblXienNet", data.chuyen.xienNet);
 
@@ -3823,10 +3870,11 @@ function renderReportTable() {
     setCell("tbl3CVon", data.chuyen.baCangVon);
     const tbl3CTrungEl = document.getElementById("tbl3CTrung");
     if (tbl3CTrungEl) {
-      tbl3CTrungEl.textContent = data.chuyen.baCangTrung > 0 ? Math.round(data.chuyen.baCangTrung).toLocaleString('vi-VN') : "0";
+      tbl3CTrungEl.textContent = data.chuyen.baCangWinXac > 0 
+        ? `(${Math.round(data.chuyen.baCangWinXac).toLocaleString('vi-VN')})${Math.round(data.chuyen.baCangTrung).toLocaleString('vi-VN')}` 
+        : "0";
     }
     setNetCell("tbl3CNet", data.chuyen.baCangNet);
-
 
 
     setCell("tblTotalVon", data.chuyen.totalVon);
@@ -3844,7 +3892,9 @@ function renderReportTable() {
     setCell("tblDeVon", data.giulai.deVon);
     const tblDeTrungEl = document.getElementById("tblDeTrung");
     if (tblDeTrungEl) {
-      tblDeTrungEl.textContent = data.giulai.deTrung > 0 ? Math.round(data.giulai.deTrung).toLocaleString('vi-VN') : "0";
+      tblDeTrungEl.textContent = data.giulai.deWinXac > 0 
+        ? `(${Math.round(data.giulai.deWinXac).toLocaleString('vi-VN')})${Math.round(data.giulai.deTrung).toLocaleString('vi-VN')}` 
+        : "0";
     }
     setNetCell("tblDeNet", data.giulai.deNet);
 
@@ -3852,7 +3902,9 @@ function renderReportTable() {
     setCell("tblLoVon", data.giulai.loVon);
     const tblLoTrungEl = document.getElementById("tblLoTrung");
     if (tblLoTrungEl) {
-      tblLoTrungEl.textContent = data.giulai.loTrung > 0 ? Math.round(data.giulai.loTrung).toLocaleString('vi-VN') : "0";
+      tblLoTrungEl.textContent = data.giulai.loWinXac > 0 
+        ? `(${Math.round(data.giulai.loWinXac).toLocaleString('vi-VN')})${Math.round(data.giulai.loTrung).toLocaleString('vi-VN')}` 
+        : "0";
     }
     setNetCell("tblLoNet", data.giulai.loNet);
 
@@ -3860,7 +3912,9 @@ function renderReportTable() {
     setCell("tblXienVon", data.giulai.xienVon);
     const tblXienTrungEl = document.getElementById("tblXienTrung");
     if (tblXienTrungEl) {
-      tblXienTrungEl.textContent = data.giulai.xienTrung > 0 ? Math.round(data.giulai.xienTrung).toLocaleString('vi-VN') : "0";
+      tblXienTrungEl.textContent = data.giulai.xienWinXac > 0 
+        ? `(${Math.round(data.giulai.xienWinXac).toLocaleString('vi-VN')})${Math.round(data.giulai.xienTrung).toLocaleString('vi-VN')}` 
+        : "0";
     }
     setNetCell("tblXienNet", data.giulai.xienNet);
 
@@ -3868,10 +3922,11 @@ function renderReportTable() {
     setCell("tbl3CVon", data.giulai.baCangVon);
     const tbl3CTrungEl = document.getElementById("tbl3CTrung");
     if (tbl3CTrungEl) {
-      tbl3CTrungEl.textContent = data.giulai.baCangTrung > 0 ? Math.round(data.giulai.baCangTrung).toLocaleString('vi-VN') : "0";
+      tbl3CTrungEl.textContent = data.giulai.baCangWinXac > 0 
+        ? `(${Math.round(data.giulai.baCangWinXac).toLocaleString('vi-VN')})${Math.round(data.giulai.baCangTrung).toLocaleString('vi-VN')}` 
+        : "0";
     }
     setNetCell("tbl3CNet", data.giulai.baCangNet);
-
 
 
     setCell("tblTotalVon", data.giulai.totalVon);
@@ -5054,14 +5109,13 @@ function updateTransferStepsUI() {
   let costRetained = 0;
   let transferredMap = {};
   let retainedMap = {};
+  let originalMap = {};
 
   const combinedBetInput = document.getElementById("combinedBetInput");
   const inputString = combinedBetInput ? getRawTextFromElement(combinedBetInput) : "";
   const parsedBets = parseCombinedInput(inputString);
 
   if (window.activeStepTab === 'TC') {
-    const lastStepEntry = history[history.length - 1];
-    costRetained = lastStepEntry ? lastStepEntry.costRetained : 0;
     costTransferred = history.reduce((sum, h) => sum + (h.costTransferred || 0), 0);
     
     transferredMap = {
@@ -5099,8 +5153,33 @@ function updateTransferStepsUI() {
       }
     });
 
-  } else {
+    // TC Gốc = cộng dồn tất cả original của các bước
+    originalMap = { de: {}, lo: {}, bacang: {}, bacang_lo: {}, xien: {} };
+    history.forEach(h => {
+      if (h.original) {
+        ['de', 'lo', 'bacang', 'bacang_lo', 'xien'].forEach(key => {
+          if (h.original[key]) {
+            Object.entries(h.original[key]).forEach(([num, val]) => {
+              originalMap[key][num] = (originalMap[key][num] || 0) + val;
+            });
+          }
+        });
+      } else {
+        // Fallback: Gốc = Chuyển + Giữ lại
+        ['de', 'lo', 'bacang', 'bacang_lo', 'xien'].forEach(key => {
+          const trans = h.transferred?.[key] || {};
+          const ret = h.retained?.[key] || {};
+          Object.entries(trans).forEach(([num, val]) => {
+            originalMap[key][num] = (originalMap[key][num] || 0) + val;
+          });
+          Object.entries(ret).forEach(([num, val]) => {
+            originalMap[key][num] = (originalMap[key][num] || 0) + val;
+          });
+        });
+      }
+    });
 
+  } else {
     const stepData = history.find(h => h.step === window.activeStepTab);
     if (!stepData) {
       content.innerHTML = `<div class="text-slate-400 dark:text-slate-500 italic">Không có dữ liệu cho Lần chuyển ${window.activeStepTab}</div>`;
@@ -5126,6 +5205,24 @@ function updateTransferStepsUI() {
     }
     transferredMap = stepData.transferred;
     retainedMap = stepData.retained;
+
+    // Gốc của bước cụ thể
+    if (stepData.original) {
+      originalMap = stepData.original;
+    } else {
+      // Fallback cho dữ liệu cũ: Gốc = Chuyển + Giữ lại
+      originalMap = { de: {}, lo: {}, bacang: {}, bacang_lo: {}, xien: {} };
+      ['de', 'lo', 'bacang', 'bacang_lo', 'xien'].forEach(key => {
+        const trans = transferredMap[key] || {};
+        const ret = retainedMap[key] || {};
+        Object.entries(trans).forEach(([num, val]) => {
+          originalMap[key][num] = (originalMap[key][num] || 0) + val;
+        });
+        Object.entries(ret).forEach(([num, val]) => {
+          originalMap[key][num] = (originalMap[key][num] || 0) + val;
+        });
+      });
+    }
   }
 
   // Format horizontal list helper grouped by price
@@ -5188,7 +5285,7 @@ function updateTransferStepsUI() {
   };
 
   const buildStepSummaryString = (typeLabel, stepNum, betsMap) => {
-    const emoji = typeLabel === "Giữ lại" ? "🛡️" : "📤";
+    const emoji = typeLabel === "Giữ lại" ? "🛡️" : (typeLabel === "Gốc" ? "📋" : "📤");
     const sums = getCategorySums(betsMap);
     const parts = [];
     if (sums.de > 0) parts.push(`Đ (${formatCategoryValue(sums.de)})`);
@@ -5200,10 +5297,15 @@ function updateTransferStepsUI() {
     return `${emoji} ${label}: ${partsStr}`;
   };
 
+  const originalStr = buildStepSummaryString("Gốc", window.activeStepTab, originalMap);
   const retainedStr = buildStepSummaryString("Giữ lại", window.activeStepTab, retainedMap);
   const transferredStr = buildStepSummaryString("Chuyển", window.activeStepTab, transferredMap);
 
   content.innerHTML = `
+    <div class="mb-2.5">
+      <span class="font-bold text-slate-700 dark:text-slate-300 block mb-0.5">${originalStr}</span>
+      <div class="text-slate-600 dark:text-slate-400 pl-2 space-y-0.5">${formatHorizontalBetsList(originalMap)}</div>
+    </div>
     <div class="mb-2.5">
       <span class="font-bold text-slate-700 dark:text-slate-300 block mb-0.5">${retainedStr}</span>
       <div class="text-slate-600 dark:text-slate-400 pl-2 space-y-0.5">${formatHorizontalBetsList(retainedMap)}</div>
@@ -5383,24 +5485,62 @@ function runBalancingStep(isPercent) {
   // Calculate costs for history log
   const stepCost = calculatePortionCost(stepDeTransfers, stepLoTransfers, stepBaCangTransfers, stepXienTransfers);
   const currentTotalVon = window.lastCalculatedTotalCost || 0;
-  let prevCumulativeTransferred = 0;
+  const costRetained = Math.max(0, currentTotalVon - stepCost);
+
+  // Lấy tổng cược gốc của tất cả các bước trước đó để cô lập cược mới nhập ở Lần N
+  const prevOriginalDe = {};
+  const prevOriginalLo = {};
+  const prevOriginalBaCang = {};
+  const prevOriginalXien = {};
+
   if (balanceState.history) {
     balanceState.history.forEach(h => {
-      prevCumulativeTransferred += h.costTransferred || 0;
+      if (h.original) {
+        Object.entries(h.original.de || {}).forEach(([num, amt]) => prevOriginalDe[num] = (prevOriginalDe[num] || 0) + amt);
+        Object.entries(h.original.lo || {}).forEach(([num, amt]) => prevOriginalLo[num] = (prevOriginalLo[num] || 0) + amt);
+        Object.entries(h.original.bacang || {}).forEach(([num, amt]) => prevOriginalBaCang[num] = (prevOriginalBaCang[num] || 0) + amt);
+        Object.entries(h.original.xien || {}).forEach(([num, amt]) => prevOriginalXien[num] = (prevOriginalXien[num] || 0) + amt);
+      }
     });
   }
-  const newCumulativeTransferred = prevCumulativeTransferred + stepCost;
-  const costRetained = Math.max(0, currentTotalVon - newCumulativeTransferred);
 
-  // Reconstruct retained lists at this step - only numbers processed in this step
-  const getStepRetainedMap = (originalSums, cumulativeTransfers, stepTransfers) => {
+  // Cược gốc thực tế của riêng Lần N (chỉ lấy phần chênh lệch mới)
+  const stepOriginalDe = {};
+  Object.entries(deSums).forEach(([num, total]) => {
+    const prev = prevOriginalDe[num] || 0;
+    const diff = Math.max(0, Math.round((total - prev) * 10) / 10);
+    if (diff >= 0.1) stepOriginalDe[num] = diff;
+  });
+
+  const stepOriginalLo = {};
+  Object.entries(loSums).forEach(([num, total]) => {
+    const prev = prevOriginalLo[num] || 0;
+    const diff = Math.max(0, Math.round((total - prev) * 10) / 10);
+    if (diff >= 0.1) stepOriginalLo[num] = diff;
+  });
+
+  const stepOriginalBaCang = {};
+  Object.entries(baCangSums).forEach(([num, total]) => {
+    const prev = prevOriginalBaCang[num] || 0;
+    const diff = Math.max(0, Math.round((total - prev) * 10) / 10);
+    if (diff >= 0.1) stepOriginalBaCang[num] = diff;
+  });
+
+  const stepOriginalXien = {};
+  xienBets.forEach((bet) => {
+    const key = bet.numbers.join('-');
+    const prev = prevOriginalXien[key] || 0;
+    const diff = Math.max(0, Math.round((bet.amount - prev) * 10) / 10);
+    if (diff >= 0.1) stepOriginalXien[key] = diff;
+  });
+
+  // Reconstruct retained lists at this step
+  const getStepRetainedMap = (stepOriginal, stepTransfers) => {
     const map = {};
-    // Chỉ hiện số đã được chuyển ở bước này, hiện phần giữ lại = gốc - lũy kế sau bước này
-    Object.entries(stepTransfers).forEach(([num, stepTrans]) => {
-      const total = originalSums[num] || 0;
-      const prevTrans = cumulativeTransfers[num] || 0;
-      const newTrans = prevTrans + stepTrans;
-      const kept = Math.round((total - newTrans) * 10) / 10;
+    // Giữ lại của bước N = Gốc bước N - Chuyển bước N
+    Object.entries(stepOriginal).forEach(([num, total]) => {
+      const stepTrans = stepTransfers[num] || 0;
+      const kept = Math.round((total - stepTrans) * 10) / 10;
       if (kept >= 0.1) {
         map[num] = kept;
       }
@@ -5415,13 +5555,13 @@ function runBalancingStep(isPercent) {
   });
 
   const retainedXien = {};
-  xienBets.forEach((bet, idx) => {
-    const prevTrans = balanceState.xienTransfers[idx] || 0;
-    const stepTrans = stepXienTransfers[idx] || 0;
-    const newTrans = prevTrans + stepTrans;
-    const kept = Math.round((bet.amount - newTrans) * 10) / 10;
+  Object.entries(stepOriginalXien).forEach(([key, total]) => {
+    // Tìm chỉ số xiên tương ứng
+    const idx = xienBets.findIndex(bet => bet.numbers.join('-') === key);
+    const stepTrans = idx !== -1 ? (stepXienTransfers[idx] || 0) : 0;
+    const kept = Math.round((total - stepTrans) * 10) / 10;
     if (kept >= 0.1) {
-      retainedXien[bet.numbers.join('-')] = kept;
+      retainedXien[key] = kept;
     }
   });
 
@@ -5429,6 +5569,13 @@ function runBalancingStep(isPercent) {
     step: balanceState.step + 1,
     costTransferred: stepCost,
     costRetained: costRetained,
+    original: {
+      de: stepOriginalDe,
+      lo: stepOriginalLo,
+      bacang: stepOriginalBaCang,
+      bacang_lo: {},
+      xien: stepOriginalXien
+    },
     transferred: {
       de: { ...stepDeTransfers },
       lo: { ...stepLoTransfers },
@@ -5437,9 +5584,9 @@ function runBalancingStep(isPercent) {
       xien: transferredXien
     },
     retained: {
-      de: getStepRetainedMap(deSums, balanceState.deTransfers, stepDeTransfers),
-      lo: getStepRetainedMap(loSums, balanceState.loTransfers, stepLoTransfers),
-      bacang: getStepRetainedMap(baCangSums, balanceState.baCangTransfers, stepBaCangTransfers),
+      de: getStepRetainedMap(stepOriginalDe, stepDeTransfers),
+      lo: getStepRetainedMap(stepOriginalLo, stepLoTransfers),
+      bacang: getStepRetainedMap(stepOriginalBaCang, stepBaCangTransfers),
       bacang_lo: {},
       xien: retainedXien
     }
