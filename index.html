@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="vi" class="scroll-smooth h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> Z8™ </title>
+  <title>☆ Z8™ ☆</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <!-- FontAwesome 6 CDN for authentic Microsoft 365 Office icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -174,7 +175,7 @@
             <div class="flex gap-1">
               <button type="button" id="tabInputMain" class="text-xs font-bold bg-white dark:bg-dark-800 text-excel-800 dark:text-emerald-400 border-t-2 border-excel-800 dark:border-emerald-400 border-x border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5">
                 <i class="fa-solid fa-table-cells"></i>
-                <span>Nhập số liệu (Hỗn hợp)</span>
+                <span>Nhập số liệu</span>
               </button>
               <button type="button" id="tabInputExclude" class="text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-3 py-1.5 rounded-t-md focus:outline-none flex items-center gap-1.5 border-t-2 border-transparent">
                 <i class="fa-solid fa-filter-circle-xmark text-rose-500"></i>
@@ -250,18 +251,25 @@
           <div class="bg-slate-50 dark:bg-dark-900/60 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Cấu hình Giữ lại</span>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Giữ lại</span>
                 <span id="balanceCounterLabel" class="text-[11px] text-excel-800 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-900/40">Lần cân = 0</span>
               </div>
               
-              <div class="flex items-center gap-2 bg-white dark:bg-dark-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 text-xs">
-                <label class="flex items-center gap-1 cursor-pointer font-medium px-2 py-1">
-                  <input type="radio" name="retainType" id="retainTypeMoney" value="money" checked class="form-radio text-excel-800 focus:ring-excel-800">
-                  <span>Tiền</span>
-                </label>
-                <label class="flex items-center gap-1 cursor-pointer font-medium px-2 py-1">
-                  <input type="radio" name="retainType" id="retainTypePercentage" value="percentage" class="form-radio text-excel-800 focus:ring-excel-800">
-                  <span>%</span>
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 bg-white dark:bg-dark-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 text-xs">
+                  <label class="flex items-center gap-1 cursor-pointer font-medium px-2 py-1">
+                    <input type="radio" name="retainType" id="retainTypeMoney" value="money" checked class="form-radio text-excel-800 focus:ring-excel-800">
+                    <span>Tiền</span>
+                  </label>
+                  <label class="flex items-center gap-1 cursor-pointer font-medium px-2 py-1">
+                    <input type="radio" name="retainType" id="retainTypePercentage" value="percentage" class="form-radio text-excel-800 focus:ring-excel-800">
+                    <span>%</span>
+                  </label>
+                </div>
+                
+                <label class="flex items-center gap-1 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-dark-800 px-2 py-2 rounded border border-slate-200 dark:border-slate-700">
+                  <input type="checkbox" id="retainUseBranch" class="form-checkbox text-excel-800 focus:ring-excel-800 rounded">
+                  <span id="retainBranchCheckboxLabel">Nhánh</span>
                 </label>
               </div>
             </div>
@@ -292,6 +300,28 @@
                 <span>Từ đầu</span>
               </button>
             </div>
+
+            <!-- Retain branch/max inputs (hidden by default) -->
+            <div id="retainBranchInputsContainer" class="hidden flex items-center justify-between gap-2 pt-1 border-t border-dashed border-slate-200 dark:border-slate-700/80">
+              <div class="grid grid-cols-4 gap-1.5 flex-1">
+                <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
+                  <span id="lblBranchDe" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">Nh.Đ</span>
+                  <input type="text" id="retainBranchDe" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
+                </div>
+                <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
+                  <span id="lblBranchLo" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">Nh.L</span>
+                  <input type="text" id="retainBranchLo" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
+                </div>
+                <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
+                  <span id="lblBranch3c" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">Nh.3c</span>
+                  <input type="text" id="retainBranch3c" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
+                </div>
+                <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
+                  <span id="lblBranchX" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">Nh.X</span>
+                  <input type="text" id="retainBranchX" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Utility Toggles & Options -->
@@ -316,7 +346,7 @@
           <div class="flex justify-between items-center flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">
             <label class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
               <i class="fa-solid fa-trophy text-amber-500"></i>
-              <span>Kết quả Xổ số Miền Bắc:</span>
+              <span>Kết quả:</span>
             </label>
             
             <div class="flex gap-1 text-xs">
@@ -324,7 +354,7 @@
                 Minh Ngọc
               </button>
               <button type="button" id="btnSourceXSKT" class="px-2.5 py-1 rounded bg-slate-200 dark:bg-dark-700 text-slate-700 dark:text-slate-300 font-semibold border border-transparent">
-                XSKT.com.vn
+                xskt.com.vn
               </button>
               <button type="button" id="btnSourceMKetqua" class="px-2.5 py-1 rounded bg-slate-200 dark:bg-dark-700 text-slate-700 dark:text-slate-300 font-semibold border border-transparent">
                 mketqua.net
@@ -344,16 +374,20 @@
               </label>
               
               <input type="date" id="resultDateInput" class="border border-slate-300 dark:border-slate-600 rounded px-2 py-0.5 text-xs bg-white dark:bg-dark-800 font-mono">
+              
+              <button type="button" id="btnFetchResults" class="px-3 py-1 bg-excel-800 hover:bg-excel-900 text-white text-xs font-bold rounded transition-all active:scale-95 flex items-center gap-1.5 shadow-xs">
+                <span id="fetchBtnSpinner" class="hidden animate-spin rounded-full h-2.5 w-2.5 border-2 border-white border-t-transparent"></span>
+                <span id="fetchBtnText">Tải KQ</span>
+              </button>
+
+              <button type="button" id="btnClearResults" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded transition-all active:scale-95 flex items-center shadow-xs">
+                Xóa KQ
+              </button>
             </div>
             
             <span id="autoResultStatus" class="text-[10px] font-bold text-emerald-700 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-900/50 hidden">
               Chưa tải
             </span>
-
-            <button type="button" id="btnFetchResults" class="px-3 py-1 bg-excel-800 hover:bg-excel-900 text-white text-xs font-bold rounded transition-all active:scale-95 flex items-center gap-1.5 hidden shadow-xs">
-              <span id="fetchBtnSpinner" class="hidden animate-spin rounded-full h-2.5 w-2.5 border-2 border-white border-t-transparent"></span>
-              <span id="fetchBtnText">Tải KQ</span>
-            </button>
           </div>
 
           <!-- Manual Fields -->
@@ -499,7 +533,7 @@
           <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2">
             <h2 class="text-xs font-black uppercase tracking-wider text-excel-800 dark:text-emerald-400 flex items-center gap-1.5">
               <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
-              <span>📊 Báo Cáo Tài Chính (Financial Spreadsheet)</span>
+              <span>📊 Báo Cáo</span>
             </h2>
           </div>
 
@@ -2345,6 +2379,29 @@ function saveAppState() {
   if (retainX) {
     localStorage.setItem('z8_retain_x', retainX.value || '0');
   }
+  
+  const retainUseBranch = document.getElementById('retainUseBranch');
+  const retainBranchDe = document.getElementById('retainBranchDe');
+  const retainBranchLo = document.getElementById('retainBranchLo');
+  const retainBranch3c = document.getElementById('retainBranch3c');
+  const retainBranchX = document.getElementById('retainBranchX');
+  
+  if (retainUseBranch) {
+    localStorage.setItem('z8_retain_use_branch', retainUseBranch.checked ? '1' : '0');
+  }
+  if (retainBranchDe) {
+    localStorage.setItem('z8_retain_branch_de', retainBranchDe.value || '0');
+  }
+  if (retainBranchLo) {
+    localStorage.setItem('z8_retain_branch_lo', retainBranchLo.value || '0');
+  }
+  if (retainBranch3c) {
+    localStorage.setItem('z8_retain_branch_3c', retainBranch3c.value || '0');
+  }
+  if (retainBranchX) {
+    localStorage.setItem('z8_retain_branch_x', retainBranchX.value || '0');
+  }
+
   if (checkedRadio) {
     localStorage.setItem('z8_retain_type', checkedRadio.value);
   }
@@ -2424,6 +2481,35 @@ function loadAppState() {
   if (savedRetainX !== null && retainX) {
     retainX.value = savedRetainX;
   }
+  
+  const savedRetainUseBranch = localStorage.getItem('z8_retain_use_branch');
+  const savedRetainBranchDe = localStorage.getItem('z8_retain_branch_de');
+  const savedRetainBranchLo = localStorage.getItem('z8_retain_branch_lo');
+  const savedRetainBranch3c = localStorage.getItem('z8_retain_branch_3c');
+  const savedRetainBranchX = localStorage.getItem('z8_retain_branch_x');
+  
+  const retainUseBranch = document.getElementById('retainUseBranch');
+  const retainBranchDe = document.getElementById('retainBranchDe');
+  const retainBranchLo = document.getElementById('retainBranchLo');
+  const retainBranch3c = document.getElementById('retainBranch3c');
+  const retainBranchX = document.getElementById('retainBranchX');
+  
+  if (savedRetainUseBranch !== null && retainUseBranch) {
+    retainUseBranch.checked = (savedRetainUseBranch === '1');
+  }
+  if (savedRetainBranchDe !== null && retainBranchDe) {
+    retainBranchDe.value = savedRetainBranchDe;
+  }
+  if (savedRetainBranchLo !== null && retainBranchLo) {
+    retainBranchLo.value = savedRetainBranchLo;
+  }
+  if (savedRetainBranch3c !== null && retainBranch3c) {
+    retainBranch3c.value = savedRetainBranch3c;
+  }
+  if (savedRetainBranchX !== null && retainBranchX) {
+    retainBranchX.value = savedRetainBranchX;
+  }
+
   if (savedRetainType !== null) {
     const radio = document.querySelector(`input[name="retainType"][value="${savedRetainType}"]`);
     if (radio) radio.checked = true;
@@ -2433,11 +2519,13 @@ function loadAppState() {
       const parsed = JSON.parse(savedBalanceState);
       Object.assign(balanceState, parsed);
       const counterLabel = document.getElementById('balanceCounterLabel');
-      if (counterLabel) counterLabel.textContent = `Số Lần Đã Cân Chuyển = ${balanceState.step}`;
+      if (counterLabel) counterLabel.textContent = `Số Lần Cân = ${balanceState.step}`;
     } catch (e) {
       console.error("Error parsing balanceState:", e);
     }
   }
+
+  updateRetainBranchUI();
 
   if (hasData) {
     calculateSum();
@@ -2454,6 +2542,36 @@ function loadAppState() {
     triggerAutoFetch(true);
   }
   updateClearAndResetButtons();
+}
+
+function updateRetainBranchUI() {
+  const retainType = document.querySelector('input[name="retainType"]:checked')?.value || "money";
+  const retainUseBranch = document.getElementById('retainUseBranch');
+  const isBranchChecked = retainUseBranch ? retainUseBranch.checked : false;
+  
+  const container = document.getElementById('retainBranchInputsContainer');
+  if (container) {
+    if (isBranchChecked) {
+      container.classList.remove('hidden');
+    } else {
+      container.classList.add('hidden');
+    }
+  }
+
+  const checkboxLabel = document.getElementById('retainBranchCheckboxLabel');
+  if (checkboxLabel) {
+    checkboxLabel.textContent = retainType === 'money' ? 'Nhánh' : 'Tối đa';
+  }
+
+  const deLabel = document.getElementById('lblBranchDe');
+  const loLabel = document.getElementById('lblBranchLo');
+  const bcLabel = document.getElementById('lblBranch3c');
+  const xLabel = document.getElementById('lblBranchX');
+
+  if (deLabel) deLabel.textContent = retainType === 'money' ? 'Nh.Đ' : 'T.Đ';
+  if (loLabel) loLabel.textContent = retainType === 'money' ? 'Nh.L' : 'T.L';
+  if (bcLabel) bcLabel.textContent = retainType === 'money' ? 'Nh.3c' : 'T.3c';
+  if (xLabel) xLabel.textContent = retainType === 'money' ? 'Nh.X' : 'T.X';
 }
 
 function getCaretOffset(element) {
@@ -2907,11 +3025,25 @@ function calculateSum(isFromRunBalancing = false) {
   const retainX = parseFloat(document.getElementById("retainX")?.value) || 0;
   const retainType = document.querySelector('input[name="retainType"]:checked')?.value || "money";
 
+  const retainUseBranch = document.getElementById("retainUseBranch")?.checked || false;
+  const retainBranchDe = parseFloat(document.getElementById("retainBranchDe")?.value) || 0;
+  const retainBranchLo = parseFloat(document.getElementById("retainBranchLo")?.value) || 0;
+  const retainBranch3c = parseFloat(document.getElementById("retainBranch3c")?.value) || 0;
+  const retainBranchX = parseFloat(document.getElementById("retainBranchX")?.value) || 0;
+
   const getCategoryRetainValue = (categoryKey) => {
     if (categoryKey === 'de') return retainDe;
     if (categoryKey === 'lo') return retainLo;
     if (categoryKey === 'bacang') return retain3c;
     if (categoryKey === 'xien') return retainX;
+    return 0;
+  };
+
+  const getCategoryBranchLimit = (categoryKey) => {
+    if (categoryKey === 'de') return retainBranchDe;
+    if (categoryKey === 'lo') return retainBranchLo;
+    if (categoryKey === 'bacang') return retainBranch3c;
+    if (categoryKey === 'xien') return retainBranchX;
     return 0;
   };
 
@@ -2939,6 +3071,7 @@ function calculateSum(isFromRunBalancing = false) {
     }
 
     const retainVal = getCategoryRetainValue(categoryKey);
+    const branchLimit = getCategoryBranchLimit(categoryKey);
     const map = {};
     const sumsMap = getCategorySumsMap(categoryKey);
 
@@ -2960,19 +3093,32 @@ function calculateSum(isFromRunBalancing = false) {
       let excess;
       if (isExcl) {
         excess = val;
-        excess = Math.max(0, Math.round(excess * 10) / 10);
+        excess = Math.max(0, Math.ceil(excess));
       } else {
         if (retainType === "money") {
-          excess = val - retainVal;
-          excess = Math.max(0, Math.round(excess * 10) / 10);
+          if (retainUseBranch) {
+            if (val >= branchLimit) {
+              excess = Math.max(0, val - retainVal);
+            } else {
+              excess = val;
+            }
+          } else {
+            excess = val - retainVal;
+          }
+          excess = Math.max(0, Math.ceil(excess));
         } else {
-          excess = val - (val * (retainVal / 100));
+          if (retainUseBranch) {
+            const targetRetain = Math.min(val * (retainVal / 100), branchLimit);
+            excess = val - targetRetain;
+          } else {
+            excess = val - (val * (retainVal / 100));
+          }
           excess = Math.max(0, Math.ceil(excess));
         }
       }
 
       const alreadyTransferred = cumulativeMap[key] || 0;
-      const pendingTransfer = Math.max(0, Math.round((excess - alreadyTransferred) * 10) / 10);
+      const pendingTransfer = Math.max(0, Math.ceil(excess - alreadyTransferred));
 
       if (pendingTransfer >= 0.1) {
         map[key] = pendingTransfer;
@@ -4740,15 +4886,12 @@ function setupEventListeners() {
   const autoFetchToggle = document.getElementById('autoFetchToggle');
   if (autoFetchToggle) {
     const updateManualFieldsVisibility = () => {
-      const btnFetchResults = document.getElementById('btnFetchResults');
       const autoResultStatus = document.getElementById('autoResultStatus');
       const manualFields = document.getElementById('manualFields');
       if (autoFetchToggle.checked) {
-        if (btnFetchResults) btnFetchResults.classList.remove('hidden');
         if (autoResultStatus) autoResultStatus.classList.remove('hidden');
         if (manualFields) manualFields.classList.add('hidden');
       } else {
-        if (btnFetchResults) btnFetchResults.classList.add('hidden');
         if (autoResultStatus) autoResultStatus.classList.add('hidden');
         if (manualFields) manualFields.classList.remove('hidden');
       }
@@ -4786,6 +4929,20 @@ function setupEventListeners() {
     btnFetchResults.addEventListener('click', () => triggerAutoFetch(false));
   }
 
+  const btnClearResults = document.getElementById('btnClearResults');
+  if (btnClearResults) {
+    btnClearResults.addEventListener('click', () => {
+      const specialPrizeInput = document.getElementById('specialPrizeInput');
+      const allPrizesInput = document.getElementById('allPrizesInput');
+      if (specialPrizeInput) specialPrizeInput.value = "";
+      if (allPrizesInput) allPrizesInput.value = "";
+      fetchedPrizesData = null;
+      updateTwoDigitBoard();
+      calculateSum();
+      saveAppState();
+    });
+  }
+
   const btnSourceMinhNgoc = document.getElementById('btnSourceMinhNgoc');
   if (btnSourceMinhNgoc) btnSourceMinhNgoc.addEventListener('click', () => updateSourceButtons("Minh Ngọc"));
 
@@ -4799,7 +4956,7 @@ function setupEventListeners() {
   if (btnSourceGitHub) btnSourceGitHub.addEventListener('click', () => updateSourceButtons("GitHub Data"));
 
   // Retain inputs & type listeners
-  const retainInputs = ['retainDe', 'retainLo', 'retain3c', 'retainX'];
+  const retainInputs = ['retainDe', 'retainLo', 'retain3c', 'retainX', 'retainBranchDe', 'retainBranchLo', 'retainBranch3c', 'retainBranchX'];
   retainInputs.forEach(id => {
     const input = document.getElementById(id);
     if (input) {
@@ -4809,12 +4966,23 @@ function setupEventListeners() {
           input.value = "0";
           calculateSum();
         }
+        saveAppState();
       });
-      input.addEventListener('input', () => debouncedCalculateSum());
+      input.addEventListener('input', () => {
+        debouncedCalculateSum();
+        saveAppState();
+      });
     }
   });
 
-
+  const retainUseBranch = document.getElementById('retainUseBranch');
+  if (retainUseBranch) {
+    retainUseBranch.addEventListener('change', () => {
+      updateRetainBranchUI();
+      saveAppState();
+      calculateSum();
+    });
+  }
 
   const btnResetBalance = document.getElementById('btnResetBalance');
   if (btnResetBalance) {
@@ -4838,6 +5006,8 @@ function setupEventListeners() {
         if (retain3c) retain3c.value = '0';
         if (retainX) retainX.value = '0';
       }
+      updateRetainBranchUI();
+      saveAppState();
       calculateSum();
     });
   });
@@ -5389,28 +5559,50 @@ function runBalancingStep(isPercent) {
   const retain3c = parseFloat(document.getElementById("retain3c")?.value) || 0;
   const retainX = parseFloat(document.getElementById("retainX")?.value) || 0;
 
+  const retainUseBranch = document.getElementById("retainUseBranch")?.checked || false;
+  const retainBranchDe = parseFloat(document.getElementById("retainBranchDe")?.value) || 0;
+  const retainBranchLo = parseFloat(document.getElementById("retainBranchLo")?.value) || 0;
+  const retainBranch3c = parseFloat(document.getElementById("retainBranch3c")?.value) || 0;
+  const retainBranchX = parseFloat(document.getElementById("retainBranchX")?.value) || 0;
+
   // Temporary step transfer maps to check if we have new layoff values
   const stepDeTransfers = {};
   const stepLoTransfers = {};
   const stepBaCangTransfers = {};
   const stepXienTransfers = {};
 
-  const processCategory = (totals, transfersMap, stepTransfersMap, limit, isPct, categoryKey) => {
+  const processCategory = (totals, transfersMap, stepTransfersMap, limit, branchLimit, isPct, categoryKey) => {
     Object.entries(totals).forEach(([key, total]) => {
       const prevTransfer = transfersMap[key] || 0;
       const isExcl = isExcluded(categoryKey, key);
       let excess;
       if (isExcl) {
         excess = total - prevTransfer;
-        excess = Math.max(0, Math.round(excess * 10) / 10);
+        excess = Math.max(0, Math.ceil(excess));
       } else {
         if (isPct) {
-          const targetTransfer = Math.ceil(total * ((100 - limit) / 100));
+          let targetTransfer;
+          if (retainUseBranch) {
+            const targetRetain = Math.min(total * (limit / 100), branchLimit);
+            targetTransfer = total - targetRetain;
+          } else {
+            targetTransfer = total * ((100 - limit) / 100);
+          }
           excess = targetTransfer - prevTransfer;
-          excess = Math.max(0, Math.round(excess * 10) / 10);
+          excess = Math.max(0, Math.ceil(excess));
         } else {
-          excess = total - prevTransfer - limit;
-          excess = Math.max(0, Math.round(excess * 10) / 10);
+          let targetTransfer;
+          if (retainUseBranch) {
+            if (total >= branchLimit) {
+              targetTransfer = total - limit;
+            } else {
+              targetTransfer = total;
+            }
+          } else {
+            targetTransfer = total - limit;
+          }
+          excess = targetTransfer - prevTransfer;
+          excess = Math.max(0, Math.ceil(excess));
         }
       }
       if (excess >= 0.1) {
@@ -5419,9 +5611,9 @@ function runBalancingStep(isPercent) {
     });
   };
 
-  processCategory(deSums, balanceState.deTransfers, stepDeTransfers, retainDe, isPercent, 'de');
-  processCategory(loSums, balanceState.loTransfers, stepLoTransfers, retainLo, isPercent, 'lo');
-  processCategory(baCangSums, balanceState.baCangTransfers, stepBaCangTransfers, retain3c, isPercent, 'bacang');
+  processCategory(deSums, balanceState.deTransfers, stepDeTransfers, retainDe, retainBranchDe, isPercent, 'de');
+  processCategory(loSums, balanceState.loTransfers, stepLoTransfers, retainLo, retainBranchLo, isPercent, 'lo');
+  processCategory(baCangSums, balanceState.baCangTransfers, stepBaCangTransfers, retain3c, retainBranch3c, isPercent, 'bacang');
 
   // For Xiên:
   xienBets.forEach((bet, idx) => {
@@ -5430,15 +5622,31 @@ function runBalancingStep(isPercent) {
     let excess;
     if (isExcl) {
       excess = bet.amount - prevTransfer;
-      excess = Math.max(0, Math.round(excess * 10) / 10);
+      excess = Math.max(0, Math.ceil(excess));
     } else {
       if (isPercent) {
-        const targetTransfer = Math.ceil(bet.amount * ((100 - retainX) / 100));
+        let targetTransfer;
+        if (retainUseBranch) {
+          const targetRetain = Math.min(bet.amount * (retainX / 100), retainBranchX);
+          targetTransfer = bet.amount - targetRetain;
+        } else {
+          targetTransfer = bet.amount * ((100 - retainX) / 100);
+        }
         excess = targetTransfer - prevTransfer;
-        excess = Math.max(0, Math.round(excess * 10) / 10);
+        excess = Math.max(0, Math.ceil(excess));
       } else {
-        excess = bet.amount - prevTransfer - retainX;
-        excess = Math.max(0, Math.round(excess * 10) / 10);
+        let targetTransfer;
+        if (retainUseBranch) {
+          if (bet.amount >= retainBranchX) {
+            targetTransfer = bet.amount - retainX;
+          } else {
+            targetTransfer = bet.amount;
+          }
+        } else {
+          targetTransfer = bet.amount - retainX;
+        }
+        excess = targetTransfer - prevTransfer;
+        excess = Math.max(0, Math.ceil(excess));
       }
     }
     if (excess >= 0.1) {
@@ -5652,6 +5860,19 @@ function resetBalancing() {
   if (retain3c) retain3c.value = "";
   if (retainX) retainX.value = "";
 
+  const retainUseBranch = document.getElementById('retainUseBranch');
+  const retainBranchDe = document.getElementById('retainBranchDe');
+  const retainBranchLo = document.getElementById('retainBranchLo');
+  const retainBranch3c = document.getElementById('retainBranch3c');
+  const retainBranchX = document.getElementById('retainBranchX');
+  if (retainUseBranch) retainUseBranch.checked = false;
+  if (retainBranchDe) retainBranchDe.value = "0";
+  if (retainBranchLo) retainBranchLo.value = "0";
+  if (retainBranch3c) retainBranch3c.value = "0";
+  if (retainBranchX) retainBranchX.value = "0";
+
+  updateRetainBranchUI();
+
   const radioMoney = document.querySelector('input[name="retainType"][value="money"]');
   if (radioMoney) radioMoney.checked = true;
 
@@ -5675,9 +5896,14 @@ function resetBalancing() {
   localStorage.removeItem('z8_retain_3c');
   localStorage.removeItem('z8_retain_x');
   localStorage.removeItem('z8_retain_type');
+  localStorage.removeItem('z8_retain_use_branch');
+  localStorage.removeItem('z8_retain_branch_de');
+  localStorage.removeItem('z8_retain_branch_lo');
+  localStorage.removeItem('z8_retain_branch_3c');
+  localStorage.removeItem('z8_retain_branch_x');
 
   const counterLabel = document.getElementById('balanceCounterLabel');
-  if (counterLabel) counterLabel.textContent = 'Số Lần Đã Cân Chuyển = 0';
+  if (counterLabel) counterLabel.textContent = 'Lần cân = 0';
 
   updateTwoDigitBoard();
   calculateSum();
