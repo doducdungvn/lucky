@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi" class="scroll-smooth h-full">
 <head>
@@ -161,10 +162,23 @@
   <!-- ==================== MAIN SPREADSHEET WORKSPACE ==================== -->
   <main class="flex-1 container max-w-7xl mx-auto px-2 sm:px-4 py-3 space-y-4">
 
+    <!-- Mobile Tab Navigation (Only visible on screens < 1024px) -->
+    <div class="lg:hidden flex bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-700 rounded-lg overflow-hidden shadow-xs">
+      <button type="button" id="mobileTabBtnInput" class="flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-excel-800 dark:border-emerald-400 text-excel-800 dark:text-emerald-400 transition-all focus:outline-none">
+        📝 Nhập liệu & KQ
+      </button>
+      <button type="button" id="mobileTabBtnDetail" class="flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-all focus:outline-none">
+        🔍 Chi tiết con
+      </button>
+      <button type="button" id="mobileTabBtnReport" class="flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-all focus:outline-none">
+        📊 Báo cáo tổng
+      </button>
+    </div>
+
     <div class="flex flex-col lg:flex-row gap-4">
       
       <!-- LEFT COLUMN: SPREADSHEET INPUT & UTILITIES -->
-      <div class="flex-1 space-y-3">
+      <div id="leftColumn" class="flex-1 space-y-3 lg:!block">
         
         <!-- SHEET INPUT CONTAINER (STYLED LIKE EXCEL WORKSHEET GRID) -->
         <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 overflow-hidden transition-all hover:shadow-md">
@@ -304,23 +318,22 @@
             <div id="retainBranchInputsContainer" class="hidden flex items-center justify-between gap-2 pt-1 border-t border-dashed border-slate-200 dark:border-slate-700/80">
               <div class="grid grid-cols-4 gap-1.5 flex-1">
                 <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
-                  <span id="lblBranchDe" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1 py-1 border-r border-slate-300 dark:border-slate-600">Nhánh Đ</span>
+                  <span id="lblBranchDe" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">Nh.Đ</span>
                   <input type="text" id="retainBranchDe" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
                 </div>
                 <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
-                  <span id="lblBranchLo" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1 py-1 border-r border-slate-300 dark:border-slate-600">Nhánh L</span>
+                  <span id="lblBranchLo" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">Nh.L</span>
                   <input type="text" id="retainBranchLo" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
                 </div>
                 <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
-                  <span id="lblBranch3c" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1 py-1 border-r border-slate-300 dark:border-slate-600">Nhánh 3c</span>
+                  <span id="lblBranch3c" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">Nh.3c</span>
                   <input type="text" id="retainBranch3c" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
                 </div>
                 <div class="flex items-center bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-600 rounded overflow-hidden">
-                  <span id="lblBranchX" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1 py-1 border-r border-slate-300 dark:border-slate-600">Nhánh X</span>
+                  <span id="lblBranchX" class="bg-amber-50 dark:bg-dark-700 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-1.5 py-1 border-r border-slate-300 dark:border-slate-600">Nh.X</span>
                   <input type="text" id="retainBranchX" value="0" inputmode="decimal" class="w-full text-center font-bold text-xs bg-transparent focus:outline-none p-1">
                 </div>
               </div>
-              <div class="w-[74px] shrink-0"></div> <!-- Spacer to match button width -->
             </div>
           </div>
 
@@ -374,16 +387,20 @@
               </label>
               
               <input type="date" id="resultDateInput" class="border border-slate-300 dark:border-slate-600 rounded px-2 py-0.5 text-xs bg-white dark:bg-dark-800 font-mono">
+              
+              <button type="button" id="btnFetchResults" class="px-3 py-1 bg-excel-800 hover:bg-excel-900 text-white text-xs font-bold rounded transition-all active:scale-95 flex items-center gap-1.5 shadow-xs">
+                <span id="fetchBtnSpinner" class="hidden animate-spin rounded-full h-2.5 w-2.5 border-2 border-white border-t-transparent"></span>
+                <span id="fetchBtnText">Tải KQ</span>
+              </button>
+
+              <button type="button" id="btnClearResults" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded transition-all active:scale-95 flex items-center shadow-xs">
+                Xóa KQ
+              </button>
             </div>
             
             <span id="autoResultStatus" class="text-[10px] font-bold text-emerald-700 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-900/50 hidden">
               Chưa tải
             </span>
-
-            <button type="button" id="btnFetchResults" class="px-3 py-1 bg-excel-800 hover:bg-excel-900 text-white text-xs font-bold rounded transition-all active:scale-95 flex items-center gap-1.5 hidden shadow-xs">
-              <span id="fetchBtnSpinner" class="hidden animate-spin rounded-full h-2.5 w-2.5 border-2 border-white border-t-transparent"></span>
-              <span id="fetchBtnText">Tải KQ</span>
-            </button>
           </div>
 
           <!-- Manual Fields -->
@@ -443,10 +460,10 @@
       </div>
 
       <!-- RIGHT COLUMN: SPREADSHEET PIVOT TABLES & REPORTS -->
-      <div id="column2" class="flex-1 space-y-4">
+      <div id="column2" class="flex-1 space-y-4 lg:!block">
         
         <!-- CARDS GRID (EXCEL DATA TABLES) -->
-        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
+        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-start lg:!grid">
           
           <!-- Card 1: Kết quả -->
           <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-3 transition-all hover:shadow-md flex flex-col justify-start h-auto">
@@ -524,7 +541,7 @@
         </div>
 
         <!-- LOTTO REPORT & GRAND FINANCIAL SUMMARY TABLE (EXCEL SPREADSHEET TABLE) -->
-        <div id="baoCaoThauCard" class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-4 transition-all hover:shadow-md space-y-4">
+        <div id="baoCaoThauCard" class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-4 transition-all hover:shadow-md space-y-4 lg:!block">
           
           <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2">
             <h2 class="text-xs font-black uppercase tracking-wider text-excel-800 dark:text-emerald-400 flex items-center gap-1.5">
@@ -2564,10 +2581,10 @@ function updateRetainBranchUI() {
   const bcLabel = document.getElementById('lblBranch3c');
   const xLabel = document.getElementById('lblBranchX');
 
-  if (deLabel) deLabel.textContent = retainType === 'money' ? 'Nhánh Đ' : 'T.Đa Đ';
-  if (loLabel) loLabel.textContent = retainType === 'money' ? 'Nhánh L' : 'T.Đa L';
-  if (bcLabel) bcLabel.textContent = retainType === 'money' ? 'Nhánh 3c' : 'T.Đa 3c';
-  if (xLabel) xLabel.textContent = retainType === 'money' ? 'Nhánh X' : 'T.Đa X';
+  if (deLabel) deLabel.textContent = retainType === 'money' ? 'Nh.Đ' : 'T.Đ';
+  if (loLabel) loLabel.textContent = retainType === 'money' ? 'Nh.L' : 'T.L';
+  if (bcLabel) bcLabel.textContent = retainType === 'money' ? 'Nh.3c' : 'T.3c';
+  if (xLabel) xLabel.textContent = retainType === 'money' ? 'Nh.X' : 'T.X';
 }
 
 function getCaretOffset(element) {
@@ -2950,10 +2967,10 @@ function calculateSum(isFromRunBalancing = false) {
 
     resultDiv.appendChild(header);
 
+    let contentHtml = "";
     sorted.forEach(([key, value]) => {
-      const div = document.createElement("div");
       const suffix = title.includes("Lô(đ)") ? 'đ' : '';
-      div.textContent = `${key} = ${value}${suffix}`;
+      let text = `${key} = ${value}${suffix}`;
       totalUniquePairs++;
 
       let isWin = false;
@@ -2985,11 +3002,12 @@ function calculateSum(isFromRunBalancing = false) {
       }
 
       if (isWin) {
-        div.className = "matching-number";
-        div.textContent += hitText;
+        contentHtml += `<div class="matching-number">${text}${hitText}</div>`;
+      } else {
+        contentHtml += `<div>${text}</div>`;
       }
-      content.appendChild(div);
     });
+    content.innerHTML = contentHtml;
     resultDiv.appendChild(content);
   };
 
@@ -3394,16 +3412,16 @@ function calculateSum(isFromRunBalancing = false) {
     };
 
     resultDiv.appendChild(header);
+    let xienHtml = "";
     xienBets.forEach(bet => {
-      const div = document.createElement("div");
       const allHit = bet.numbers.every(num => allPrizesLast2.includes(num));
-      div.textContent = `${bet.numbers.join('-')} = ${bet.amount}`;
       if (allHit) {
-        div.className = "matching-number";
-        div.textContent += " (Trúng)";
+        xienHtml += `<div class="matching-number">${bet.numbers.join('-')} = ${bet.amount} (Trúng)</div>`;
+      } else {
+        xienHtml += `<div>${bet.numbers.join('-')} = ${bet.amount}</div>`;
       }
-      content.appendChild(div);
     });
+    content.innerHTML = xienHtml;
     resultDiv.appendChild(content);
   }
 
@@ -3427,20 +3445,19 @@ function calculateSum(isFromRunBalancing = false) {
     };
 
     resultDiv.appendChild(header);
+    let bcHtml = "";
     Object.entries(baCangSums).sort((a,b) => b[1]-a[1]).forEach(([key, value]) => {
-      const div = document.createElement("div");
       const match3 = key === specialPrizeLast3;
       const match2 = key.slice(-2) === specialPrizeLast2;
-      div.textContent = `${key} = ${value}`;
       if (match3) {
-        div.className = "matching-number";
-        div.textContent += " (Trúng 3C)";
+        bcHtml += `<div class="matching-number">${key} = ${value} (Trúng 3C)</div>`;
       } else if (match2) {
-        div.className = "matching-number";
-        div.textContent += " (Áp Má)";
+        bcHtml += `<div class="matching-number">${key} = ${value} (Áp Má)</div>`;
+      } else {
+        bcHtml += `<div>${key} = ${value}</div>`;
       }
-      content.appendChild(div);
     });
+    content.innerHTML = bcHtml;
     resultDiv.appendChild(content);
   }
 
@@ -4882,15 +4899,12 @@ function setupEventListeners() {
   const autoFetchToggle = document.getElementById('autoFetchToggle');
   if (autoFetchToggle) {
     const updateManualFieldsVisibility = () => {
-      const btnFetchResults = document.getElementById('btnFetchResults');
       const autoResultStatus = document.getElementById('autoResultStatus');
       const manualFields = document.getElementById('manualFields');
       if (autoFetchToggle.checked) {
-        if (btnFetchResults) btnFetchResults.classList.remove('hidden');
         if (autoResultStatus) autoResultStatus.classList.remove('hidden');
         if (manualFields) manualFields.classList.add('hidden');
       } else {
-        if (btnFetchResults) btnFetchResults.classList.add('hidden');
         if (autoResultStatus) autoResultStatus.classList.add('hidden');
         if (manualFields) manualFields.classList.remove('hidden');
       }
@@ -4926,6 +4940,20 @@ function setupEventListeners() {
   const btnFetchResults = document.getElementById('btnFetchResults');
   if (btnFetchResults) {
     btnFetchResults.addEventListener('click', () => triggerAutoFetch(false));
+  }
+
+  const btnClearResults = document.getElementById('btnClearResults');
+  if (btnClearResults) {
+    btnClearResults.addEventListener('click', () => {
+      const specialPrizeInput = document.getElementById('specialPrizeInput');
+      const allPrizesInput = document.getElementById('allPrizesInput');
+      if (specialPrizeInput) specialPrizeInput.value = "";
+      if (allPrizesInput) allPrizesInput.value = "";
+      fetchedPrizesData = null;
+      updateTwoDigitBoard();
+      calculateSum();
+      saveAppState();
+    });
   }
 
   const btnSourceMinhNgoc = document.getElementById('btnSourceMinhNgoc');
@@ -5919,6 +5947,51 @@ function toggleCardDetail(id) {
   }
 }
 
+function initMobileTabs() {
+  const tabBtnInput = document.getElementById('mobileTabBtnInput');
+  const tabBtnDetail = document.getElementById('mobileTabBtnDetail');
+  const tabBtnReport = document.getElementById('mobileTabBtnReport');
+  
+  const leftColumn = document.getElementById('leftColumn');
+  const cardsGrid = document.getElementById('cardsGrid');
+  const baoCaoThauCard = document.getElementById('baoCaoThauCard');
+  
+  if (!tabBtnInput || !tabBtnDetail || !tabBtnReport) return;
+  
+  const activeClass = "border-excel-800 dark:border-emerald-400 text-excel-800 dark:text-emerald-400 bg-slate-50 dark:bg-dark-700/30";
+  const inactiveClass = "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300";
+  
+  function showTab(tabName) {
+    // Reset button classes
+    [tabBtnInput, tabBtnDetail, tabBtnReport].forEach(btn => {
+      btn.className = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 transition-all focus:outline-none " + inactiveClass;
+    });
+    
+    // Hide all by default on mobile
+    if (leftColumn) leftColumn.classList.add('hidden');
+    if (cardsGrid) cardsGrid.classList.add('hidden');
+    if (baoCaoThauCard) baoCaoThauCard.classList.add('hidden');
+    
+    if (tabName === 'input') {
+      tabBtnInput.className = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 transition-all focus:outline-none " + activeClass;
+      if (leftColumn) leftColumn.classList.remove('hidden');
+    } else if (tabName === 'detail') {
+      tabBtnDetail.className = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 transition-all focus:outline-none " + activeClass;
+      if (cardsGrid) cardsGrid.classList.remove('hidden');
+    } else if (tabName === 'report') {
+      tabBtnReport.className = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 transition-all focus:outline-none " + activeClass;
+      if (baoCaoThauCard) baoCaoThauCard.classList.remove('hidden');
+    }
+  }
+  
+  tabBtnInput.addEventListener('click', () => showTab('input'));
+  tabBtnDetail.addEventListener('click', () => showTab('detail'));
+  tabBtnReport.addEventListener('click', () => showTab('report'));
+  
+  // Initialize default view
+  showTab('input');
+}
+
 // DOM loaded hooks
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById('calculateButton')) {
@@ -5938,6 +6011,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadShortcuts();
     setupEventListeners();
     loadAppState();
+    initMobileTabs();
     checkDarkModePreference();
 
     // Auto-fetch results on page load is disabled by default
