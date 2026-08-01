@@ -51,6 +51,11 @@
       .text-shadow {
         text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
       }
+      @media (max-width: 1023px) {
+        .mobile-hidden {
+          display: none !important;
+        }
+      }
       .matching-number {
         @apply text-red-600 font-bold dark:text-red-400;
         color: #ef4444 !important;
@@ -151,6 +156,11 @@
 
     <!-- Right Top Header Actions -->
     <div class="flex items-center space-x-2 text-xs">
+      <!-- Mobile Tab Toggle Button -->
+      <button id="mobileTabToggle" class="p-1 sm:px-2 sm:py-0.5 hover:bg-white/20 rounded transition flex items-center gap-1 border border-white/20" title="Bật/Tắt chế độ xem dạng Tab trên điện thoại">
+        <span id="mobileTabToggleText">📱 Tab: BẬT</span>
+      </button>
+
       <!-- Dark Mode Toggle Button -->
       <button id="darkModeToggle" class="p-1 sm:px-2 sm:py-0.5 hover:bg-white/20 rounded transition flex items-center gap-1" title="Chuyển chế độ Sáng / Tối">
         <span class="dark:hidden">🌙 Tối</span>
@@ -163,15 +173,15 @@
   <main class="flex-1 container max-w-7xl mx-auto px-2 sm:px-4 py-3 space-y-4">
 
     <!-- Mobile Tab Navigation (Only visible on screens < 1024px) -->
-    <div class="lg:hidden flex bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-700 rounded-lg overflow-hidden shadow-xs">
+    <div id="mobileTabContainer" class="lg:hidden flex bg-white dark:bg-dark-800 border border-slate-300 dark:border-slate-700 rounded-lg overflow-hidden shadow-xs">
       <button type="button" id="mobileTabBtnInput" class="flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-excel-800 dark:border-emerald-400 text-excel-800 dark:text-emerald-400 transition-all focus:outline-none">
-        📝 Nhập liệu & KQ
+        📝 Nhập liệu
       </button>
       <button type="button" id="mobileTabBtnDetail" class="flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-all focus:outline-none">
         🔍 Chi tiết con
       </button>
       <button type="button" id="mobileTabBtnReport" class="flex-1 py-2.5 text-center text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-all focus:outline-none">
-        📊 Báo cáo tổng
+        📊 Báo cáo
       </button>
     </div>
 
@@ -181,6 +191,7 @@
       <div id="leftColumn" class="flex-1 space-y-3 lg:!block">
         
         <!-- SHEET INPUT CONTAINER (STYLED LIKE EXCEL WORKSHEET GRID) -->
+        <div id="betInputContainer" class="space-y-3">
         <div class="bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 overflow-hidden transition-all hover:shadow-md">
           
           <!-- Sheet Header Tabs -->
@@ -351,6 +362,7 @@
             </button>
           </div>
 
+        </div>
         </div>
 
         <!-- LOTTERY RESULTS CARD (KQXS EXCEL DATA RANGE) -->
@@ -5947,49 +5959,131 @@ function toggleCardDetail(id) {
   }
 }
 
+let useMobileTabs = true;
+let currentMobileTab = 'input'; // 'input' hoặc 'report'
+
 function initMobileTabs() {
+  const toggleBtn = document.getElementById('mobileTabToggle');
+  const toggleText = document.getElementById('mobileTabToggleText');
+  const tabContainer = document.getElementById('mobileTabContainer');
+  
   const tabBtnInput = document.getElementById('mobileTabBtnInput');
   const tabBtnDetail = document.getElementById('mobileTabBtnDetail');
   const tabBtnReport = document.getElementById('mobileTabBtnReport');
   
-  const leftColumn = document.getElementById('leftColumn');
+  const betInputContainer = document.getElementById('betInputContainer');
+  const lotteryResultsPanel = document.getElementById('lotteryResultsPanel');
   const cardsGrid = document.getElementById('cardsGrid');
   const baoCaoThauCard = document.getElementById('baoCaoThauCard');
+  const toggleExtraPanels = document.getElementById('toggleExtraPanels');
   
   if (!tabBtnInput || !tabBtnDetail || !tabBtnReport) return;
   
   const activeClass = "border-excel-800 dark:border-emerald-400 text-excel-800 dark:text-emerald-400 bg-slate-50 dark:bg-dark-700/30";
   const inactiveClass = "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300";
   
+  // Khôi phuc trạng thái bật/tắt Tab từ localStorage
+  const savedUseTabs = localStorage.getItem('z8_use_mobile_tabs');
+  if (savedUseTabs !== null) {
+    useMobileTabs = (savedUseTabs === '1');
+  } else {
+    useMobileTabs = true; // Mặc định là bật
+  }
+
   function showTab(tabName) {
+    currentMobileTab = tabName;
+    if (!useMobileTabs) return;
+    
     // Reset button classes
     [tabBtnInput, tabBtnDetail, tabBtnReport].forEach(btn => {
       btn.className = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 transition-all focus:outline-none " + inactiveClass;
     });
     
-    // Hide all by default on mobile
-    if (leftColumn) leftColumn.classList.add('hidden');
-    if (cardsGrid) cardsGrid.classList.add('hidden');
-    if (baoCaoThauCard) baoCaoThauCard.classList.add('hidden');
+    // Ẩn tất cả các phần tử trước
+    if (betInputContainer) betInputContainer.classList.add('mobile-hidden');
+    if (cardsGrid) cardsGrid.classList.add('mobile-hidden');
+    if (baoCaoThauCard) baoCaoThauCard.classList.add('mobile-hidden');
+    if (lotteryResultsPanel) {
+      lotteryResultsPanel.classList.add('mobile-hidden');
+      if (toggleExtraPanels && !toggleExtraPanels.checked) {
+        lotteryResultsPanel.classList.add('hidden');
+      }
+    }
     
     if (tabName === 'input') {
       tabBtnInput.className = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 transition-all focus:outline-none " + activeClass;
-      if (leftColumn) leftColumn.classList.remove('hidden');
+      
+      // Tab Nhập liệu: Hiện phần nhập cược
+      if (betInputContainer) betInputContainer.classList.remove('mobile-hidden');
+      
     } else if (tabName === 'detail') {
       tabBtnDetail.className = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 transition-all focus:outline-none " + activeClass;
-      if (cardsGrid) cardsGrid.classList.remove('hidden');
+      
+      // Tab Chi tiết con: Hiện 3 card cược
+      if (cardsGrid) cardsGrid.classList.remove('mobile-hidden');
+      
     } else if (tabName === 'report') {
       tabBtnReport.className = "flex-1 py-2.5 text-center text-xs font-bold border-b-2 transition-all focus:outline-none " + activeClass;
-      if (baoCaoThauCard) baoCaoThauCard.classList.remove('hidden');
+      
+      // Tab Báo cáo: Hiện Kết quả xổ số + Báo cáo tổng hợp
+      if (lotteryResultsPanel) {
+        lotteryResultsPanel.classList.remove('mobile-hidden');
+        lotteryResultsPanel.classList.remove('hidden'); // Hiện kể cả khi tắt checkbox trên PC
+      }
+      if (baoCaoThauCard) baoCaoThauCard.classList.remove('mobile-hidden');
     }
   }
-  
+
+  function applyMobileTabsMode() {
+    if (useMobileTabs) {
+      if (toggleText) toggleText.textContent = "📱 Tab: BẬT";
+      if (toggleBtn) {
+        toggleBtn.className = "p-1 sm:px-2 sm:py-0.5 bg-emerald-600 text-white rounded transition flex items-center gap-1 border border-transparent shadow-xs";
+      }
+      if (tabContainer) {
+        tabContainer.classList.remove('hidden');
+        tabContainer.classList.add('flex');
+      }
+      showTab(currentMobileTab);
+    } else {
+      if (toggleText) toggleText.textContent = "📱 Tab: TẮT";
+      if (toggleBtn) {
+        toggleBtn.className = "p-1 sm:px-2 sm:py-0.5 bg-transparent text-slate-300 rounded transition flex items-center gap-1 border border-white/20";
+      }
+      if (tabContainer) {
+        tabContainer.classList.add('hidden');
+        tabContainer.classList.remove('flex');
+      }
+      // Hiện tất cả các phần tử (xóa mobile-hidden)
+      if (betInputContainer) betInputContainer.classList.remove('mobile-hidden');
+      if (cardsGrid) cardsGrid.classList.remove('mobile-hidden');
+      if (baoCaoThauCard) baoCaoThauCard.classList.remove('mobile-hidden');
+      if (lotteryResultsPanel) {
+        lotteryResultsPanel.classList.remove('mobile-hidden');
+        // Khôi phục hiển thị dựa trên checkbox toggleExtraPanels
+        if (toggleExtraPanels && !toggleExtraPanels.checked) {
+          lotteryResultsPanel.classList.add('hidden');
+        } else {
+          lotteryResultsPanel.classList.remove('hidden');
+        }
+      }
+    }
+  }
+
   tabBtnInput.addEventListener('click', () => showTab('input'));
   tabBtnDetail.addEventListener('click', () => showTab('detail'));
   tabBtnReport.addEventListener('click', () => showTab('report'));
   
-  // Initialize default view
-  showTab('input');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      useMobileTabs = !useMobileTabs;
+      localStorage.setItem('z8_use_mobile_tabs', useMobileTabs ? '1' : '0');
+      applyMobileTabsMode();
+    });
+  }
+
+  // Khởi tạo hiển thị lần đầu
+  applyMobileTabsMode();
 }
 
 // DOM loaded hooks
