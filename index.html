@@ -432,28 +432,7 @@
           </div>
         </div>
 
-        <!-- SHORTCUTS PANEL (LOOKUP TABLE) -->
-        <div id="shortcutsPanel" class="hidden bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-4 transition-all hover:shadow-md">
-          <div class="flex justify-between items-center mb-2">
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              <i class="fa-solid fa-code text-excel-800 dark:text-emerald-400"></i>
-              <a href="nhaptat.html" class="text-excel-800 dark:text-emerald-400 hover:underline">Nhập tắt:</a>
-            </label>
-            <button type="button" id="btnToggleShortcuts" class="text-xs bg-slate-100 dark:bg-dark-700 hover:bg-slate-200 dark:hover:bg-dark-600 text-slate-600 dark:text-slate-200 px-2 py-0.5 rounded transition-all active:scale-95">Hiện</button>
-          </div>
-          <div id="shortcutsTextareaContainer" class="hidden">
-            <textarea 
-              id="shortcuts" 
-              class="w-full border border-slate-300 dark:border-slate-600 rounded p-2 text-xs font-mono focus:ring-2 focus:ring-excel-800 bg-white dark:bg-dark-700 shadow-inner" 
-              style="height: 99px"
-              placeholder="Định nghĩa các phím tắt..."
-            ></textarea>
-          </div>
-          <p class="text-center mt-3 text-xs text-slate-400">
-            <a href="dothuong.html" class="hover:underline">copyright</a> © by 
-            <a href="ex.html" class="text-excel-800 dark:text-emerald-400 font-bold hover:underline">Angle</a>
-          </p>
-        </div>
+        <!-- Nhập tắt moved to bottom -->
 
       </div>
 
@@ -676,6 +655,29 @@
 
       </div>
 
+    </div>
+
+    <!-- SHORTCUTS PANEL (LOOKUP TABLE) -->
+    <div id="shortcutsPanel" class="hidden w-full bg-white dark:bg-dark-800 rounded-lg shadow-sm border border-slate-300 dark:border-slate-700 p-4 transition-all hover:shadow-md mt-4">
+      <div class="flex justify-between items-center mb-2">
+        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <i class="fa-solid fa-code text-excel-800 dark:text-emerald-400"></i>
+          <a href="nhaptat.html" class="text-excel-800 dark:text-emerald-400 hover:underline">Nhập tắt:</a>
+        </label>
+        <button type="button" id="btnToggleShortcuts" class="text-xs bg-slate-100 dark:bg-dark-700 hover:bg-slate-200 dark:hover:bg-dark-600 text-slate-600 dark:text-slate-200 px-2 py-0.5 rounded transition-all active:scale-95">Hiện</button>
+      </div>
+      <div id="shortcutsTextareaContainer" class="hidden">
+        <textarea 
+          id="shortcuts" 
+          class="w-full border border-slate-300 dark:border-slate-600 rounded p-2 text-xs font-mono focus:ring-2 focus:ring-excel-800 bg-white dark:bg-dark-700 shadow-inner" 
+          style="height: 99px"
+          placeholder="Định nghĩa các phím tắt..."
+        ></textarea>
+      </div>
+      <p class="text-center mt-3 text-xs text-slate-400">
+        <a href="dothuong.html" class="hover:underline">copyright</a> © by 
+        <a href="ex.html" class="text-excel-800 dark:text-emerald-400 font-bold hover:underline">Angle</a>
+      </p>
     </div>
 
   </main>
@@ -2465,6 +2467,19 @@ function loadAppState() {
     autoFetchToggle.checked = (savedAutoFetch === '1');
   } else if (autoFetchToggle) {
     autoFetchToggle.checked = false;
+  }
+
+  // Khắc phục lỗi hiển thị cả 2 (nhập thủ công & kết quả tự động) khi load lại trang
+  if (autoFetchToggle) {
+    const autoResultStatus = document.getElementById('autoResultStatus');
+    const manualFields = document.getElementById('manualFields');
+    if (autoFetchToggle.checked) {
+      if (autoResultStatus) autoResultStatus.classList.remove('hidden');
+      if (manualFields) manualFields.classList.add('hidden');
+    } else {
+      if (autoResultStatus) autoResultStatus.classList.add('hidden');
+      if (manualFields) manualFields.classList.remove('hidden');
+    }
   }
   
   if (autoFetchToggle && autoFetchToggle.checked) {
@@ -4854,14 +4869,17 @@ function setupEventListeners() {
 
   function adjustBaoCaoThauPosition(isChecked) {
     if (!cardsGrid || !baoCaoThauCard || !column2) return;
+    const mobileSubTab = document.getElementById('mobileSubTabContainer');
+    const refNode = mobileSubTab ? mobileSubTab : cardsGrid;
     if (isChecked) {
-      column2.insertBefore(baoCaoThauCard, cardsGrid);
+      column2.insertBefore(baoCaoThauCard, refNode);
     } else {
       column2.appendChild(baoCaoThauCard);
     }
   }
 
   if (toggleExtraPanels) {
+    // Khởi tạo vị trí ban đầu
     adjustBaoCaoThauPosition(toggleExtraPanels.checked);
 
     toggleExtraPanels.addEventListener('change', function() {
@@ -6094,6 +6112,51 @@ document.addEventListener("DOMContentLoaded", () => {
     initLotteryResultsToggle();
     checkDarkModePreference();
 
+    const shortcutsArea = document.getElementById('shortcuts');
+    const STORAGE_KEY = 'lucky_wheel_shortcuts';
+    const DATA_URL = 'https://raw.githubusercontent.com/doducdungvn/doducdungvn.github.io/refs/heads/main/nhaptat.txt';
+
+    if (shortcutsArea) {
+      const saveToStorage = () => {
+        localStorage.setItem(STORAGE_KEY, shortcutsArea.value);
+      };
+
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData !== null) {
+        shortcutsArea.value = savedData;
+      }
+
+      if (!shortcutsArea.value.trim()) {
+        fetch(DATA_URL)
+          .then(response => {
+            if (!response.ok) throw new Error('Kết nối thất bại');
+            return response.text();
+          })
+          .then(text => {
+            shortcutsArea.value = text;
+            saveToStorage();
+          })
+          .catch(error => {
+            console.error('Lỗi tải dữ liệu nhập tắt mặc định:', error);
+            shortcutsArea.placeholder = "Không thể tải dữ liệu mặc định. Vui lòng kiểm tra kết nối.";
+          });
+      }
+    }
+
+    const btnScrollTop = document.getElementById('btnScrollTop');
+    if (btnScrollTop) {
+      btnScrollTop.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    const btnScrollBottom = document.getElementById('btnScrollBottom');
+    if (btnScrollBottom) {
+      btnScrollBottom.addEventListener('click', function() {
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+      });
+    }
+
     // Auto-fetch results on page load is disabled by default
     // triggerAutoFetch();
   }
@@ -6203,45 +6266,6 @@ function resetTable() {
   if (totalCol1) totalCol1.textContent = '0';
 }
 </script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const shortcutsArea = document.getElementById('shortcuts');
-      const STORAGE_KEY = 'lucky_wheel_shortcuts';
-      const DATA_URL = 'https://raw.githubusercontent.com/doducdungvn/doducdungvn.github.io/refs/heads/main/nhaptat.txt';
-
-      // Nếu không tìm thấy ô nhập tắt thì dừng
-      if (!shortcutsArea) return;
-
-      // Hàm lưu vào LocalStorage
-      const saveToStorage = () => {
-        localStorage.setItem(STORAGE_KEY, shortcutsArea.value);
-      };
-
-      // 1. Tải dữ liệu từ LocalStorage ra trước
-      const savedData = localStorage.getItem(STORAGE_KEY);
-      if (savedData !== null) {
-        shortcutsArea.value = savedData;
-      }
-
-      // 2. Chỉ tải từ URL nếu ô nhập liệu TRỐNG (lần đầu hoặc đã xóa hết)
-      if (!shortcutsArea.value.trim()) {
-        fetch(DATA_URL)
-          .then(response => {
-            if (!response.ok) throw new Error('Kết nối thất bại');
-            return response.text();
-          })
-          .then(text => {
-            shortcutsArea.value = text;
-            saveToStorage(); // Lưu luôn dữ liệu mặc định vào storage
-          })
-          .catch(error => {
-            console.error('Lỗi tải dữ liệu nhập tắt mặc định:', error);
-            shortcutsArea.placeholder = "Không thể tải dữ liệu mặc định. Vui lòng kiểm tra kết nối.";
-          });
-      }
-    });
-  </script>
 
   <!-- Modal Cấu hình giá (Ported from thau_lode.html) -->
   <div id="modalPriceConfig" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/60 backdrop-blur-sm p-4">
@@ -6372,15 +6396,6 @@ function resetTable() {
       </svg>
     </button>
   </div>
-
-  <script>
-    document.getElementById('btnScrollTop').addEventListener('click', function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    document.getElementById('btnScrollBottom').addEventListener('click', function() {
-      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-    });
-  </script>
 </body>
 </html>
 
